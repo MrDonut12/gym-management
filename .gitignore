@@ -1,0 +1,68 @@
+# ---------- Maven / build output ----------
+target/
+dependency-reduced-pom.xml
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# ---------- Compiled / packaged artifacts ----------
+*.class
+*.war
+*.ear
+*.jar
+*.nar
+hs_err_pid*
+
+# ---------- NetBeans ----------
+nbproject/private/
+nbbuild/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+.nb-gradle/
+
+# ---------- IntelliJ IDEA ----------
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# ---------- Eclipse / STS ----------
+.classpath
+.project
+.settings/
+.apt_generated/
+.factorypath
+bin/
+
+# ---------- VS Code ----------
+.vscode/
+
+# ---------- Logs & temp ----------
+*.log
+logs/
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# ---------- OS files ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- Secrets / local config ----------
+# Keep db.properties out of git if it holds real credentials;
+# commit a db.properties.example instead.
+src/main/resources/db.properties
+.env
+.env.*
+*.pem
+*.key
+
+# ---------- Uploaded files at runtime (e.g. payment proofs) ----------
+uploads/
