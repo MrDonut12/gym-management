@@ -14,7 +14,7 @@ import java.io.IOException;
 @WebServlet(name = "MemberReportServlet", urlPatterns = {"/reports/members"})
 public class MemberReportServlet extends HttpServlet {
 
-    private static final String VIEW = "/WEB-INF/views/report/members.jsp";
+    private static final String VIEW = "/WEB-INF/report/members.jsp";
 
     private final ReportService reportService = new ReportService();
 

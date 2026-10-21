@@ -13,7 +13,7 @@ import java.io.IOException;
 @WebServlet(name = "HomeServlet", urlPatterns = {"/home"})
 public class HomeServlet extends HttpServlet {
 
-    private static final String VIEW = "/WEB-INF/views/home/dashboard.jsp";
+    private static final String VIEW = "/WEB-INF/home/dashboard.jsp";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

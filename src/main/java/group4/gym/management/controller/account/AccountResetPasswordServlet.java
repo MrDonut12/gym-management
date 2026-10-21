@@ -14,7 +14,7 @@ import java.io.IOException;
 @WebServlet(name = "AccountResetPasswordServlet", urlPatterns = {"/accounts/reset-password"})
 public class AccountResetPasswordServlet extends HttpServlet {
 
-    private static final String VIEW = "/WEB-INF/views/account/reset-password.jsp";
+    private static final String VIEW = "/WEB-INF/account/reset-password.jsp";
 
     private final AccountService accountService = new AccountService();
 

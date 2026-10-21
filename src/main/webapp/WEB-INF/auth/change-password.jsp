@@ -6,7 +6,7 @@
     Request attributes: fieldErrors (Map), error, message.
 --%>
 <c:set var="pageTitle" value="Change password" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Change password</h1>
 <form method="post" action="${pageContext.request.contextPath}/account/change-password" onsubmit="return validatePasswordForm(this);">
@@ -23,4 +23,4 @@
     <button type="submit">Save</button>
 </form>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

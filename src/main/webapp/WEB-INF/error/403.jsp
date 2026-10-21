@@ -6,9 +6,9 @@
     The action exceeds the permissions of the RBAC matrix (CN-05, CN-34).
 --%>
 <c:set var="pageTitle" value="Access denied" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>403 - Access denied</h1>
 <%-- TODO: Show a friendly message and a link back to /home. --%>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

@@ -7,7 +7,7 @@
     Request attributes: members (List<Member>), keyword, deletedFilter.
 --%>
 <c:set var="pageTitle" value="Members" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Members</h1>
 <%-- TODO: Show the "Create member" button only for Manager/Receptionist. --%>
@@ -33,4 +33,4 @@
     </tbody>
 </table>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

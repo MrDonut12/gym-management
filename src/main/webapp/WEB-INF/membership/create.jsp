@@ -8,7 +8,7 @@
     No start-date field (the start date is decided by the system when PAID; FUT-03).
 --%>
 <c:set var="pageTitle" value="Register / renew plan" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Register / renew plan</h1>
 <%-- TODO: Show the member's code, full name and phone (c:out). A soft-deleted member -> show a message and hide the form. --%>
@@ -30,4 +30,4 @@
     <button type="submit">Create registration (awaiting payment)</button>
 </form>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

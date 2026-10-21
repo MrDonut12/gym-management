@@ -7,7 +7,7 @@
     Request attributes: accounts (List<Account>), keyword, role, status, includeDeleted, roles (filter options).
 --%>
 <c:set var="pageTitle" value="Staff accounts" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Staff accounts</h1>
 <a href="${pageContext.request.contextPath}/accounts/create">Create account</a>
@@ -33,4 +33,4 @@
     </tbody>
 </table>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

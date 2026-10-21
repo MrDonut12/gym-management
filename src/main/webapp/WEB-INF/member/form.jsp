@@ -7,7 +7,7 @@
     Request attributes: mode (create|edit), member (Member), fieldErrors, error.
 --%>
 <c:set var="pageTitle" value="Member profile" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Member profile</h1>
 <%-- TODO: action = /members/create or /members/edit depending on mode. --%>
@@ -40,4 +40,4 @@
     <a href="${pageContext.request.contextPath}/members">Cancel</a>
 </form>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

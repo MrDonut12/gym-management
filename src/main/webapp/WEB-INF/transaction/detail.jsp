@@ -6,7 +6,7 @@
     Request attributes: transactionView (TransactionView), message, error.
 --%>
 <c:set var="pageTitle" value="Transaction details" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Transaction details</h1>
 <%-- TODO: Transaction ID, member, plan snapshot, amount snapshot, method, status, created_at, creator,
@@ -20,4 +20,4 @@
     <button type="submit">Cancel PENDING transaction</button>
 </form>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

@@ -8,7 +8,7 @@
                         planRevenues (List<PlanRevenueSummary>).
 --%>
 <c:set var="pageTitle" value="Revenue report" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Revenue report</h1>
 <form method="get" action="${pageContext.request.contextPath}/reports/revenue">
@@ -36,4 +36,4 @@
     <tbody><%-- TODO: c:forEach over planRevenues. --%></tbody>
 </table>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

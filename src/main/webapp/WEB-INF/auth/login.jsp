@@ -7,7 +7,7 @@
     No reCAPTCHA widget (CN-40 is Should (B) and is not part of this baseline).
 --%>
 <c:set var="pageTitle" value="Login" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Login</h1>
 <form method="post" action="${pageContext.request.contextPath}/login" onsubmit="return validateLoginForm(this);">
@@ -27,4 +27,4 @@
     <button type="submit">Login</button>
 </form>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

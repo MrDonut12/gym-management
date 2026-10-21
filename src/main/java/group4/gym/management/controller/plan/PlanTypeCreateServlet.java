@@ -14,7 +14,7 @@ import java.io.IOException;
 @WebServlet(name = "PlanTypeCreateServlet", urlPatterns = {"/plans/create"})
 public class PlanTypeCreateServlet extends HttpServlet {
 
-    private static final String VIEW = "/WEB-INF/views/plan/form.jsp";
+    private static final String VIEW = "/WEB-INF/plan/form.jsp";
 
     private final PlanTypeService planTypeService = new PlanTypeService();
 

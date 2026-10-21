@@ -6,7 +6,7 @@
     Request attributes: memberStatus (MemberStatusView).
 --%>
 <c:set var="pageTitle" value="Member details" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Member details</h1>
 
@@ -39,4 +39,4 @@
     <%-- TODO: Show the OPEN visit (if any) with its check-in time; link to the history /visits?memberId=. --%>
 </section>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>
