@@ -12,6 +12,6 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
 </head>
 <body>
-<jsp:include page="/WEB-INF/views/common/navbar.jsp"/>
+<jsp:include page="/WEB-INF/common/navbar.jsp"/>
 <main class="container">
-<jsp:include page="/WEB-INF/views/common/messages.jsp"/>
+<jsp:include page="/WEB-INF/common/messages.jsp"/>

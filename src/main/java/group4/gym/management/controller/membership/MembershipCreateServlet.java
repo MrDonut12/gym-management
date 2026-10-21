@@ -16,7 +16,7 @@ import java.io.IOException;
 @WebServlet(name = "MembershipCreateServlet", urlPatterns = {"/memberships/create"})
 public class MembershipCreateServlet extends HttpServlet {
 
-    private static final String VIEW = "/WEB-INF/views/membership/create.jsp";
+    private static final String VIEW = "/WEB-INF/membership/create.jsp";
 
     private final MemberService memberService = new MemberService();
     private final PlanTypeService planTypeService = new PlanTypeService();

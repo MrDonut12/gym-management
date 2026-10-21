@@ -6,7 +6,7 @@
     Request attributes: openVisits (List<VisitView>, after the catch-up close step), message, error.
 --%>
 <c:set var="pageTitle" value="Check-out" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Check-out</h1>
 <table class="table">
@@ -17,4 +17,4 @@
     </tbody>
 </table>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

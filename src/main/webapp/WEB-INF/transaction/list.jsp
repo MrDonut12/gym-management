@@ -7,7 +7,7 @@
     Request attributes: transactions (List<TransactionView>), filter (TransactionFilter).
 --%>
 <c:set var="pageTitle" value="Transactions" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Transactions</h1>
 <form method="get" action="${pageContext.request.contextPath}/transactions">
@@ -31,4 +31,4 @@
     </tbody>
 </table>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

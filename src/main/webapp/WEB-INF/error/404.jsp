@@ -6,9 +6,9 @@
     The path or data does not exist.
 --%>
 <c:set var="pageTitle" value="Not found" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>404 - Not found</h1>
 <%-- TODO: Show a friendly message and a link back to /home. --%>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

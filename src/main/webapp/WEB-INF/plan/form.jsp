@@ -7,7 +7,7 @@
     Request attributes: mode (create|edit), planType (PlanType), fieldErrors, error.
 --%>
 <c:set var="pageTitle" value="Plan type" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Plan type</h1>
 <%-- TODO: action = /plans/create or /plans/edit depending on mode. --%>
@@ -34,4 +34,4 @@
     <a href="${pageContext.request.contextPath}/plans">Cancel</a>
 </form>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

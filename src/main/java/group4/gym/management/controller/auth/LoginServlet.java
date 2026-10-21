@@ -14,7 +14,7 @@ import java.io.IOException;
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {
 
-    private static final String VIEW = "/WEB-INF/views/auth/login.jsp";
+    private static final String VIEW = "/WEB-INF/auth/login.jsp";
 
     private final AuthService authService = new AuthService();
 

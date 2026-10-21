@@ -7,7 +7,7 @@
     Request attributes: mode (create|edit), account (Account), assignableRoles (List<Role>), fieldErrors, error.
 --%>
 <c:set var="pageTitle" value="Account details" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Account details</h1>
 <%-- TODO: action = /accounts/create when mode = create, /accounts/edit when mode = edit. --%>
@@ -45,4 +45,4 @@
     <a href="${pageContext.request.contextPath}/accounts">Cancel</a>
 </form>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

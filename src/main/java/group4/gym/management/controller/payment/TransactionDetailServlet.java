@@ -14,7 +14,7 @@ import java.io.IOException;
 @WebServlet(name = "TransactionDetailServlet", urlPatterns = {"/transactions/detail"})
 public class TransactionDetailServlet extends HttpServlet {
 
-    private static final String VIEW = "/WEB-INF/views/transaction/detail.jsp";
+    private static final String VIEW = "/WEB-INF/transaction/detail.jsp";
 
     private final PaymentService paymentService = new PaymentService();
 

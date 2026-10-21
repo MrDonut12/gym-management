@@ -6,7 +6,7 @@
     Request attributes: fromDate, toDate, deletedFilter, statistics (MemberStatistics).
 --%>
 <c:set var="pageTitle" value="Member statistics" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Member statistics</h1>
 <form method="get" action="${pageContext.request.contextPath}/reports/members">
@@ -21,4 +21,4 @@
 </form>
 <%-- TODO: Show totalMembers (including soft-deleted), activeProfiles, deletedProfiles, newMembers (by profile creation date). --%>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

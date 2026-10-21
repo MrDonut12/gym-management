@@ -6,7 +6,7 @@
     Request attributes: fromDate, toDate, statistics (PurchaseStatistics).
 --%>
 <c:set var="pageTitle" value="Purchase statistics" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Purchase statistics</h1>
 <form method="get" action="${pageContext.request.contextPath}/reports/purchases">
@@ -17,4 +17,4 @@
 </form>
 <%-- TODO: Show newRegistrations and renewals. --%>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

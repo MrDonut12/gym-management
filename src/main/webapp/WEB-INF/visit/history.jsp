@@ -7,7 +7,7 @@
     No edit/cancel visit buttons (FUT-01).
 --%>
 <c:set var="pageTitle" value="Visit history" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Visit history</h1>
 <form method="get" action="${pageContext.request.contextPath}/visits">
@@ -33,4 +33,4 @@
     </tbody>
 </table>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

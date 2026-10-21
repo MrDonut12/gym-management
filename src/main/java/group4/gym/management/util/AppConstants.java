@@ -15,7 +15,7 @@ public final class AppConstants {
     public static final int SESSION_TIMEOUT_MINUTES = 60;
 
     /** Root folder of the JSP views. */
-    public static final String VIEW_ROOT = "/WEB-INF/views/";
+    public static final String VIEW_ROOT = "/WEB-INF/";
 
     /** Request attribute: general error message. */
     public static final String ATTR_ERROR = "error";

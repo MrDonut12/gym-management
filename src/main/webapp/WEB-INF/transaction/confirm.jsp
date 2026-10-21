@@ -7,7 +7,7 @@
     NO start-date input field (FUT-03).
 --%>
 <c:set var="pageTitle" value="Confirm payment" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Confirm payment</h1>
 <%-- TODO: Show the member, plan snapshot, amount due (snapshot) and current status.
@@ -31,4 +31,4 @@
     <button type="submit">Confirm PAID</button>
 </form>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

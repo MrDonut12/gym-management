@@ -6,7 +6,7 @@
     Request attributes: keyword, members (List<Member>, search results), message, error.
 --%>
 <c:set var="pageTitle" value="Check-in" scope="request"/>
-<jsp:include page="/WEB-INF/views/common/header.jsp"/>
+<jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Check-in</h1>
 <form method="get" action="${pageContext.request.contextPath}/visits/check-in">
@@ -22,4 +22,4 @@
     </tbody>
 </table>
 
-<jsp:include page="/WEB-INF/views/common/footer.jsp"/>
+<jsp:include page="/WEB-INF/common/footer.jsp"/>

@@ -14,7 +14,7 @@ import java.io.IOException;
 @WebServlet(name = "AccountCreateServlet", urlPatterns = {"/accounts/create"})
 public class AccountCreateServlet extends HttpServlet {
 
-    private static final String VIEW = "/WEB-INF/views/account/form.jsp";
+    private static final String VIEW = "/WEB-INF/account/form.jsp";
 
     private final AccountService accountService = new AccountService();
 

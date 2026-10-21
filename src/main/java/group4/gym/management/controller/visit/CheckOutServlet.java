@@ -14,7 +14,7 @@ import java.io.IOException;
 @WebServlet(name = "CheckOutServlet", urlPatterns = {"/visits/check-out"})
 public class CheckOutServlet extends HttpServlet {
 
-    private static final String VIEW = "/WEB-INF/views/visit/check-out.jsp";
+    private static final String VIEW = "/WEB-INF/visit/check-out.jsp";
 
     private final VisitService visitService = new VisitService();
 
