@@ -78,7 +78,8 @@ BEGIN TRY
         created_by INT NOT NULL CONSTRAINT FK_plan_types_created_by REFERENCES dbo.accounts(id),
         updated_at DATETIME2(0) NULL,
         updated_by INT NULL CONSTRAINT FK_plan_types_updated_by REFERENCES dbo.accounts(id),
-        CONSTRAINT UQ_plan_types_duration UNIQUE (duration_value,duration_unit),
+        -- SRS 3.4 / CN-09: different plans MAY share the same duration.
+        -- Name remains unique; only the four allowed duration combinations are checked.
         CONSTRAINT CK_plan_types_duration CHECK (
             (duration_value=1 AND duration_unit IN ('DAY','MONTH','YEAR'))
             OR (duration_value=6 AND duration_unit='MONTH')

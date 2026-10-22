@@ -6,7 +6,8 @@ These two scripts are intended for **SQL Server 2022** in a **fresh local develo
 
 1. Open `schema.sql` in SQL Server Management Studio (SSMS) or a SQL client that supports `GO` batch separators. Execute the entire file. It creates `GymDB` if needed and defines the six tables, PK/FK/CHECK/UNIQUE/DEFAULT constraints, filtered indexes and `seq_paid_sequence`.
 2. Open `seed.sql` and execute it. It checks the schema exists and every table is empty before writing any sample data.
-3. Read the verification query at the bottom of `seed.sql`. Expected rows:
+3. To test creation of a second plan with an existing duration, run `test_duplicate_duration.sql` after seeding. It performs an `INSERT` inside a transaction and then rolls it back.
+4. Read the verification query at the bottom of `seed.sql`. Expected rows:
 
 | Table | Expected rows |
 |---|---:|
@@ -20,6 +21,8 @@ These two scripts are intended for **SQL Server 2022** in a **fresh local develo
 Payment states: 22 `PAID`, 4 `PENDING`, 4 `CANCELLED`. Membership renewals: members 1 and 2 have consecutive monthly schedules. Visit states: 10 `COMPLETED`, 4 `AUTO_CLOSED`, 1 deliberately overdue `OPEN` to exercise lazy closure.
 
 **Safe behavior:** no `DROP DATABASE`, no `DROP TABLE`. Both scripts stop on detected existing schema/data rather than overwriting it. If `GymDB` already contains the tables created by `GymDB_Full_Setup.sql`, do **not** rerun `schema.sql` over it; use a separate empty test instance/database or prepare an explicit reviewed migration.
+
+**Existing DB migration:** If `GymDB` already exists and includes the old `UQ_plan_types_duration`, run `migration_drop_plan_duration_unique.sql` once after backing up the DB. It only drops the named duration UNIQUE and does not delete any tables or seed data. Also remove the same constraint from the repository’s `docs/sql_scripts/GymDB_Full_Setup.sql` before future fresh deployments; this ZIP does not modify your GitHub repository.
 
 ## Integration notes (read before coding DAO)
 
@@ -38,6 +41,7 @@ Demo account passwords are PBKDF2-HMAC-SHA256 hashes of the **test-only** passwo
 ### Scope and caveats
 
 - **Only 6 Must tables:** `accounts`, `members`, `plan_types`, `memberships`, `payment_transactions`, `visits`.
+- **SRS 3.4 / CN-09:** `plan_types` permits multiple different plan names with the same duration (`1 DAY`, `1 MONTH`, `6 MONTH`, `1 YEAR`). `CK_plan_types_duration` restricts these four combinations; `UQ_plan_types_name` restricts normalized names. Do **not** create `UQ_plan_types_duration`. The four seeded plan rows are examples, not the maximum plan count.
 - `VisitChanges`/`AuditLogs`, manual edit/cancel visit, timer-based auto-close, future start-date selection, and advanced concurrent confirmations are outside the v1.1 Must scope (FUT-01–04).
 - Required cross-table application transactions (create Membership + PENDING transaction; confirm PAID + schedule; lazy auto-close) are **not** implemented by these DDL/seed scripts.
 - `UNIQUE(membership_id)` enforces *at most* one PaymentTransaction per Membership; the service transaction ensures both records are created together.
