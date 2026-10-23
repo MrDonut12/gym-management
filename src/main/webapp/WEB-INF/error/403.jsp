@@ -9,6 +9,7 @@
 <jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>403 - Access denied</h1>
-<%-- TODO: Show a friendly message and a link back to /home. --%>
+<p>You do not have permission to access this page.</p>
+<a href="${pageContext.request.contextPath}/home">Back to home</a>
 
 <jsp:include page="/WEB-INF/common/footer.jsp"/>

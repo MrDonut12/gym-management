@@ -2,73 +2,97 @@ package group4.gym.management.security;
 
 import group4.gym.management.model.Account;
 import group4.gym.management.model.enums.Role;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Set;
+import static group4.gym.management.security.Permission.*;
 
-/**
- * Fixed authorization policy following the matrix in section 2.3 (CN-05, CN-34, QT-08).
- * Used by AuthorizationFilter (per URL) and by the service layer (per object scope).
- * There is no dynamic permission configuration.
- */
 public final class RbacPolicy {
-
-    private RbacPolicy() {
+    private static final Map<Role, Set<Permission>> PERMISSIONS = new EnumMap<>(Role.class);
+    static {
+        PERMISSIONS.put(Role.ADMINISTRATOR, EnumSet.of(CHANGE_OWN_PASSWORD, RESET_OTHER_PASSWORD, VIEW_ACCOUNTS, MANAGE_ACCOUNT, LOCK_UNLOCK_ACCOUNT, ASSIGN_ROLE, SOFT_DELETE_ACCOUNT));
+        PERMISSIONS.put(Role.OWNER, EnumSet.of(CHANGE_OWN_PASSWORD, VIEW_MEMBERS, SOFT_DELETE_MEMBER, VIEW_PLAN_TYPES, CREATE_PLAN_TYPE, UPDATE_PLAN_TYPE, VIEW_TRANSACTIONS, VIEW_VISIT_HISTORY, VIEW_REVENUE_REPORT, VIEW_MEMBER_REPORT));
+        PERMISSIONS.put(Role.MANAGER, EnumSet.of(CHANGE_OWN_PASSWORD, VIEW_ACCOUNTS, MANAGE_ACCOUNT, LOCK_UNLOCK_ACCOUNT, VIEW_MEMBERS, CREATE_UPDATE_MEMBER, SOFT_DELETE_MEMBER, VIEW_PLAN_TYPES, UPDATE_PLAN_TYPE, CREATE_MEMBERSHIP, CONFIRM_PAYMENT, CANCEL_PENDING_TRANSACTION, VIEW_TRANSACTIONS, CHECK_IN_OUT, VIEW_VISIT_HISTORY, VIEW_REVENUE_REPORT, VIEW_MEMBER_REPORT));
+        PERMISSIONS.put(Role.RECEPTIONIST, EnumSet.of(CHANGE_OWN_PASSWORD, VIEW_MEMBERS, CREATE_UPDATE_MEMBER, CREATE_MEMBERSHIP, CONFIRM_PAYMENT, CANCEL_PENDING_TRANSACTION, VIEW_TRANSACTIONS, CHECK_IN_OUT, VIEW_VISIT_HISTORY));
+        PERMISSIONS.put(Role.ACCOUNTANT, EnumSet.of(CHANGE_OWN_PASSWORD, VIEW_TRANSACTIONS, VIEW_REVENUE_REPORT));
     }
+    private RbacPolicy() { }
 
-    /**
-     * Whether the role may perform the action (a "C" cell in the matrix).
-     */
     public static boolean hasPermission(Role role, Permission permission) {
-        // TODO: Declare a fixed Role -> Set<Permission> mapping that mirrors matrix 2.3 and look it up.
-        // Output: true if the cell is C; false for K or "-".
-        return false;
+        return role != null && permission != null && PERMISSIONS.get(role).contains(permission);
     }
 
-    /**
-     * Determine the permission required for a servlet path (used in AuthorizationFilter).
-     *
-     * @param servletPath for example "/members/create"
-     * @param httpMethod  GET/POST
-     */
     public static Permission resolvePermission(String servletPath, String httpMethod) {
-        // TODO: Map the URLs of protected servlets -> Permission.
-        //       URLs that only require a login (for example /home, /logout) return null.
-        // Output: the required Permission; null if only a login is required.
-        return null;
+        if (servletPath == null) return null;
+        switch (servletPath) {
+            case "/account/change-password":
+                return CHANGE_OWN_PASSWORD;
+            case "/accounts/reset-password":
+                return RESET_OTHER_PASSWORD;
+            case "/accounts":
+                return VIEW_ACCOUNTS;
+            case "/accounts/create":
+            case "/accounts/edit":
+                return MANAGE_ACCOUNT;
+            case "/accounts/lock":
+                return LOCK_UNLOCK_ACCOUNT;
+            case "/accounts/delete":
+                return SOFT_DELETE_ACCOUNT;
+            case "/members":
+            case "/members/detail":
+                return VIEW_MEMBERS;
+            case "/members/create":
+            case "/members/edit":
+                return CREATE_UPDATE_MEMBER;
+            case "/members/delete":
+                return SOFT_DELETE_MEMBER;
+            case "/plans":
+                return VIEW_PLAN_TYPES;
+            case "/plans/create":
+                return CREATE_PLAN_TYPE;
+            case "/plans/edit":
+                return UPDATE_PLAN_TYPE;
+            case "/memberships/create":
+                return CREATE_MEMBERSHIP;
+            case "/transactions/confirm":
+                return CONFIRM_PAYMENT;
+            case "/transactions/cancel":
+                return CANCEL_PENDING_TRANSACTION;
+            case "/transactions":
+            case "/transactions/detail":
+                return VIEW_TRANSACTIONS;
+            case "/visits/check-in":
+            case "/visits/check-out":
+                return CHECK_IN_OUT;
+            case "/visits":
+                return VIEW_VISIT_HISTORY;
+            case "/reports/revenue":
+                return VIEW_REVENUE_REPORT;
+            case "/reports/members":
+            case "/reports/purchases":
+                return VIEW_MEMBER_REPORT;
+            default: return null;
+        }
     }
 
-    /**
-     * Whether the actor may manage (create/edit/lock/unlock) accounts of the target role.
-     * Administrator: any role; Manager: only Receptionist/Accountant; other roles: none.
-     */
     public static boolean canManageRole(Account actor, Role targetRole) {
-        // TODO: Check according to matrix 2.3 (a Manager cannot manage Administrator/Owner/Manager).
-        // Output: true if allowed.
-        return false;
+        return actor != null && targetRole != null && (actor.getRole() == Role.ADMINISTRATOR
+                || (actor.getRole() == Role.MANAGER
+                    && (targetRole == Role.RECEPTIONIST || targetRole == Role.ACCOUNTANT)));
     }
 
-    /**
-     * Whether the actor may act on the target account (includes forbidding self-deletion and privilege self-escalation).
-     */
     public static boolean canManageAccount(Account actor, Account target) {
-        // TODO: Combine canManageRole(actor, target.getRole()) with the self-action constraints.
-        // Output: true if allowed.
-        return false;
+        return target != null && canManageRole(actor, target.getRole())
+                && actor.getId() != null && target.getId() != null && !actor.getId().equals(target.getId());
     }
 
-    /**
-     * Whether the actor may assign a new role to the target account.
-     */
     public static boolean canAssignRole(Account actor, Account target, Role newRole) {
-        // TODO: Administrator only; forbid changing one's own role (privilege self-escalation).
-        // Output: true if allowed.
-        return false;
+        return actor != null && actor.getRole() == Role.ADMINISTRATOR && newRole != null
+                && canManageAccount(actor, target);
     }
 
-    /**
-     * Whether the actor may reset the target account's password.
-     */
     public static boolean canResetPassword(Account actor, Account target) {
-        // TODO: Administrator only, within the management scope; target must differ from actor.
-        // Output: true if allowed.
-        return false;
+        return actor != null && actor.getRole() == Role.ADMINISTRATOR && canManageAccount(actor, target);
     }
 }

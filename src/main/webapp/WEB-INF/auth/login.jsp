@@ -12,16 +12,14 @@
 <h1>Login</h1>
 <form method="post" action="${pageContext.request.contextPath}/login" onsubmit="return validateLoginForm(this);">
     <label for="username">Username</label>
-    <%-- TODO: Pre-fill the value with c:out from requestScope.username. --%>
-    <input type="text" id="username" name="username" maxlength="50">
+    <input type="text" id="username" name="username" maxlength="50" required autocomplete="username" value="<c:out value='${requestScope.username}'/>">
 
     <label for="password">Password</label>
     <%-- The password must never be pre-filled. --%>
-    <input type="password" id="password" name="password">
+    <input type="password" id="password" name="password" required autocomplete="current-password">
 
     <label>
-        <%-- TODO: Mark as checked when requestScope.rememberChecked = true. --%>
-        <input type="checkbox" name="rememberUsername" value="true"> Remember username
+        <input type="checkbox" name="rememberUsername" value="true" ${requestScope.rememberChecked ? 'checked' : ''}> Remember username
     </label>
 
     <button type="submit">Login</button>

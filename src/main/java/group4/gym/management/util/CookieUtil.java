@@ -1,5 +1,10 @@
 package group4.gym.management.util;
 
+import jakarta.servlet.http.Cookie;
+import java.net.URLEncoder;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -23,10 +28,7 @@ public final class CookieUtil {
      * Send the gym_username cookie after a successful login when "Remember username" is checked.
      */
     public static void addRememberUsernameCookie(HttpServletRequest request, HttpServletResponse response, String username) {
-        // TODO: Create Cookie(REMEMBER_USERNAME_COOKIE, URLEncoder.encode(username, UTF-8)); MaxAge 30 days;
-        //       Path = request.getContextPath(); HttpOnly = true; SameSite = Lax (cookie.setAttribute);
-        //       Secure = request.isSecure(); response.addCookie(...).
-        // Output: nothing returned; the response carries a Set-Cookie header with the correct attributes.
+        writeCookie(request, response, URLEncoder.encode(username, StandardCharsets.UTF_8), REMEMBER_USERNAME_MAX_AGE);
     }
 
     /**
@@ -34,16 +36,31 @@ public final class CookieUtil {
      * Must not be called on a failed login or on logout.
      */
     public static void clearRememberUsernameCookie(HttpServletRequest request, HttpServletResponse response) {
-        // TODO: Create a cookie with the same name/Path, empty value, MaxAge = 0, HttpOnly, SameSite=Lax; response.addCookie(...).
-        // Output: nothing returned; the browser removes the cookie.
+        writeCookie(request, response, "", 0);
     }
 
     /**
      * Read the remembered username to pre-fill the login page.
      */
     public static String getRememberedUsername(HttpServletRequest request) {
-        // TODO: Iterate request.getCookies(), find REMEMBER_USERNAME_COOKIE and URLDecoder.decode its value.
-        // Output: the decoded username; null if there is no cookie.
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (REMEMBER_USERNAME_COOKIE.equals(cookie.getName())) {
+                    try {
+                        return URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8);
+                    } catch (IllegalArgumentException ex) {
+                        return null;
+                    }
+                }
+            }
+        }
         return null;
+    }
+    private static void writeCookie(HttpServletRequest request, HttpServletResponse response, String value, int maxAge) {
+        String path = request.getContextPath().isEmpty() ? "/" : request.getContextPath();
+        response.addHeader("Set-Cookie", REMEMBER_USERNAME_COOKIE + "=" + value
+                + "; Max-Age=" + maxAge + "; Path=" + path + "; HttpOnly; SameSite=Lax"
+                + (request.isSecure() ? "; Secure" : ""));
     }
 }

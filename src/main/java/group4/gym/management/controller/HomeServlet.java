@@ -18,7 +18,6 @@ public class HomeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Get the current account (SessionUtil.getCurrentAccount) and put it into the request so the JSP can render the role-based menu.
-        // Output: forward to VIEW.
+        request.getRequestDispatcher(VIEW).forward(request, response);
     }
 }
