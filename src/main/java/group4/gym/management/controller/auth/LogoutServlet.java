@@ -1,5 +1,7 @@
 package group4.gym.management.controller.auth;
 
+import group4.gym.management.util.SessionUtil;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -16,14 +18,13 @@ public class LogoutServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Do not change state via GET; redirect to /home or return 405 (team to decide).
-        // Output: redirect or 405.
+        response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: SessionUtil.invalidate(request) to invalidate the current session.
-        // Output: redirect to /login.
+        SessionUtil.invalidate(request);
+        response.sendRedirect(request.getContextPath() + "/login");
     }
 }

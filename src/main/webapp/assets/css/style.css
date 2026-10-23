@@ -1,5 +1,23 @@
-/*
- * Shared styles.
- * TODO: Define styles for .navbar, .container, form/label/input, .table, .alert-error, .alert-success,
- *       .field-error, .hint and the print area (@media print) if needed.
- */
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, sans-serif; color: #172b3a; background: #f4f6f8; line-height: 1.5; }
+a { color: #125aa1; }
+.navbar { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; padding: 1rem; background: #17354a; color: white; }
+.navbar a { color: white; }
+.brand { font-weight: bold; }
+.container { max-width: 1100px; margin: 2rem auto; padding: 1.5rem; background: white; }
+form { max-width: 540px; }
+label { display: block; margin-top: 1rem; }
+input:not([type=checkbox]):not([type=radio]), select, textarea { width: 100%; padding: .65rem; border: 1px solid #687d8c; border-radius: 4px; font: inherit; }
+button, .button { display: inline-block; padding: .65rem 1rem; border: 0; border-radius: 4px; background: #125aa1; color: white; cursor: pointer; font: inherit; }
+form button { margin-top: 1rem; }
+.navbar form button { margin: 0; }
+:focus-visible { outline: 3px solid #cc7300; outline-offset: 3px; }
+.table, table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: .65rem; border-bottom: 1px solid #ccd5dc; }
+.alert { padding: 1rem; margin-bottom: 1rem; border-radius: 4px; }
+.alert-error { color: #8b1616; background: #ffe9e9; }
+.alert-success { color: #15562d; background: #e1f5e7; }
+.field-error { color: #a31515; }
+.hint { color: #4c5c67; }
+.quick-links { display: flex; flex-wrap: wrap; gap: 1rem; }
+@media (max-width: 600px) { .container { margin: 1rem; padding: 1rem; } }

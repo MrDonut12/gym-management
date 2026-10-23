@@ -8,14 +8,14 @@ import java.util.logging.Logger;
 
 /**
  * Provide connection to database
- * 
+ *
  * @author Nguyen Sy Nguyen
  */
 public class DBContext {
     private Connection conn;
-    private final String DB_URL = "jdbc:sqlserver://127.0.0.1:1433;databaseName=DATABASE_NAME_PLACEHOLDER;encrypt=false";
+    private final String DB_URL = "jdbc:sqlserver://127.0.0.1:1433;databaseName=GymDB;encrypt=false";
     private final String DB_USER = "sa";
-    private final String DB_PWD = "SA_PASSWORD_PLACEHOLDER";
+    private final String DB_PWD = "StrongPassw0rd!123";
 
     public DBContext() {
         try {

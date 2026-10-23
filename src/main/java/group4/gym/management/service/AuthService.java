@@ -1,5 +1,8 @@
 package group4.gym.management.service;
 
+import group4.gym.management.model.enums.AccountStatus;
+import group4.gym.management.util.PasswordUtil;
+
 import group4.gym.management.dao.AccountDAO;
 import group4.gym.management.model.Account;
 
@@ -15,9 +18,12 @@ public class AuthService {
      * LOCKED or soft-deleted accounts are rejected; the error message is generic and does not reveal whether the username exists.
      */
     public Account authenticate(String username, String rawPassword) {
-        // TODO: accountDAO.findByUsername; check it exists, status is ACTIVE and it is not soft-deleted; PasswordUtil.verify.
-        // Output: the Account if the login is valid; null otherwise.
-        return null;
+        if (username == null || username.trim().isEmpty() || rawPassword == null || rawPassword.isEmpty()) return null;
+        Account account = accountDAO.findByUsername(username.trim());
+        if (account == null || account.isDeleted() || account.getStatus() != AccountStatus.ACTIVE
+                || !PasswordUtil.verify(rawPassword, account.getPasswordHash())) return null;
+        account.setPasswordHash(null);
+        return account;
     }
 
     /**
@@ -25,8 +31,9 @@ public class AuthService {
      * AuthenticationFilter treats a null result as a reason to invalidate the session (session table in section 3.1.1).
      */
     public Account loadActiveAccount(int accountId) {
-        // TODO: accountDAO.findById; check status ACTIVE and !deleted.
-        // Output: the valid Account; null if locked/soft-deleted/not found.
-        return null;
+        Account account = accountDAO.findById(accountId);
+        if (account == null || account.isDeleted() || account.getStatus() != AccountStatus.ACTIVE) return null;
+        account.setPasswordHash(null);
+        return account;
     }
 }
