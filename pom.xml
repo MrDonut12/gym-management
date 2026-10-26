@@ -6,20 +6,29 @@
     <version>1.0.0</version>
     <packaging>war</packaging>
     <name>gym-management-1.0.0</name>
-    
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jakartaee>10.0.0</jakartaee>
+        <!-- SRS 1.4: JDK 21 -->
+        <maven.compiler.release>21</maven.compiler.release>
     </properties>
-    
+
     <dependencies>
+        <!-- SRS 1.4: Apache Tomcat 10.1 = Servlet 6.0 / JSP 3.1 (provided by Tomcat).
+             Only the Servlet/JSP APIs are used: no JPA, JAX-RS or CDI (Tomcat does not ship them). -->
         <dependency>
-            <groupId>jakarta.platform</groupId>
-            <artifactId>jakarta.jakartaee-api</artifactId>
-            <version>${jakartaee}</version>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
             <scope>provided</scope>
         </dependency>
-        <!-- JDBC driver for Microsoft SQL Server 2022 (CL-03) -->
+        <dependency>
+            <groupId>jakarta.servlet.jsp</groupId>
+            <artifactId>jakarta.servlet.jsp-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- JDBC driver for Microsoft SQL Server 2022 (SRS 1.4, CL-09) -->
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
@@ -37,7 +46,7 @@
             <version>3.0.1</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -45,8 +54,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <release>21</release>
                 </configuration>
             </plugin>
             <plugin>

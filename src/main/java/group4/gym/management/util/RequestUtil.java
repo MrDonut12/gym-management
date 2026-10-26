@@ -12,11 +12,20 @@ public final class RequestUtil {
     }
 
     /**
-     * Read a trimmed string parameter.
+     * Read a trimmed string parameter (full name, email, package name, cancel reason, keyword; section 6).
      */
     public static String getString(HttpServletRequest request, String name) {
         // TODO: request.getParameter(name), trim; an empty string -> null.
         // Output: the trimmed string or null.
+        return null;
+    }
+
+    /**
+     * Read a string parameter exactly as sent: username and password are NOT trimmed (section 6, HL-09).
+     */
+    public static String getRawString(HttpServletRequest request, String name) {
+        // TODO: request.getParameter(name) unchanged.
+        // Output: the raw string or null.
         return null;
     }
 
@@ -30,38 +39,38 @@ public final class RequestUtil {
     }
 
     /**
-     * Read a long parameter (money amounts).
+     * Read an ID from the URL/form (HL-17).
      */
-    public static Long getLong(HttpServletRequest request, String name) {
-        // TODO: Parse a Long; a bad format or empty value -> null.
-        // Output: Long or null.
+    public static Integer getPositiveId(HttpServletRequest request, String name) {
+        // TODO: getInteger; value <= 0 -> null. The servlet answers 404 when the result is null.
+        // Output: a positive Integer or null.
         return null;
+    }
+
+    /**
+     * Read the page number (HL-07).
+     */
+    public static int getPage(HttpServletRequest request) {
+        // TODO: getInteger(request, "page"); null or < 1 -> 1.
+        // Output: a page number >= 1.
+        return 1;
     }
 
     /**
      * Read a date parameter.
      */
     public static LocalDate getDate(HttpServletRequest request, String name) {
-        // TODO: Use DateTimeUtil.parseDate.
-        // Output: LocalDate or null.
+        // TODO: DateTimeUtil.parseDate(request.getParameter(name)); an invalid value propagates DateTimeParseException.
+        // Output: LocalDate or null when blank.
         return null;
     }
 
     /**
-     * Read an enum parameter by constant name.
+     * Read an enum parameter by constant name (role, status, payment method...; HL-10, HL-14).
      */
     public static <E extends Enum<E>> E getEnum(HttpServletRequest request, String name, Class<E> enumType) {
-        // TODO: Enum.valueOf(enumType, value); an invalid value -> null.
+        // TODO: Enum.valueOf(enumType, value); an invalid or empty value -> null.
         // Output: the enum constant or null.
         return null;
-    }
-
-    /**
-     * Whether the request is a POST (state-changing actions accept POST only).
-     */
-    public static boolean isPost(HttpServletRequest request) {
-        // TODO: Compare request.getMethod() with "POST".
-        // Output: true if POST.
-        return false;
     }
 }

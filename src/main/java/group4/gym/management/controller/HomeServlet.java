@@ -8,17 +8,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Home page after login; shows the menu according to the user's role.
+ * Home page by role after login (section 2.4): ADMIN -> account list (CN-05), MANAGER -> member overview (CN-28),
+ * RECEPTIONIST -> member list (CN-11). Any logged-in role.
  */
 @WebServlet(name = "HomeServlet", urlPatterns = {"/home"})
 public class HomeServlet extends HttpServlet {
 
-    private static final String VIEW = "/WEB-INF/home/dashboard.jsp";
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Get the current account (SessionUtil.getCurrentAccount) and put it into the request so the JSP can render the role-based menu.
-        // Output: forward to VIEW.
+        // TODO: SessionUtil.getSessionUser(request).getRole():
+        //       ADMIN -> redirect /admin/accounts; MANAGER -> /manager/overview; RECEPTIONIST -> /staff/members.
+        // Output: redirect to the role's home page.
     }
 }

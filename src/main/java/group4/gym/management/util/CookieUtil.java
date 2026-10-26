@@ -4,9 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Remember-username cookie (CN-37, QT-29).
- * Contains only the URL-encoded username; never a password, session ID or role.
- * The backend never uses this cookie for authentication/authorization; the cookie does not log the user in.
+ * Remember-username cookie (CN-04, QT-17, CL-05).
+ * Contains only the username; never a password, role or any authentication data.
+ * The cookie never logs the user in: the password must always be entered.
  */
 public final class CookieUtil {
 
@@ -20,21 +20,20 @@ public final class CookieUtil {
     }
 
     /**
-     * Send the gym_username cookie after a successful login when "Remember username" is checked.
+     * Send the gym_username cookie after a successful login with "Remember username" checked.
      */
     public static void addRememberUsernameCookie(HttpServletRequest request, HttpServletResponse response, String username) {
-        // TODO: Create Cookie(REMEMBER_USERNAME_COOKIE, URLEncoder.encode(username, UTF-8)); MaxAge 30 days;
-        //       Path = request.getContextPath(); HttpOnly = true; SameSite = Lax (cookie.setAttribute);
-        //       Secure = request.isSecure(); response.addCookie(...).
+        // TODO: new Cookie(REMEMBER_USERNAME_COOKIE, username) (HL-08 characters are cookie-safe);
+        //       MaxAge = REMEMBER_USERNAME_MAX_AGE; Path = request.getContextPath(); HttpOnly = true; response.addCookie(...).
         // Output: nothing returned; the response carries a Set-Cookie header with the correct attributes.
     }
 
     /**
-     * Delete the gym_username cookie after a successful login with the box unchecked (Max-Age=0).
-     * Must not be called on a failed login or on logout.
+     * Delete the gym_username cookie after a successful login with the box unchecked (Max-Age = 0).
+     * Must not be called on a failed login or on logout (QT-17).
      */
     public static void clearRememberUsernameCookie(HttpServletRequest request, HttpServletResponse response) {
-        // TODO: Create a cookie with the same name/Path, empty value, MaxAge = 0, HttpOnly, SameSite=Lax; response.addCookie(...).
+        // TODO: Cookie with the same name and Path, empty value, MaxAge = 0, HttpOnly; response.addCookie(...).
         // Output: nothing returned; the browser removes the cookie.
     }
 
@@ -42,8 +41,10 @@ public final class CookieUtil {
      * Read the remembered username to pre-fill the login page.
      */
     public static String getRememberedUsername(HttpServletRequest request) {
-        // TODO: Iterate request.getCookies(), find REMEMBER_USERNAME_COOKIE and URLDecoder.decode its value.
-        // Output: the decoded username; null if there is no cookie.
+        // TODO: Iterate request.getCookies() (may be null) and find REMEMBER_USERNAME_COOKIE;
+        //       a value that fails ValidationUtil.isValidUsername (HL-08) is ignored (KT-04: <script>alert(1)</script>).
+        //       The JSP still escapes the value with c:out (CL-04).
+        // Output: the username; null if there is no cookie or the value is invalid.
         return null;
     }
 }

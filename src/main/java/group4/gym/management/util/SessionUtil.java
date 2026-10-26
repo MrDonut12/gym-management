@@ -1,10 +1,12 @@
 package group4.gym.management.util;
 
-import group4.gym.management.model.Account;
+import group4.gym.management.model.account.Account;
+import group4.gym.management.model.account.SessionUser;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * HttpSession/JSESSIONID helpers (CN-01, CN-02, CN-03).
+ * HttpSession helpers (CN-01, CN-02, CN-03) and flash messages for Post/Redirect/Get (CL-07).
+ * Sessions are never stored in the database.
  */
 public final class SessionUtil {
 
@@ -12,16 +14,17 @@ public final class SessionUtil {
     }
 
     /**
-     * Establish the session after a successful login.
+     * Establish the session after a successful login (CN-01).
      */
     public static void login(HttpServletRequest request, Account account) {
-        // TODO: Create/get the session, call request.changeSessionId() to change the session ID (prevents session fixation),
-        //       store AppConstants.SESSION_ACCOUNT_ID = account.getId(), setMaxInactiveInterval(60 minutes).
-        // Output: nothing returned; the session holds the account ID.
+        // TODO: request.getSession(true); request.changeSessionId() (prevents session fixation, KT-01);
+        //       store AppConstants.SESSION_USER = new SessionUser(id, username, fullName, role);
+        //       setMaxInactiveInterval(AppConstants.SESSION_TIMEOUT_MINUTES * 60).
+        // Output: nothing returned; the session holds the SessionUser.
     }
 
     /**
-     * Invalidate the current session (logout, or when an account is locked/soft-deleted mid-session).
+     * Invalidate the current session (logout, or when AuthFilter detects LOCKED / changed role / DB error).
      */
     public static void invalidate(HttpServletRequest request) {
         // TODO: request.getSession(false); if it is not null, call invalidate().
@@ -29,20 +32,27 @@ public final class SessionUtil {
     }
 
     /**
-     * Get the logged-in account ID from the session.
+     * Get the logged-in user from the session.
      */
-    public static Integer getAccountId(HttpServletRequest request) {
-        // TODO: Read the SESSION_ACCOUNT_ID attribute from the existing session (do not create a new session).
-        // Output: the Integer ID; null if not logged in or the session expired.
+    public static SessionUser getSessionUser(HttpServletRequest request) {
+        // TODO: Read AppConstants.SESSION_USER from the existing session (do not create a new session).
+        // Output: the SessionUser; null if not logged in or the session expired.
         return null;
     }
 
     /**
-     * Get the current account reloaded from the DB by AuthenticationFilter for this request.
+     * Store a success message shown once on the page after the redirect (CL-07). common/messages.jsp displays and removes it.
      */
-    public static Account getCurrentAccount(HttpServletRequest request) {
-        // TODO: Read the request attribute AppConstants.REQUEST_CURRENT_ACCOUNT.
-        // Output: the current Account; null if not authenticated.
-        return null;
+    public static void flashMessage(HttpServletRequest request, String message) {
+        // TODO: request.getSession().setAttribute(AppConstants.FLASH_MESSAGE, message).
+        // Output: nothing returned.
+    }
+
+    /**
+     * Store an error message shown once on the page after the redirect (CL-07).
+     */
+    public static void flashError(HttpServletRequest request, String message) {
+        // TODO: request.getSession().setAttribute(AppConstants.FLASH_ERROR, message).
+        // Output: nothing returned.
     }
 }

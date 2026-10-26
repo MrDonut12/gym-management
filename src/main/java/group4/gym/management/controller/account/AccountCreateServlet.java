@@ -1,6 +1,6 @@
 package group4.gym.management.controller.account;
 
-import group4.gym.management.service.AccountService;
+import group4.gym.management.service.account.AccountService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -9,9 +9,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Create a staff account (CN-04, CN-35). A Manager can only create Receptionist/Accountant accounts.
+ * Create a staff account (CN-06). ADMIN only.
  */
-@WebServlet(name = "AccountCreateServlet", urlPatterns = {"/accounts/create"})
+@WebServlet(name = "AccountCreateServlet", urlPatterns = {"/admin/accounts/create"})
 public class AccountCreateServlet extends HttpServlet {
 
     private static final String VIEW = "/WEB-INF/account/form.jsp";
@@ -21,15 +21,15 @@ public class AccountCreateServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Set mode = create and the roles the actor may assign on the request.
+        // TODO: Set mode = create and roles = Role.values() on the request.
         // Output: forward to VIEW.
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Read username, password, confirmPassword, fullName, phone, email, role -> Account.
-        //       accountService.createAccount; catch ValidationException/AccessDeniedException/BusinessRuleException.
-        // Output: success: redirect to /accounts; failure: forward to VIEW keeping the entered data (except passwords) with errors.
+        // TODO: username, password, confirmPassword via getRawString; fullName, phone, email via getString; role via getEnum.
+        //       accountService.createAccount(sessionUser, account, password, confirmPassword); catch ValidationException.
+        // Output: success: flash + redirect to /admin/accounts; failure: forward to VIEW keeping the values (except passwords) with fieldErrors.
     }
 }

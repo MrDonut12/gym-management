@@ -1,5 +1,4 @@
 /*
- * Shared styles.
- * TODO: Define styles for .navbar, .container, form/label/input, .table, .alert-error, .alert-success,
- *       .field-error, .hint and the print area (@media print) if needed.
+ * Project styles on top of Bootstrap 5 (served from /assets/vendor/bootstrap, CL-11).
+ * TODO: Only small additions here: .field-error, .hint, badges for registration/membership status.
  */
