@@ -140,7 +140,7 @@ Các quy tắc chi tiết hơn tiền tố URL (lọc hồ sơ đã xóa, gói n
 4. Mỗi thành viên tạo `src/main/resources/db.properties` từ `db.properties.example`.
 5. `.gitignore` còn mục `uploads/` dành cho ảnh minh chứng (đã ngoài phạm vi); có thể xóa.
 
-## 8. Quyết định cần nhóm xác nhận
+## 8. Một số quyết định đã thực hiện ở những điểm SRS không nói rõ (có thể cần xác nhận lại)
 
 - Tên package phân hệ D là `payment`, gồm cả báo cáo (CN-26 – CN-28).
 - Phân hệ A gộp `auth` vào `account` để mỗi phân hệ có một package.
