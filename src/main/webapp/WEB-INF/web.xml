@@ -6,28 +6,24 @@
 
     <display-name>Gym Management</display-name>
 
-    <!-- CN-03: the session expires after 60 minutes of inactivity; JSESSIONID is HttpOnly and tracked by cookie only -->
+    <!-- CN-03, CL-05: the session expires after 30 minutes of inactivity; JSESSIONID is HttpOnly and tracked by cookie only.
+         Keep in sync with AppConstants.SESSION_TIMEOUT_MINUTES. -->
     <session-config>
-        <session-timeout>60</session-timeout>
+        <session-timeout>30</session-timeout>
         <cookie-config>
             <http-only>true</http-only>
-            <!-- TODO: enable <secure>true</secure> when deploying over HTTPS (CL-07) -->
         </cookie-config>
         <tracking-mode>COOKIE</tracking-mode>
     </session-config>
 
-    <!-- Filter order: Encoding -> Authentication -> Authorization (declared here to fix the order) -->
+    <!-- Filter order: Encoding -> Auth (declared here to fix the order) -->
     <filter>
         <filter-name>EncodingFilter</filter-name>
         <filter-class>group4.gym.management.filter.EncodingFilter</filter-class>
     </filter>
     <filter>
-        <filter-name>AuthenticationFilter</filter-name>
-        <filter-class>group4.gym.management.filter.AuthenticationFilter</filter-class>
-    </filter>
-    <filter>
-        <filter-name>AuthorizationFilter</filter-name>
-        <filter-class>group4.gym.management.filter.AuthorizationFilter</filter-class>
+        <filter-name>AuthFilter</filter-name>
+        <filter-class>group4.gym.management.filter.AuthFilter</filter-class>
     </filter>
 
     <filter-mapping>
@@ -35,14 +31,15 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     <filter-mapping>
-        <filter-name>AuthenticationFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>AuthorizationFilter</filter-name>
+        <filter-name>AuthFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+
+    <!-- CL-08: shared error pages; never show stack traces or SQL errors to the user -->
     <error-page>
         <error-code>403</error-code>
         <location>/WEB-INF/error/403.jsp</location>
@@ -53,6 +50,10 @@
     </error-page>
     <error-page>
         <error-code>500</error-code>
+        <location>/WEB-INF/error/500.jsp</location>
+    </error-page>
+    <error-page>
+        <exception-type>java.lang.Throwable</exception-type>
         <location>/WEB-INF/error/500.jsp</location>
     </error-page>
 </web-app>

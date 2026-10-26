@@ -1,8 +1,9 @@
 package group4.gym.management.exception;
 
 /**
- * Business rule violation (section 3.2), for example: check-in at or after 20:00, expired plan,
- * soft-deleted member, duplicate PAID confirmation, check-out without an OPEN visit.
+ * Business rule violation (section 4), for example: registration is no longer PENDING (QT-02),
+ * package is not on sale (QT-04), member is soft-deleted (QT-11), soft-delete blocked by an unexpired PAID (QT-09),
+ * self-lock/self-role-change (QT-14).
  */
 public class BusinessRuleException extends AppException {
 

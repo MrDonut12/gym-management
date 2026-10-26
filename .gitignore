@@ -66,3 +66,6 @@ src/main/resources/db.properties
 
 # ---------- Uploaded files at runtime (e.g. payment proofs) ----------
 uploads/
+
+# ---------- Other ----------
+docs/ignored/

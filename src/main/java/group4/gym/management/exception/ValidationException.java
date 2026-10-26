@@ -3,7 +3,8 @@ package group4.gym.management.exception;
 import java.util.Map;
 
 /**
- * Invalid input according to section 3.4 (CN-30). Invalid data is rejected and never saved.
+ * Invalid input according to section 6 (HL-01 to HL-17). Invalid data is rejected and never saved;
+ * the form is shown again with the entered values (except passwords) and an error next to each field.
  */
 public class ValidationException extends AppException {
 

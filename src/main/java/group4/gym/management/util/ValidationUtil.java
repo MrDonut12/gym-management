@@ -1,112 +1,16 @@
 package group4.gym.management.util;
 
-import group4.gym.management.model.Account;
-import group4.gym.management.model.Member;
-import group4.gym.management.model.PlanType;
 import java.time.LocalDate;
-import java.util.Map;
 
 /**
- * Backend validation according to section 3.4 (CN-30). The backend never trusts client-side validation.
- * The validateXxx methods return a Map of errors per field (empty = valid); duplicate checks (phone, username,
- * plan name) need database queries and are therefore done in the service layer.
+ * Field-level backend validation according to section 6 (shared utility, owner TV3). The backend never trusts the client.
+ * Each service builds its own Map of field errors from these checks; duplicate checks (phone, username,
+ * package name) need database queries and are therefore done in the service layer.
+ * Full name, email, package name and cancel reason are trimmed BEFORE calling these methods; username and password are not.
  */
 public final class ValidationUtil {
 
     private ValidationUtil() {
-    }
-
-    /**
-     * Validate a member profile: full name, phone, email, date of birth, gender.
-     */
-    public static Map<String, String> validateMember(Member member) {
-        // TODO: Call isValidFullName, isValidMemberPhone, isValidEmail (if provided), isNotFutureDate (if provided).
-        // Output: Map<field name, error message>; an empty Map when valid.
-        return null;
-    }
-
-    /**
-     * Validate staff account data (DL-07): username, full name, phone, role, email.
-     *
-     * @param rawPassword the password when creating; null when updating
-     * @param isCreate    true for a create operation
-     */
-    public static Map<String, String> validateAccount(Account account, String rawPassword, boolean isCreate) {
-        // TODO: Check required fields, isValidStaffPhone, isValidEmail (if provided), role not null; check the password on create.
-        // Output: Map<field name, error message>; an empty Map when valid.
-        return null;
-    }
-
-    /**
-     * Validate a plan type: name, positive integer price, positive duration within the fixed catalog.
-     */
-    public static Map<String, String> validatePlanType(PlanType planType) {
-        // TODO: Check name not blank, price > 0, durationValue > 0, (durationValue, durationUnit) in 1 day/1 month/6 months/1 year.
-        // Output: Map<field name, error message>; an empty Map when valid.
-        return null;
-    }
-
-    /**
-     * Validate a new password and its confirmation (CN-36).
-     */
-    public static Map<String, String> validateNewPassword(String newPassword, String confirmPassword) {
-        // TODO: Check not blank, meets the minimum length agreed by the team, and equals confirmPassword.
-        // Output: Map<field name, error message>; an empty Map when valid.
-        return null;
-    }
-
-    /**
-     * Full name: 2-100 characters, not only whitespace.
-     */
-    public static boolean isValidFullName(String fullName) {
-        // TODO: Trim, then check the length is within 2..100.
-        // Output: true if valid.
-        return false;
-    }
-
-    /**
-     * Member phone: exactly 10 digits, starting with 0; carrier prefixes are not checked.
-     */
-    public static boolean isValidMemberPhone(String phone) {
-        // TODO: Check the regex ^0\d{9}$.
-        // Output: true if valid.
-        return false;
-    }
-
-    /**
-     * Staff phone: exactly 10 digits (not required to start with 0).
-     */
-    public static boolean isValidStaffPhone(String phone) {
-        // TODO: Check the regex ^\d{10}$.
-        // Output: true if valid.
-        return false;
-    }
-
-    /**
-     * Email: valid format, at most 254 characters (only checked when provided).
-     */
-    public static boolean isValidEmail(String email) {
-        // TODO: Check length <= 254 and the email format.
-        // Output: true if valid.
-        return false;
-    }
-
-    /**
-     * Date not after the current date (Vietnam time).
-     */
-    public static boolean isNotFutureDate(LocalDate date) {
-        // TODO: Compare date with today's date in DateTimeUtil.VN_ZONE.
-        // Output: true if date <= today.
-        return false;
-    }
-
-    /**
-     * Normalize a plan name for duplicate checks: collapse whitespace, trim, lower-case.
-     */
-    public static String normalizePlanName(String name) {
-        // TODO: Replace runs of whitespace with a single space, trim, toLowerCase.
-        // Output: the normalized string; null if name is null.
-        return null;
     }
 
     /**
@@ -115,6 +19,114 @@ public final class ValidationUtil {
     public static boolean isBlank(String value) {
         // TODO: Check null or value.trim().isEmpty().
         // Output: true if blank.
+        return false;
+    }
+
+    /**
+     * HL-01 full name (member, staff): 2-100 characters after trim, no digits.
+     */
+    public static boolean isValidFullName(String fullName) {
+        // TODO: Not null; length within 2..100; does not contain any character 0-9.
+        // Output: true if valid.
+        return false;
+    }
+
+    /**
+     * HL-02 / HL-03 phone (member and staff use the same format): regex ^0[0-9]{9}$.
+     */
+    public static boolean isValidPhone(String phone) {
+        // TODO: Check the regex ^0[0-9]{9}$.
+        // Output: true if valid.
+        return false;
+    }
+
+    /**
+     * HL-04 email (optional): at most 254 characters, regex ^[^@\s]+@[^@\s]+\.[^@\s]+$.
+     */
+    public static boolean isValidEmail(String email) {
+        // TODO: Check the length and the regex; call only when an email was entered.
+        // Output: true if valid.
+        return false;
+    }
+
+    /**
+     * HL-05 date of birth (optional): from 01/01/1900 to today (AppClock.today()).
+     */
+    public static boolean isValidDateOfBirth(LocalDate dateOfBirth) {
+        // TODO: 1900-01-01 <= dateOfBirth <= AppClock.today().
+        // Output: true if valid.
+        return false;
+    }
+
+    /**
+     * HL-07 search keyword (optional): at most 100 characters.
+     */
+    public static boolean isValidKeyword(String keyword) {
+        // TODO: null or length <= 100.
+        // Output: true if valid.
+        return false;
+    }
+
+    /**
+     * HL-08 username: regex ^[a-zA-Z][a-zA-Z0-9_]{3,49}$ (4-50 characters, no accents, no spaces).
+     */
+    public static boolean isValidUsername(String username) {
+        // TODO: Check the regex (the value is not trimmed).
+        // Output: true if valid.
+        return false;
+    }
+
+    /**
+     * HL-09 password: 8-64 characters, kept exactly as entered (leading/trailing spaces count).
+     */
+    public static boolean isValidPassword(String password) {
+        // TODO: Not null; length within 8..64.
+        // Output: true if valid.
+        return false;
+    }
+
+    /**
+     * HL-11 package name: 2-100 characters after trim.
+     */
+    public static boolean isValidPackageName(String name) {
+        // TODO: Not null; length within 2..100.
+        // Output: true if valid.
+        return false;
+    }
+
+    /**
+     * HL-11 normalize a package name for duplicate checks: collapse runs of whitespace, trim, lower-case.
+     */
+    public static String normalizePackageName(String name) {
+        // TODO: name.trim().replaceAll("\\s+", " ").toLowerCase().
+        // Output: the normalized string; null if name is null.
+        return null;
+    }
+
+    /**
+     * HL-12 package price: digits only, integer 1..100,000,000 VND.
+     */
+    public static Integer parsePrice(String raw) {
+        // TODO: raw matches ^[0-9]+$ (no sign, no decimal separator) and parses to a value within 1..100000000.
+        // Output: the price; null if invalid.
+        return null;
+    }
+
+    /**
+     * HL-13 package duration: 1, 3, 6 or 12 months.
+     */
+    public static boolean isValidDurationMonths(Integer months) {
+        // TODO: months is one of 1, 3, 6, 12.
+        // Output: true if valid.
+        return false;
+    }
+
+    /**
+     * HL-15 cancel reason: 3-255 characters after trim.
+     */
+    public static boolean isValidCancelReason(String reason) {
+        // TODO: Not null; length within 3..255.
+        // Output: true if valid.
         return false;
     }
 }

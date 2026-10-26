@@ -1,8 +1,7 @@
 package group4.gym.management.controller.payment;
 
-import group4.gym.management.service.PaymentService;
+import group4.gym.management.service.payment.PaymentService;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,31 +9,34 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Confirm payment as PAID (CN-21, CN-22, QT-26). Manager, Receptionist.
- * The confirmation screen has NO start-date input (FUT-03); a bank transfer proof image is optional (GT-03).
+ * Two-step payment confirmation with plain JSP (CN-25). MANAGER, RECEPTIONIST.
+ * GET = step 1 (review, changes nothing; going back changes nothing). POST = step 2 (final confirmation, QT-06).
+ * Amount and dates are never read from the request (KT-20).
  */
-@MultipartConfig(maxFileSize = 5 * 1024 * 1024)
-@WebServlet(name = "PaymentConfirmServlet", urlPatterns = {"/transactions/confirm"})
+@WebServlet(name = "PaymentConfirmServlet", urlPatterns = {"/staff/payments/confirm"})
 public class PaymentConfirmServlet extends HttpServlet {
 
-    private static final String VIEW = "/WEB-INF/transaction/confirm.jsp";
+    private static final String VIEW = "/WEB-INF/payment/confirm.jsp";
 
     private final PaymentService paymentService = new PaymentService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Read id; paymentService.getTransactionDetail(id); only a PENDING transaction shows the confirmation form.
-        //       paymentService.shouldWarnLateDailyPass(id) -> set the late Daily Pass (after 20:00) warning flag (does not block).
+        // TODO: id = getPositiveId (null / NotFoundException -> 404).
+        //       PENDING -> paymentService.previewSchedule(id): set preview (member, package, amount snapshot, expected dates).
+        //       PAID (after the redirect of a successful POST) -> show the saved schedule (start_date, end_date, paid_at, method).
+        //       Otherwise (CANCELLED, member soft-deleted) -> show the error without the form.
         // Output: forward to VIEW.
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Read id, paymentMethod, proof image (Part, optional); ignore every date parameter sent by the client.
-        //       paymentService.confirmPayment(currentAccount, id, paymentMethod, proofImagePath);
-        //       BusinessRuleException (no longer PENDING / member soft-deleted / save error) -> show the error, data unchanged.
-        // Output: success: redirect to /transactions/detail?id=<id>; failure: forward to VIEW with an error.
+        // TODO: Read id and paymentMethod (getEnum PaymentMethod) ONLY; ignore amount/date parameters.
+        //       paymentService.confirm(id, method, sessionUser.getId());
+        //       ValidationException (no method, HL-14) or BusinessRuleException (no longer PENDING / member soft-deleted)
+        //       -> flash error, data unchanged.
+        // Output: redirect to /staff/payments/confirm?id=<id> (PRG, CL-07), which then shows the saved schedule or the error.
     }
 }
