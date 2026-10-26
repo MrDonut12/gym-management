@@ -15,62 +15,71 @@ public final class RequestUtil {
      * Read a trimmed string parameter (full name, email, package name, cancel reason, keyword; section 6).
      */
     public static String getString(HttpServletRequest request, String name) {
-        // TODO: request.getParameter(name), trim; an empty string -> null.
-        // Output: the trimmed string or null.
-        return null;
+        String value = request.getParameter(name);
+        if (value == null) {
+            return null;
+        }
+        value = value.trim();
+        return value.isEmpty() ? null : value;
     }
 
     /**
      * Read a string parameter exactly as sent: username and password are NOT trimmed (section 6, HL-09).
      */
     public static String getRawString(HttpServletRequest request, String name) {
-        // TODO: request.getParameter(name) unchanged.
-        // Output: the raw string or null.
-        return null;
+        return request.getParameter(name);
     }
 
     /**
      * Read an integer parameter.
      */
     public static Integer getInteger(HttpServletRequest request, String name) {
-        // TODO: Parse an Integer; a bad format or empty value -> null (never leak NumberFormatException).
-        // Output: Integer or null.
-        return null;
+        String value = getString(request, name);
+        if (value == null) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     /**
      * Read an ID from the URL/form (HL-17).
      */
     public static Integer getPositiveId(HttpServletRequest request, String name) {
-        // TODO: getInteger; value <= 0 -> null. The servlet answers 404 when the result is null.
-        // Output: a positive Integer or null.
-        return null;
+        Integer id = getInteger(request, name);
+        return (id == null || id <= 0) ? null : id;
     }
 
     /**
      * Read the page number (HL-07).
      */
     public static int getPage(HttpServletRequest request) {
-        // TODO: getInteger(request, "page"); null or < 1 -> 1.
-        // Output: a page number >= 1.
-        return 1;
+        Integer page = getInteger(request, "page");
+        return (page == null || page < 1) ? 1 : page;
     }
 
     /**
      * Read a date parameter.
      */
     public static LocalDate getDate(HttpServletRequest request, String name) {
-        // TODO: DateTimeUtil.parseDate(request.getParameter(name)); an invalid value propagates DateTimeParseException.
-        // Output: LocalDate or null when blank.
-        return null;
+        return DateTimeUtil.parseDate(request.getParameter(name));
     }
 
     /**
      * Read an enum parameter by constant name (role, status, payment method...; HL-10, HL-14).
      */
     public static <E extends Enum<E>> E getEnum(HttpServletRequest request, String name, Class<E> enumType) {
-        // TODO: Enum.valueOf(enumType, value); an invalid or empty value -> null.
-        // Output: the enum constant or null.
-        return null;
+        String value = getString(request, name);
+        if (value == null) {
+            return null;
+        }
+        try {
+            return Enum.valueOf(enumType, value);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

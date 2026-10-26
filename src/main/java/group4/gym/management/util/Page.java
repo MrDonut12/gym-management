@@ -3,7 +3,7 @@ package group4.gym.management.util;
 import java.util.List;
 
 /**
- * One page of a list paginated in SQL with OFFSET ... FETCH (CL-09; shared utility, owner TV2).
+ * One page of a list paginated in SQL with OFFSET ... FETCH (CL-09; shared utility, owner TV3).
  * Used by the member list (CN-11) and the registration list (CN-24), 20 rows per page.
  *
  * @param <T> row type
@@ -33,9 +33,9 @@ public class Page<T> {
      * OFFSET value for a page number.
      */
     public static int offsetOf(int page, int pageSize) {
-        // TODO: (page - 1) * pageSize; page < 1 is treated as 1 (HL-07).
-        // Output: the number of rows to skip.
-        return 0;
+        // (page - 1) * pageSize in long so a huge page number cannot overflow into a negative OFFSET.
+        long offset = (long) Math.max(page, 1) - 1;
+        return (int) Math.min(offset * pageSize, Integer.MAX_VALUE);
     }
 
     public List<T> getItems() {
@@ -58,9 +58,10 @@ public class Page<T> {
      * Number of pages (at least 1, so an empty result still renders "page 1 of 1").
      */
     public int getTotalPages() {
-        // TODO: ceil(totalItems / pageSize), minimum 1.
-        // Output: the total number of pages.
-        return 1;
+        if (pageSize <= 0) {
+            return 1;
+        }
+        return Math.max(1, (int) Math.ceil((double) totalItems / pageSize));
     }
 
     public boolean isHasPrevious() {
