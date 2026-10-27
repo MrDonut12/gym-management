@@ -271,8 +271,6 @@ Một script `seed.sql` chạy được nhiều lần trên DB trống, chèn d�
 | members | 100 | 8 hồ sơ đã xóa mềm; created\_at rải trong 6 tháng gần nhất |
 | registrations | 150 | Rải trong 6 tháng; có đủ PENDING, PAID (tiền mặt và chuyển khoản), CANCELLED. Lịch PAID tính đúng QT-05, không chồng lấn. Phải có hội viên ở mỗi tình trạng: chưa có gói, đang hiệu lực, sắp hết hạn, chờ hiệu lực, hết hạn, có gói nối tiếp |
 
-Seed được viết theo ngày tương đối (ví dụ `DATEADD(DAY, -20, CAST(SYSDATETIMEOFFSET() AT TIME ZONE 'SE Asia Standard Time' AS DATE))`) để các tình trạng vẫn đúng khi demo vào ngày khác.
-
 ## 6. Kiểm tra hợp lệ
 
 Mọi quy tắc dưới đây bắt buộc kiểm tra ở backend cho cả form tạo và form sửa. Client có thể thêm thuộc tính HTML5 (`required`, `maxlength`, `pattern`) nhưng backend không tin client. Khi lỗi: hiển thị lại form, giữ giá trị đã nhập (trừ mật khẩu), báo lỗi cạnh từng trường, không lưu gì.

@@ -3,13 +3,14 @@
 | Thuộc tính | Giá trị |
 |---|---|
 | Nguồn yêu cầu | `Software Requirement Specification.md` — **Baseline 2.0**, 26/10/2026 |
-| Phiên bản thiết kế | **DD 2.1 — bản tiếng Việt**, 27/10/2026 |
+| Phiên bản thiết kế | **DD 2.2 — bản tiếng Việt**, 27/10/2026 (đồng bộ với `database/GymDB_Setup.sql`) |
 | Cơ sở dữ liệu | Microsoft SQL Server 2022 |
 | Ứng dụng | Java 21, Servlet/JSP, JDBC, Tomcat 10.1 |
-| Đường dẫn đề xuất | `docs/Database Design.md` |
-| Tình trạng | **Đặc tả mục tiêu; chưa xác nhận bằng chạy DDL, seed hoặc integration test** |
+| Đường dẫn | `docs/database/Database Design.md` |
+| Script triển khai | `database/GymDB_Setup.sql` (một file: tạo `GymDB`, 4 bảng và dữ liệu mẫu) |
+| Tình trạng | **Đã đối chiếu với `GymDB_Setup.sql`; chưa xác nhận bằng integration test** |
 
-> **Dành cho lập trình viên và coding agent:** Chỉ có **4 bảng nghiệp vụ**: `accounts`, `members`, `packages`, `registrations`. Đây không phải tài liệu migration có thể chạy trực tiếp. Không lấy `schema.sql`, `seed.sql` hoặc tài liệu R3 Baseline 1.x làm chuẩn trước khi chúng được cập nhật.
+> **Dành cho lập trình viên và coding agent:** Chỉ có **4 bảng nghiệp vụ**: `accounts`, `members`, `packages`, `registrations`. Đây không phải tài liệu migration có thể chạy trực tiếp; script chạy được là `database/GymDB_Setup.sql`. Không lấy SQL cũ hoặc tài liệu R3 Baseline 1.x làm chuẩn. Mục nào ghi **ĐỀ XUẤT (chưa triển khai)** là hướng mở rộng, hiện chưa có trong script.
 
 ## 0. Quy ước và thứ tự ưu tiên
 
@@ -31,14 +32,14 @@
 
 | Mã | Quyết định | Quy tắc triển khai |
 |---|---|---|
-| DD-01 | Bổ sung `packages.name_normalized` | Java chuẩn hóa tên, lưu cùng `name`; UNIQUE khóa chuẩn hóa để chống ghi trùng khi đồng thời |
+| DD-01 | Tên gói duy nhất bằng `UNIQUE(name)` với collation `Vietnamese_100_CI_AS` | Không có cột `name_normalized`; collation không phân biệt hoa/thường nên chặn tên chỉ khác hoa/thường. Khoảng trắng thừa do Service trim/gộp trước khi ghi |
 | DD-02 | CHECK vòng đời `registrations` đầy đủ | Dữ liệu PENDING/PAID/CANCELLED loại trừ nhau; bắt buộc `IS NOT NULL` ở nhánh có dữ liệu |
 | DD-03 | Chuẩn transaction/lock theo hội viên | Khóa `members` trước, rồi `packages` (nếu cần), sau đó mới đọc/ghi `registrations` |
 | DD-04 | Thời gian nghiệp vụ do `AppClock` cấp | Không dùng `GETDATE()`/`SYSDATETIME()` làm mặc định cho tác vụ ứng dụng |
 | DD-05 | DB bảo vệ cấu trúc, Service bảo vệ nghiệp vụ | PK/FK/UNIQUE/CHECK/index ở SQL; chuyển trạng thái và RBAC trong Service/DAO; không dùng trigger |
 | DD-06 | `members.created_by` NOT NULL | Mỗi hồ sơ tạo mới phải gắn tài khoản có thật; không bịa tác nhân khi chuyển dữ liệu cũ |
 | DD-07 | Đồng thời ngừng bán / tạo PENDING | CN-22 khóa `members`, rồi khóa dòng `packages`; CN-21 chỉ cập nhật `packages` |
-| DD-08 | Seed có thể chạy lại | Dùng khóa nhận diện fixture ổn định; không nhân đôi, không im lặng bỏ qua dữ liệu seed còn thiếu |
+| DD-08 | Seed chạy một lần trên database mới | `GymDB_Setup.sql` dùng `CREATE DATABASE` và `INSERT` trực tiếp, ID cố định theo thứ tự IDENTITY; muốn nạp lại phải xóa/tạo lại `GymDB`, không chạy chồng lên database đã có |
 | DD-09 | Tránh bẫy `UNKNOWN` trong CHECK SQL | Có `IS NOT NULL` tường minh, nhất là `payment_method` của PAID |
 | DD-10 | Không đánh đồng UNIQUE/CHECK với bất biến nghiệp vụ | Service chịu trách nhiệm snapshot, ngày gói không chồng lấn, bất biến trạng thái và tên chuẩn hóa |
 
@@ -109,7 +110,6 @@ erDiagram
     packages {
         int id PK
         nvarchar name UK
-        nvarchar name_normalized UK
         tinyint duration_months
         int price
         bit is_active
@@ -190,21 +190,20 @@ Không đổi username (CN-07). Chỉ ADMIN quản lý tài khoản, không tự
 
 Không có `deleted_at`, `deleted_by`, `membership_status`, `expiry_date`. MANAGER xóa mềm khi không có PAID chưa hết hạn; hủy toàn bộ PENDING trong cùng transaction (QT-09). Khôi phục chỉ đặt `is_deleted=0`, không phục hồi CANCELLED (QT-10). RECEPTIONIST không được xem hội viên đã xóa (QT-11).
 
-### 3.3. Bảng `packages` — DL-03, DD-01
+### 3.3. Bảng `packages` — DL-03
 
 | Cột | Kiểu SQL | NULL | Quy tắc |
 |---|---|---|---|
 | `id` | `INT IDENTITY(1,1)` | Không | PK |
-| `name` | `NVARCHAR(100)` | Không | Tên hiển thị, UNIQUE theo DL-03 |
-| `name_normalized` | `NVARCHAR(100)` | Không | **Cột bổ sung DD-01**; UNIQUE với collation nhị phân BIN2 |
+| `name` | `NVARCHAR(100)` | Không | Tên hiển thị, UNIQUE theo DL-03; collation `Vietnamese_100_CI_AS` (không phân biệt hoa/thường) |
 | `duration_months` | `TINYINT` | Không | CHECK IN (1,3,6,12); không cho sửa sau tạo |
 | `price` | `INT` | Không | CHECK BETWEEN 1 AND 100000000 |
 | `is_active` | `BIT` | Không | Mặc định 1; 0 là ngừng bán, không hủy PENDING đã tạo |
 | `created_at` | `DATETIME2(0)` | Không | Từ `AppClock.now()` |
 
-**Thuật toán chuẩn hóa bắt buộc ở một helper Java dùng chung:** trim khoảng trắng Unicode đầu/cuối → gộp chuỗi khoảng trắng Unicode liên tiếp thành một dấu cách ASCII U+0020 → kiểm tra tên hiển thị dài 2–100 đơn vị UTF-16 (theo `String.length()`) → đổi hoa bằng `Locale.ROOT` để tạo `name_normalized` → từ chối nếu khóa đã chuẩn hóa vượt giới hạn `NVARCHAR(100)`; không cắt chuỗi. Dùng helper đó cho tạo, sửa, kiểm tra trùng và chuẩn bị seed. Truyền cả tên đã gộp và khóa chuẩn hóa trong cùng lệnh SQL; không nhận `name_normalized` từ form.
+**Chuẩn hóa tên ở Service:** trim khoảng trắng đầu/cuối, gộp khoảng trắng liên tiếp thành một dấu cách, kiểm tra độ dài 2–100 ký tự trước khi ghi; dùng chung một helper cho tạo và sửa gói. Chống trùng tên dựa vào `UNIQUE(name)` với collation `Vietnamese_100_CI_AS` (không phân biệt hoa/thường). DB không tự gộp khoảng trắng, nên chuẩn hóa này do Service/DAO bảo đảm (DD-05).
 
-Giữ cả `UNIQUE(name)` theo SRS và `UNIQUE(name_normalized)` theo DD-01; chọn collation của `name` để không vô tình từ chối tên khác nhau theo chính sách chuẩn hóa. **DB không tự chứng minh** `name_normalized = normalize(name)`; vì DD-05 không dùng trigger, mọi ghi phải qua DAO chính thức. `GymPackage` không bắt buộc thêm property `nameNormalized`: DAO có thể tính trước khi bind. Nhiều gói có thể cùng thời hạn. PENDING gói đã ngừng bán vẫn được xác nhận (QT-04).
+Nhiều gói có thể cùng thời hạn. PENDING gói đã ngừng bán vẫn được xác nhận (QT-04). **ĐỀ XUẤT (chưa triển khai):** nếu cần chặn chặt hơn các biến thể khoảng trắng/Unicode, thêm cột `name_normalized` với UNIQUE collation BIN2.
 
 ### 3.4. Bảng `registrations` — DL-04, DD-02
 
@@ -242,12 +241,12 @@ Giữ cả `UNIQUE(name)` theo SRS và `UNIQUE(name_normalized)` theo DD-01; ch�
 
 | Bảng | PK | UNIQUE | CHECK / FK |
 |---|---|---|---|
-| `accounts` | `id` | `username` không phân biệt hoa/thường, `phone` | role, status, SĐT 10 số bắt đầu 0 |
-| `members` | `id` | `phone` không lọc `is_deleted` | gender, SĐT, FK created_by |
-| `packages` | `id` | `name`, `name_normalized` | thời hạn 1/3/6/12, giá 1–100 triệu |
+| `accounts` | `id` | `username` không phân biệt hoa/thường, `phone` | role, status; định dạng SĐT do Service kiểm tra |
+| `members` | `id` | `phone` không lọc `is_deleted` | gender, FK created_by; định dạng SĐT do Service kiểm tra |
+| `packages` | `id` | `name` (collation `Vietnamese_100_CI_AS`) | thời hạn 1/3/6/12, giá 1–100 triệu |
 | `registrations` | `id` | Không có UNIQUE nghiệp vụ | FK member, package, 3 actor; snapshot hợp lệ; CHECK vòng đời liên cột |
 
-Không dựa vào `CHAR(10)` để kiểm chứng số điện thoại toàn chữ số. Ví dụ SQL bổ sung:
+Script hiện **không** có CHECK định dạng SĐT; `^0[0-9]{9}$` (HL-03) do Service kiểm tra, và không dựa vào `CHAR(10)` để bảo đảm toàn chữ số. Các CHECK/UNIQUE/FK trong script để tên do SQL Server tự sinh. **ĐỀ XUẤT (chưa triển khai)** — ví dụ SQL nếu muốn DB tự chặn:
 
 ```sql
 CHECK (
@@ -259,6 +258,8 @@ CHECK (
 Mọi cột bắt buộc cần `NOT NULL`, vì `CHECK` trong SQL Server có thể cho phép biểu thức trả về `UNKNOWN`.
 
 ### 4.2. CHECK liên cột cho vòng đời đăng ký
+
+Trong script, CHECK này được khai báo trực tiếp trong `CREATE TABLE dbo.registrations` (không đặt tên):
 
 ```sql
 CONSTRAINT CK_Registrations_Lifecycle CHECK (
@@ -283,7 +284,9 @@ CONSTRAINT CK_Registrations_Lifecycle CHECK (
 
 Phải khai báo `status NOT NULL` riêng. Đặc biệt, nhánh PAID **phải** có `payment_method IS NOT NULL` ngoài `IN ('CASH','TRANSFER')`. SQL CHECK không bảo đảm snapshot đúng với bản ghi gói **ở thời điểm tạo** và không chặn sửa quá khứ thành một trạng thái cuối khác vẫn hợp lệ.
 
-### 4.3. Kế hoạch chỉ mục
+### 4.3. Chỉ mục
+
+**Đã có trong script** (index tự sinh từ UNIQUE, tên do SQL Server đặt): `accounts.username`, `accounts.phone`, `members.phone`, `packages.name`.
 
 | Chỉ mục | Cột | Chức năng | Ghi chú |
 |---|---|---|---|
@@ -291,7 +294,11 @@ Phải khai báo `status NOT NULL` riêng. Đặc biệt, nhánh PAID **phải**
 | `UX_accounts_phone` | `phone` UNIQUE | CN-06 | Phạm vi riêng accounts |
 | `UX_members_phone` | `phone` UNIQUE | CN-12/14 | Gồm cả hội viên xóa mềm |
 | `UX_packages_name` | `name` UNIQUE | CN-19/20 | Theo DL-03 |
-| `UX_packages_name_normalized` | `name_normalized` UNIQUE | HL-11, DD-01 | BIN2 |
+
+**ĐỀ XUẤT (chưa triển khai)** — các chỉ mục hỗ trợ truy vấn, script hiện chưa tạo; thêm khi workload cần:
+
+| Chỉ mục | Cột | Chức năng | Ghi chú |
+|---|---|---|---|
 | `IX_members_created_at_id` | `(created_at DESC, id DESC)` | CN-11, CN-28 | Phân trang ổn định |
 | `IX_registrations_member_status_end` | `(member_id, status, end_date)` | QT-05/07/08/09 | Lịch PAID và lịch sử |
 | `IX_registrations_paid_at` | `(paid_at) INCLUDE(price_snapshot, package_id)` | CN-26/27 | Có thể filtered `WHERE status='PAID'` |
@@ -308,8 +315,8 @@ Tra cứu `LIKE '%keyword%'` theo họ tên thường không tận dụng đư�
 | 2 | Tạo `members` | FK đến accounts |
 | 3 | Tạo `packages` | Không phụ thuộc FK |
 | 4 | Tạo `registrations` | FK đến members, packages, accounts |
-| 5 | Tạo các index ngoài PK/UNIQUE | Tránh trùng index mặc định |
-| 6 | Chạy `seed.sql` | Chỉ sau khi schema tương thích |
+| 5 | `INSERT` dữ liệu mẫu theo thứ tự `accounts` → `packages` → `members` → `registrations` | Cùng trong `GymDB_Setup.sql`; muốn chỉ tạo cấu trúc thì chạy đến hết `CREATE TABLE` |
+| 6 | (ĐỀ XUẤT) Tạo index ngoài PK/UNIQUE | Chưa có trong script |
 
 Không dùng `ON DELETE CASCADE`, trigger, cột trạng thái gói tính sẵn hoặc `paid_sequence`. UNIQUE thông thường không ngăn các khoảng ngày gói chồng lấn; transaction mục 5 xử lý.
 
@@ -407,7 +414,7 @@ Hai yêu cầu xác nhận cùng ID: chỉ một UPDATE từ PENDING thành PAID
 | `today` | `AppClock.today()` theo `Asia/Ho_Chi_Minh` |
 | Khoảng ngày A..B | `[A 00:00, (B+1) 00:00)` |
 | Mặc định bộ lọc | Tháng hiện tại (QT-13) |
-| Seed demo | Có thể dùng ngày tương đối theo mốc cố định/đồng hồ demo; phải ghi rõ, không dùng làm quy tắc runtime |
+| Seed demo | Ngày mẫu cố định theo mốc 27/10/2026; không dùng làm quy tắc runtime |
 
 ### 6.2. Tính tình trạng hội viên — QT-07/08
 
@@ -463,17 +470,17 @@ Nếu không có doanh thu, `COALESCE(SUM(...),0)`. Tổng CN-26 và CN-27 **ph�
 | Bảng | Tối thiểu | Dữ liệu bắt buộc |
 |---|---:|---|
 | `accounts` | 6 | Mỗi vai trò ADMIN/MANAGER/RECEPTIONIST có 2; ít nhất 1 LOCKED; mật khẩu seed phải là hash thật |
-| `packages` | 5 | Có cả thời hạn 1/3/6/12 tháng; ít nhất 1 ngừng bán; tên chuẩn hóa không trùng |
+| `packages` | 5 | Có cả thời hạn 1/3/6/12 tháng; ít nhất 1 ngừng bán; tên không trùng (không phân biệt hoa/thường) |
 | `members` | 100 | Ít nhất 8 đã xóa mềm; tạo trải trong 6 tháng |
 | `registrations` | 150 | PENDING/PAID/CANCELLED, CASH/TRANSFER, dữ liệu trải 6 tháng; lịch PAID hợp lệ và không chồng lấn; đủ các tình huống chưa mua/hiệu lực/sắp hết/chờ/hết hạn/nối tiếp |
 
-**DD-08 — seed idempotent:** Chạy lại không sinh bản ghi trùng. Dùng khóa fixture ổn định với `NOT EXISTS` được kiểm tra đúng hoặc sentinel khởi tạo toàn bộ. Không dùng `IF NOT EXISTS(SELECT 1 FROM members)` để im lặng bỏ qua một database mới chỉ seed dở. Muốn làm mới các ngày tương đối, dùng thao tác reset demo được tài liệu hóa; không chỉnh dữ liệu thật. Không disable constraint để lách dữ liệu seed lỗi. FK người tạo/xác nhận/hủy phải trỏ tới tài khoản có thật; hội viên xóa mềm không có PENDING hoặc PAID chưa hết hạn.
+**DD-08 — seed một lần:** `GymDB_Setup.sql` dành cho database mới: `CREATE DATABASE GymDB` rồi `INSERT` trực tiếp (không vòng lặp, không biến), nên chạy lần hai sẽ lỗi. Muốn nạp lại, xóa/tạo lại `GymDB`; không chạy chồng lên dữ liệu thật. Ngày mẫu cố định theo mốc 27/10/2026, không dùng làm quy tắc runtime. Mật khẩu demo `GymDemo@2026` chỉ lưu dưới dạng hash PBKDF2 (`pbkdf2$600000$salt$hash`). Không disable constraint để lách dữ liệu seed lỗi. FK người tạo/xác nhận/hủy phải trỏ tới tài khoản có thật; hội viên xóa mềm không có PENDING hoặc PAID chưa hết hạn. **ĐỀ XUẤT (chưa triển khai):** bản seed idempotent dùng khóa fixture ổn định với `NOT EXISTS`.
 
 ### 8.2. Ranh giới chuyển đổi từ Baseline 1.x
 
 | Dữ liệu cũ | Thiết kế 2.0 | Ghi chú |
 |---|---|---|
-| `plan_types` | `packages` | Tháng 1/3/6/12, có `is_active`, `name_normalized` |
+| `plan_types` | `packages` | Tháng 1/3/6/12, có `is_active` |
 | `memberships` + `payment_transactions` | `registrations` | Một hàng duy nhất, snapshot và vòng đời |
 | `visits` | Loại khỏi phạm vi | Không import vào schema mới |
 | Role `OWNER`, `ACCOUNTANT` | Không tồn tại | Không tự gán sang role mới |
@@ -487,8 +494,8 @@ Với database local/demo có thể tái tạo sau khi backup dữ liệu cần 
 | Nhóm | Điều kiện cần chứng minh |
 |---|---|
 | Schema | Đúng 4 bảng, mọi cột/kiểu/NULL/PK/FK/UNIQUE/CHECK khớp mục 3–4 |
-| Username/SĐT | Username khác hoa thường không trùng; SĐT 10 số bắt đầu 0; account và member có UNIQUE riêng; member xóa mềm không được dùng trùng số |
-| Package | Tên khác hoa/khoảng trắng trùng chuẩn hóa bị chặn; chung helper create/update; kiểm tra Unicode, độ dài; không nhận key từ client |
+| Username/SĐT | Username khác hoa thường không trùng; SĐT 10 số bắt đầu 0 (Service kiểm tra, DB chưa có CHECK); account và member có UNIQUE riêng; member xóa mềm không được dùng trùng số |
+| Package | Tên chỉ khác hoa/thường bị `UNIQUE(name)` chặn; Service trim/gộp khoảng trắng bằng helper chung cho create/update; kiểm tra độ dài 2–100 |
 | CHECK | Từ chối trạng thái/role/duration/price sai và mọi tổ hợp sai của registrations; **PAID với payment_method=NULL phải bị từ chối** |
 | Snapshot | Giá/tên/tháng được chụp tại INSERT; sửa package không đổi registration cũ |
 | Concurrency | Tạo PENDING đồng thời ngừng bán; 2 PAID cùng member; 2 tab PAID cùng ID; PAID đồng thời xóa mềm; không có đảo thứ tự lock |
@@ -496,7 +503,7 @@ Với database local/demo có thể tái tạo sau khi backup dữ liệu cần 
 | Hủy/xóa | Xóa mềm tự hủy PENDING nguyên tử; chặn khi PAID còn hạn; CANCELLED không khôi phục khi phục hồi member |
 | Báo cáo | Chỉ đếm PAID theo `paid_at`; nhóm `package_id`; tổng CN-26=CN-27; COUNT DISTINCT member |
 | Thời gian | Khoảng ngày có đủ ngày kết thúc và không tính 00:00 ngày sau; AppClock không phụ thuộc DB clock |
-| Seed | Chạy hai lần không nhân đôi; đạt ngưỡng DL-05; quan hệ FK, trạng thái, lịch không sai |
+| Seed | Chạy trên database mới không lỗi; đạt ngưỡng DL-05; quan hệ FK, trạng thái, lịch không sai |
 | DAO | ResultSet và chữ ký Java khớp skeleton; không còn bảng/cột Baseline 1.x |
 
 **Các điều kiện trên là checklist nghiệm thu, chưa phải kết quả đã test.**
@@ -519,4 +526,4 @@ Với database local/demo có thể tái tạo sau khi backup dữ liệu cần 
 
 ### Hướng dẫn cuối cho coding agent
 
-**Triển khai đúng SRS 2.0, không tự phục hồi chức năng Baseline 1.x.** Hãy tạo `database/schema.sql` và `database/seed.sql` riêng dựa vào tài liệu này, không chạy nội dung Markdown như migration. Chỉ có bốn bảng, giữ nguyên method signature từ skeleton, các transaction dùng cùng JDBC Connection. Nếu phát hiện mâu thuẫn nghiệp vụ với SRS, trích đúng mã và nêu ra để review thay vì lặng lẽ chọn cách sửa. Các quyết định DD-01 đến DD-10 đã được chốt trong tài liệu; không cần hỏi lại.
+**Triển khai đúng SRS 2.0, không tự phục hồi chức năng Baseline 1.x.** Script thực thi là `database/GymDB_Setup.sql`; khi đổi schema phải cập nhật đồng thời script và tài liệu này, không chạy nội dung Markdown như migration. Chỉ có bốn bảng, giữ nguyên method signature từ skeleton, các transaction dùng cùng JDBC Connection. Nếu phát hiện mâu thuẫn nghiệp vụ với SRS, trích đúng mã và nêu ra để review thay vì lặng lẽ chọn cách sửa. Các quyết định DD-01 đến DD-10 đã được chốt trong tài liệu; không cần hỏi lại.

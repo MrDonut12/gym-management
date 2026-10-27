@@ -4,7 +4,7 @@ digraph ERD {
  edge [fontname="DejaVu Sans", fontsize=9, color="#566b86", arrowsize=0.7];
  accounts [label="{accounts|+ id : INT (PK)\lusername : VARCHAR(50) (UQ)\lpassword_hash : VARCHAR(100)\lrole : VARCHAR(20)\lstatus : VARCHAR(10)\lcreated_at : DATETIME2\l}",fillcolor="#e3effb"];
  members [label="{members|+ id : INT (PK)\lcreated_by : INT (FK)\lphone : CHAR(10) (UQ)\lis_deleted : BIT\lcreated_at : DATETIME2\l}"];
- packages [label="{packages|+ id : INT (PK)\lname : NVARCHAR (UQ)\lname_normalized : NVARCHAR (UQ)\lduration_months : TINYINT\lprice : INT\lis_active : BIT\l}",fillcolor="#eaf5ec"];
+ packages [label="{packages|+ id : INT (PK)\lname : NVARCHAR (UQ)\\lduration_months : TINYINT\lprice : INT\lis_active : BIT\l}",fillcolor="#eaf5ec"];
  registrations [label="{registrations|+ id : INT (PK)\lmember_id : INT (FK)\lpackage_id : INT (FK)\lcreated_by : INT (FK)\lconfirmed_by : INT (FK, NULL)\lcancelled_by : INT (FK, NULL)\lstatus : PENDING/PAID/CANCELLED\lstart_date / end_date : DATE\lprice_snapshot : INT\l}",fillcolor="#fff6e7"];
  accounts -> members [label="created_by   1:N"];
  accounts -> registrations [label="created_by / confirmed_by / cancelled_by   1:N"];
