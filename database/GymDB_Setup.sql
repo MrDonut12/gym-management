@@ -1,0 +1,367 @@
+-- GYM MANAGEMENT - SETUP DON GIAN (SQL SERVER 2022)
+-- Giu nguyen 4 bang va ten cot theo code Java / SRS 2.0.
+-- Chay toan bo file trong SSMS cho lan tao moi GymDB.
+-- Ngay du lieu mau duoc co dinh theo moc 27/10/2026.
+-- File nay thay the ban setup cu; khong chay ca hai tren cung database.
+
+CREATE DATABASE GymDB;
+GO
+USE GymDB;
+GO
+
+-- 1. Tai khoan nhan vien
+CREATE TABLE dbo.accounts (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    username VARCHAR(50) COLLATE Latin1_General_100_CI_AS NOT NULL UNIQUE,
+    password_hash VARCHAR(100) NOT NULL,
+    full_name NVARCHAR(100) NOT NULL,
+    phone CHAR(10) NOT NULL UNIQUE,
+    email VARCHAR(254) NULL,
+    role VARCHAR(20) NOT NULL CHECK (role IN ('ADMIN','MANAGER','RECEPTIONIST')),
+    status VARCHAR(10) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE','LOCKED')),
+    created_at DATETIME2(0) NOT NULL
+);
+
+-- 2. Ho so hoi vien (is_deleted: 0 = dang su dung, 1 = xoa mem)
+CREATE TABLE dbo.members (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    full_name NVARCHAR(100) NOT NULL,
+    phone CHAR(10) NOT NULL UNIQUE,
+    email VARCHAR(254) NULL,
+    date_of_birth DATE NULL,
+    gender NVARCHAR(10) NULL CHECK (gender IN (N'Nam',N'Nữ',N'Khác')),
+    is_deleted BIT NOT NULL DEFAULT 0,
+    created_at DATETIME2(0) NOT NULL,
+    created_by INT NOT NULL REFERENCES dbo.accounts(id)
+);
+
+-- 3. Danh muc goi tap (is_active: 1 = dang ban, 0 = ngung ban)
+CREATE TABLE dbo.packages (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(100) COLLATE Vietnamese_100_CI_AS NOT NULL UNIQUE,
+    duration_months TINYINT NOT NULL CHECK (duration_months IN (1,3,6,12)),
+    price INT NOT NULL CHECK (price BETWEEN 1 AND 100000000),
+    is_active BIT NOT NULL DEFAULT 1,
+    created_at DATETIME2(0) NOT NULL
+);
+
+-- 4. Dang ky goi va thong tin thanh toan
+-- Snapshot la ten/thoi han/gia duoc luu tai thoi diem dang ky.
+CREATE TABLE dbo.registrations (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    member_id INT NOT NULL REFERENCES dbo.members(id),
+    package_id INT NOT NULL REFERENCES dbo.packages(id),
+    package_name_snapshot NVARCHAR(100) NOT NULL,
+    duration_months_snapshot TINYINT NOT NULL CHECK (duration_months_snapshot IN (1,3,6,12)),
+    price_snapshot INT NOT NULL CHECK (price_snapshot BETWEEN 1 AND 100000000),
+    status VARCHAR(10) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING','PAID','CANCELLED')),
+    created_at DATETIME2(0) NOT NULL,
+    created_by INT NOT NULL REFERENCES dbo.accounts(id),
+    payment_method VARCHAR(10) NULL CHECK (payment_method IN ('CASH','TRANSFER')),
+    paid_at DATETIME2(0) NULL,
+    confirmed_by INT NULL REFERENCES dbo.accounts(id),
+    start_date DATE NULL,
+    end_date DATE NULL,
+    cancelled_at DATETIME2(0) NULL,
+    cancelled_by INT NULL REFERENCES dbo.accounts(id),
+    cancel_reason NVARCHAR(255) NULL,
+
+    -- Bao dam cac cot thanh toan / huy phu hop voi trang thai.
+    CHECK (
+        (status='PENDING'
+         AND payment_method IS NULL AND paid_at IS NULL AND confirmed_by IS NULL
+         AND start_date IS NULL AND end_date IS NULL
+         AND cancelled_at IS NULL AND cancelled_by IS NULL AND cancel_reason IS NULL)
+        OR
+        (status='PAID'
+         AND payment_method IS NOT NULL AND paid_at IS NOT NULL AND confirmed_by IS NOT NULL
+         AND start_date IS NOT NULL AND end_date IS NOT NULL AND end_date>=start_date
+         AND cancelled_at IS NULL AND cancelled_by IS NULL AND cancel_reason IS NULL)
+        OR
+        (status='CANCELLED'
+         AND payment_method IS NULL AND paid_at IS NULL AND confirmed_by IS NULL
+         AND start_date IS NULL AND end_date IS NULL
+         AND cancelled_at IS NOT NULL AND cancelled_by IS NOT NULL AND cancel_reason IS NOT NULL
+         AND LEN(LTRIM(RTRIM(cancel_reason))) BETWEEN 3 AND 255)
+    )
+);
+
+-- Du lieu mau ben duoi dung INSERT truc tiep, khong dung vong lap hay bien.
+-- Muon chi tao cau truc bang: chon chay den het CREATE TABLE o tren.
+
+-- Du lieu mau co dinh theo ngay 27/10/2026.
+-- Cac bang moi phai rong; IDENTITY bat dau tu 1.
+-- Mat khau demo: GymDemo@2026; database chi luu hash PBKDF2.
+
+INSERT INTO dbo.accounts (username, password_hash, full_name, phone, email, role, status, created_at)
+VALUES
+    ('admin1', 'pbkdf2$600000$BrrU4X3e5FCgwfTUy4rEEg==$pIaylwbsOMf5TTlVUyk3UMT949WLwVJrpyeNJ993Sis=', N'Quản trị An', '0900000001', 'admin1@example.invalid', 'ADMIN', 'ACTIVE', '2026-04-29T08:00:00'),
+    ('admin2', 'pbkdf2$600000$6PKV9TZsfGWruw5jhb7lfg==$z2Y+Yt8DIAOIaa1H+Xg0nPZBM1TdQdwSpa1uuOc7fEk=', N'Quản trị Bình', '0900000002', 'admin2@example.invalid', 'ADMIN', 'ACTIVE', '2026-04-29T08:00:00'),
+    ('manager1', 'pbkdf2$600000$4XVluJjEG4ghduQUoj1lCg==$SzvmZsTlzSC2+k9WNwrWkKshtX0Nys9zrXZe1Aa22gw=', N'Quản lý Châu', '0900000003', 'manager1@example.invalid', 'MANAGER', 'ACTIVE', '2026-04-29T08:00:00'),
+    ('manager2', 'pbkdf2$600000$GxWBsbLmJHhtmfmGqKy5Qw==$VshI+i3OCOl2sta6qsapDPXmfBgRKPGI3OzelvUyAho=', N'Quản lý Dung', '0900000004', 'manager2@example.invalid', 'MANAGER', 'ACTIVE', '2026-04-29T08:00:00'),
+    ('reception1', 'pbkdf2$600000$yOamvi0oe+UPdBvYX2nhIA==$QCeRXAKkjZUaCz05VtOGWoU7Pk+zH8eIgSj2ZQxph5Y=', N'Lễ tân Giang', '0900000005', 'reception1@example.invalid', 'RECEPTIONIST', 'ACTIVE', '2026-04-29T08:00:00'),
+    ('reception2', 'pbkdf2$600000$Zw3JbSWj4h4njwfmfZf7zg==$cjF2idVBx3BrDmJHEYei0OcspIU5NFe4gihZGnpSRCE=', N'Lễ tân Hạnh', '0900000006', 'reception2@example.invalid', 'RECEPTIONIST', 'LOCKED', '2026-04-29T08:00:00');
+
+INSERT INTO dbo.packages (name, duration_months, price, is_active, created_at)
+VALUES
+    (N'Gói Một Tháng', 1, 500000, 1, '2026-04-29T09:00:00'),
+    (N'Gói Ba Tháng', 3, 1350000, 1, '2026-04-29T09:00:00'),
+    (N'Gói Sáu Tháng', 6, 2400000, 1, '2026-04-29T09:00:00'),
+    (N'Gói Mười Hai Tháng', 12, 4500000, 1, '2026-04-29T09:00:00'),
+    (N'Gói Một Tháng Cũ', 1, 450000, 0, '2026-04-29T09:00:00');
+
+INSERT INTO dbo.members (full_name, phone, email, date_of_birth, gender, is_deleted, created_at, created_by)
+VALUES
+    (N'Nguyễn Minh An', '0910000001', 'member001@example.invalid', '1981-02-02', N'Nữ', 0, '2026-05-07T08:00:00', 5),
+    (N'Nguyễn Thanh Bình', '0910000002', 'member002@example.invalid', '1982-03-03', N'Khác', 0, '2026-05-14T08:00:00', 5),
+    (N'Nguyễn Ngọc Châu', '0910000003', 'member003@example.invalid', '1983-04-04', N'Nam', 0, '2026-05-21T08:00:00', 5),
+    (N'Nguyễn Thùy Dung', '0910000004', 'member004@example.invalid', '1984-05-05', N'Nữ', 0, '2026-05-28T08:00:00', 5),
+    (N'Nguyễn Hương Giang', '0910000005', 'member005@example.invalid', '1985-06-06', N'Khác', 0, '2026-06-04T08:00:00', 5),
+    (N'Nguyễn Thu Hà', '0910000006', 'member006@example.invalid', '1986-07-07', N'Nam', 0, '2026-06-11T08:00:00', 5),
+    (N'Nguyễn Quang Huy', '0910000007', 'member007@example.invalid', '1987-08-08', N'Nữ', 0, '2026-06-18T08:00:00', 5),
+    (N'Nguyễn Gia Khánh', '0910000008', 'member008@example.invalid', '1988-09-09', N'Khác', 0, '2026-06-25T08:00:00', 5),
+    (N'Nguyễn Bảo Linh', '0910000009', 'member009@example.invalid', '1989-10-10', N'Nam', 0, '2026-07-02T08:00:00', 5),
+    (N'Nguyễn Hoàng Nam', '0910000010', 'member010@example.invalid', '1990-11-11', N'Nữ', 0, '2026-07-09T08:00:00', 5),
+    (N'Trần Minh An', '0910000011', 'member011@example.invalid', '1991-12-12', N'Khác', 0, '2026-07-16T08:00:00', 5),
+    (N'Trần Thanh Bình', '0910000012', 'member012@example.invalid', '1992-01-13', N'Nam', 0, '2026-07-23T08:00:00', 5),
+    (N'Trần Ngọc Châu', '0910000013', 'member013@example.invalid', '1993-02-14', N'Nữ', 0, '2026-07-30T08:00:00', 5),
+    (N'Trần Thùy Dung', '0910000014', 'member014@example.invalid', '1994-03-15', N'Khác', 0, '2026-08-06T08:00:00', 5),
+    (N'Trần Hương Giang', '0910000015', 'member015@example.invalid', '1995-04-16', N'Nam', 0, '2026-08-13T08:00:00', 5),
+    (N'Trần Thu Hà', '0910000016', 'member016@example.invalid', '1996-05-17', N'Nữ', 0, '2026-08-20T08:00:00', 5),
+    (N'Trần Quang Huy', '0910000017', 'member017@example.invalid', '1997-06-18', N'Khác', 0, '2026-08-27T08:00:00', 5),
+    (N'Trần Gia Khánh', '0910000018', 'member018@example.invalid', '1998-07-19', N'Nam', 0, '2026-09-03T08:00:00', 5),
+    (N'Trần Bảo Linh', '0910000019', 'member019@example.invalid', '1999-08-20', N'Nữ', 0, '2026-09-10T08:00:00', 5),
+    (N'Trần Hoàng Nam', '0910000020', 'member020@example.invalid', '2000-09-21', N'Khác', 0, '2026-04-30T08:00:00', 5),
+    (N'Lê Minh An', '0910000021', 'member021@example.invalid', '2001-10-22', N'Nam', 0, '2026-05-07T08:00:00', 5),
+    (N'Lê Thanh Bình', '0910000022', 'member022@example.invalid', '2002-11-23', N'Nữ', 0, '2026-05-14T08:00:00', 5),
+    (N'Lê Ngọc Châu', '0910000023', 'member023@example.invalid', '2003-12-24', N'Khác', 0, '2026-05-21T08:00:00', 5),
+    (N'Lê Thùy Dung', '0910000024', 'member024@example.invalid', '2004-01-25', N'Nam', 0, '2026-05-28T08:00:00', 5),
+    (N'Lê Hương Giang', '0910000025', 'member025@example.invalid', '1980-02-26', N'Nữ', 0, '2026-06-04T08:00:00', 5),
+    (N'Lê Thu Hà', '0910000026', 'member026@example.invalid', '1981-03-27', N'Khác', 0, '2026-06-11T08:00:00', 5),
+    (N'Lê Quang Huy', '0910000027', 'member027@example.invalid', '1982-04-28', N'Nam', 0, '2026-06-18T08:00:00', 5),
+    (N'Lê Gia Khánh', '0910000028', 'member028@example.invalid', '1983-05-01', N'Nữ', 0, '2026-06-25T08:00:00', 5),
+    (N'Lê Bảo Linh', '0910000029', 'member029@example.invalid', '1984-06-02', N'Khác', 0, '2026-07-02T08:00:00', 5),
+    (N'Lê Hoàng Nam', '0910000030', 'member030@example.invalid', '1985-07-03', N'Nam', 0, '2026-07-09T08:00:00', 5),
+    (N'Phạm Minh An', '0910000031', 'member031@example.invalid', '1986-08-04', N'Nữ', 0, '2026-07-16T08:00:00', 5),
+    (N'Phạm Thanh Bình', '0910000032', 'member032@example.invalid', '1987-09-05', N'Khác', 0, '2026-07-23T08:00:00', 5),
+    (N'Phạm Ngọc Châu', '0910000033', 'member033@example.invalid', '1988-10-06', N'Nam', 0, '2026-07-30T08:00:00', 5),
+    (N'Phạm Thùy Dung', '0910000034', 'member034@example.invalid', '1989-11-07', N'Nữ', 0, '2026-08-06T08:00:00', 5),
+    (N'Phạm Hương Giang', '0910000035', 'member035@example.invalid', '1990-12-08', N'Khác', 0, '2026-08-13T08:00:00', 5),
+    (N'Phạm Thu Hà', '0910000036', 'member036@example.invalid', '1991-01-09', N'Nam', 0, '2026-08-20T08:00:00', 5),
+    (N'Phạm Quang Huy', '0910000037', 'member037@example.invalid', '1992-02-10', N'Nữ', 0, '2026-08-27T08:00:00', 5),
+    (N'Phạm Gia Khánh', '0910000038', 'member038@example.invalid', '1993-03-11', N'Khác', 0, '2026-09-03T08:00:00', 5),
+    (N'Phạm Bảo Linh', '0910000039', 'member039@example.invalid', '1994-04-12', N'Nam', 0, '2026-09-10T08:00:00', 5),
+    (N'Phạm Hoàng Nam', '0910000040', 'member040@example.invalid', '1995-05-13', N'Nữ', 0, '2026-04-30T08:00:00', 5),
+    (N'Hoàng Minh An', '0910000041', 'member041@example.invalid', '1996-06-14', N'Khác', 0, '2026-05-07T08:00:00', 5),
+    (N'Hoàng Thanh Bình', '0910000042', 'member042@example.invalid', '1997-07-15', N'Nam', 0, '2026-05-14T08:00:00', 5),
+    (N'Hoàng Ngọc Châu', '0910000043', 'member043@example.invalid', '1998-08-16', N'Nữ', 0, '2026-05-21T08:00:00', 5),
+    (N'Hoàng Thùy Dung', '0910000044', 'member044@example.invalid', '1999-09-17', N'Khác', 0, '2026-05-28T08:00:00', 5),
+    (N'Hoàng Hương Giang', '0910000045', 'member045@example.invalid', '2000-10-18', N'Nam', 0, '2026-06-04T08:00:00', 5),
+    (N'Hoàng Thu Hà', '0910000046', 'member046@example.invalid', '2001-11-19', N'Nữ', 0, '2026-06-11T08:00:00', 5),
+    (N'Hoàng Quang Huy', '0910000047', 'member047@example.invalid', '2002-12-20', N'Khác', 0, '2026-06-18T08:00:00', 5),
+    (N'Hoàng Gia Khánh', '0910000048', 'member048@example.invalid', '2003-01-21', N'Nam', 0, '2026-06-25T08:00:00', 5),
+    (N'Hoàng Bảo Linh', '0910000049', 'member049@example.invalid', '2004-02-22', N'Nữ', 0, '2026-07-02T08:00:00', 5),
+    (N'Hoàng Hoàng Nam', '0910000050', 'member050@example.invalid', '1980-03-23', N'Khác', 0, '2026-07-09T08:00:00', 5),
+    (N'Vũ Minh An', '0910000051', 'member051@example.invalid', '1981-04-24', N'Nam', 0, '2026-07-16T08:00:00', 5),
+    (N'Vũ Thanh Bình', '0910000052', 'member052@example.invalid', '1982-05-25', N'Nữ', 0, '2026-07-23T08:00:00', 5),
+    (N'Vũ Ngọc Châu', '0910000053', 'member053@example.invalid', '1983-06-26', N'Khác', 0, '2026-07-30T08:00:00', 5),
+    (N'Vũ Thùy Dung', '0910000054', 'member054@example.invalid', '1984-07-27', N'Nam', 0, '2026-08-06T08:00:00', 5),
+    (N'Vũ Hương Giang', '0910000055', 'member055@example.invalid', '1985-08-28', N'Nữ', 0, '2026-08-13T08:00:00', 5),
+    (N'Vũ Thu Hà', '0910000056', 'member056@example.invalid', '1986-09-01', N'Khác', 0, '2026-08-20T08:00:00', 5),
+    (N'Vũ Quang Huy', '0910000057', 'member057@example.invalid', '1987-10-02', N'Nam', 0, '2026-08-27T08:00:00', 5),
+    (N'Vũ Gia Khánh', '0910000058', 'member058@example.invalid', '1988-11-03', N'Nữ', 0, '2026-09-03T08:00:00', 5),
+    (N'Vũ Bảo Linh', '0910000059', 'member059@example.invalid', '1989-12-04', N'Khác', 0, '2026-09-10T08:00:00', 5),
+    (N'Vũ Hoàng Nam', '0910000060', 'member060@example.invalid', '1990-01-05', N'Nam', 0, '2026-04-30T08:00:00', 5),
+    (N'Đặng Minh An', '0910000061', 'member061@example.invalid', '1991-02-06', N'Nữ', 0, '2026-05-07T08:00:00', 5),
+    (N'Đặng Thanh Bình', '0910000062', 'member062@example.invalid', '1992-03-07', N'Khác', 0, '2026-05-14T08:00:00', 5),
+    (N'Đặng Ngọc Châu', '0910000063', 'member063@example.invalid', '1993-04-08', N'Nam', 0, '2026-05-21T08:00:00', 5),
+    (N'Đặng Thùy Dung', '0910000064', 'member064@example.invalid', '1994-05-09', N'Nữ', 0, '2026-05-28T08:00:00', 5),
+    (N'Đặng Hương Giang', '0910000065', 'member065@example.invalid', '1995-06-10', N'Khác', 0, '2026-06-04T08:00:00', 5),
+    (N'Đặng Thu Hà', '0910000066', 'member066@example.invalid', '1996-07-11', N'Nam', 0, '2026-06-11T08:00:00', 5),
+    (N'Đặng Quang Huy', '0910000067', 'member067@example.invalid', '1997-08-12', N'Nữ', 0, '2026-06-18T08:00:00', 5),
+    (N'Đặng Gia Khánh', '0910000068', 'member068@example.invalid', '1998-09-13', N'Khác', 0, '2026-06-25T08:00:00', 5),
+    (N'Đặng Bảo Linh', '0910000069', 'member069@example.invalid', '1999-10-14', N'Nam', 0, '2026-07-02T08:00:00', 5),
+    (N'Đặng Hoàng Nam', '0910000070', 'member070@example.invalid', '2000-11-15', N'Nữ', 0, '2026-07-09T08:00:00', 5),
+    (N'Bùi Minh An', '0910000071', 'member071@example.invalid', '2001-12-16', N'Khác', 0, '2026-07-16T08:00:00', 5),
+    (N'Bùi Thanh Bình', '0910000072', 'member072@example.invalid', '2002-01-17', N'Nam', 0, '2026-07-23T08:00:00', 5),
+    (N'Bùi Ngọc Châu', '0910000073', 'member073@example.invalid', '2003-02-18', N'Nữ', 0, '2026-07-30T08:00:00', 5),
+    (N'Bùi Thùy Dung', '0910000074', 'member074@example.invalid', '2004-03-19', N'Khác', 0, '2026-08-06T08:00:00', 5),
+    (N'Bùi Hương Giang', '0910000075', 'member075@example.invalid', '1980-04-20', N'Nam', 0, '2026-08-13T08:00:00', 5),
+    (N'Bùi Thu Hà', '0910000076', 'member076@example.invalid', '1981-05-21', N'Nữ', 0, '2026-08-20T08:00:00', 5),
+    (N'Bùi Quang Huy', '0910000077', 'member077@example.invalid', '1982-06-22', N'Khác', 0, '2026-08-27T08:00:00', 5),
+    (N'Bùi Gia Khánh', '0910000078', 'member078@example.invalid', '1983-07-23', N'Nam', 0, '2026-09-03T08:00:00', 5),
+    (N'Bùi Bảo Linh', '0910000079', 'member079@example.invalid', '1984-08-24', N'Nữ', 0, '2026-09-10T08:00:00', 5),
+    (N'Bùi Hoàng Nam', '0910000080', 'member080@example.invalid', '1985-09-25', N'Khác', 0, '2026-04-30T08:00:00', 5),
+    (N'Đỗ Minh An', '0910000081', 'member081@example.invalid', '1986-10-26', N'Nam', 0, '2026-05-07T08:00:00', 5),
+    (N'Đỗ Thanh Bình', '0910000082', 'member082@example.invalid', '1987-11-27', N'Nữ', 0, '2026-05-14T08:00:00', 5),
+    (N'Đỗ Ngọc Châu', '0910000083', 'member083@example.invalid', '1988-12-28', N'Khác', 0, '2026-05-21T08:00:00', 5),
+    (N'Đỗ Thùy Dung', '0910000084', 'member084@example.invalid', '1989-01-01', N'Nam', 0, '2026-05-28T08:00:00', 5),
+    (N'Đỗ Hương Giang', '0910000085', 'member085@example.invalid', '1990-02-02', N'Nữ', 0, '2026-06-04T08:00:00', 5),
+    (N'Đỗ Thu Hà', '0910000086', 'member086@example.invalid', '1991-03-03', N'Khác', 0, '2026-06-11T08:00:00', 5),
+    (N'Đỗ Quang Huy', '0910000087', 'member087@example.invalid', '1992-04-04', N'Nam', 0, '2026-06-18T08:00:00', 5),
+    (N'Đỗ Gia Khánh', '0910000088', 'member088@example.invalid', '1993-05-05', N'Nữ', 0, '2026-06-25T08:00:00', 5),
+    (N'Đỗ Bảo Linh', '0910000089', 'member089@example.invalid', '1994-06-06', N'Khác', 0, '2026-07-02T08:00:00', 5),
+    (N'Đỗ Hoàng Nam', '0910000090', 'member090@example.invalid', '1995-07-07', N'Nam', 0, '2026-07-09T08:00:00', 5),
+    (N'Hồ Minh An', '0910000091', 'member091@example.invalid', '1996-08-08', N'Nữ', 0, '2026-07-16T08:00:00', 5),
+    (N'Hồ Thanh Bình', '0910000092', 'member092@example.invalid', '1997-09-09', N'Khác', 0, '2026-07-23T08:00:00', 5),
+    (N'Hồ Ngọc Châu', '0910000093', 'member093@example.invalid', '1998-10-10', N'Nam', 1, '2026-07-30T08:00:00', 5),
+    (N'Hồ Thùy Dung', '0910000094', 'member094@example.invalid', '1999-11-11', N'Nữ', 1, '2026-08-06T08:00:00', 5),
+    (N'Hồ Hương Giang', '0910000095', 'member095@example.invalid', '2000-12-12', N'Khác', 1, '2026-08-13T08:00:00', 5),
+    (N'Hồ Thu Hà', '0910000096', 'member096@example.invalid', '2001-01-13', N'Nam', 1, '2026-08-20T08:00:00', 5),
+    (N'Hồ Quang Huy', '0910000097', 'member097@example.invalid', '2002-02-14', N'Nữ', 1, '2026-08-27T08:00:00', 5),
+    (N'Hồ Gia Khánh', '0910000098', 'member098@example.invalid', '2003-03-15', N'Khác', 1, '2026-09-03T08:00:00', 5),
+    (N'Hồ Bảo Linh', '0910000099', 'member099@example.invalid', '2004-04-16', N'Nam', 1, '2026-09-10T08:00:00', 5),
+    (N'Hồ Hoàng Nam', '0910000100', 'member100@example.invalid', '1980-05-17', N'Nữ', 1, '2026-04-30T08:00:00', 5);
+
+INSERT INTO dbo.registrations (member_id, package_id, package_name_snapshot, duration_months_snapshot, price_snapshot, status, created_at, created_by, payment_method, paid_at, confirmed_by, start_date, end_date, cancelled_at, cancelled_by, cancel_reason)
+VALUES
+    (1, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-05-30T09:00:00', 5, 'TRANSFER', '2026-05-30T10:00:00', 3, '2026-05-30', '2026-06-29', NULL, NULL, NULL),
+    (2, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-17T09:00:00', 5, 'CASH', '2026-10-17T10:00:00', 3, '2026-10-17', '2026-11-16', NULL, NULL, NULL),
+    (3, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-09-30T09:00:00', 5, 'TRANSFER', '2026-09-30T10:00:00', 3, '2026-09-30', '2026-10-29', NULL, NULL, NULL),
+    (4, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-17T09:00:00', 5, 'CASH', '2026-10-17T10:00:00', 3, '2026-10-17', '2026-11-16', NULL, NULL, NULL),
+    (5, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-06-24T09:00:00', 5, 'TRANSFER', '2026-06-24T10:00:00', 3, '2026-06-24', '2026-09-23', NULL, NULL, NULL),
+    (6, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-07-01T09:00:00', 5, 'CASH', '2026-07-01T10:00:00', 3, '2026-07-01', '2026-12-31', NULL, NULL, NULL),
+    (7, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-07-08T09:00:00', 5, 'TRANSFER', '2026-07-08T10:00:00', 3, '2026-07-08', '2027-07-07', NULL, NULL, NULL),
+    (8, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-07-15T09:00:00', 5, 'CASH', '2026-07-15T10:00:00', 3, '2026-07-15', '2026-08-14', NULL, NULL, NULL),
+    (9, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-07-22T09:00:00', 5, 'TRANSFER', '2026-07-22T10:00:00', 3, '2026-07-22', '2026-10-21', NULL, NULL, NULL),
+    (10, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-07-29T09:00:00', 5, 'CASH', '2026-07-29T10:00:00', 3, '2026-07-29', '2027-01-28', NULL, NULL, NULL),
+    (11, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-08-05T09:00:00', 5, 'TRANSFER', '2026-08-05T10:00:00', 3, '2026-08-05', '2027-08-04', NULL, NULL, NULL),
+    (12, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-08-12T09:00:00', 5, 'CASH', '2026-08-12T10:00:00', 3, '2026-08-12', '2026-09-11', NULL, NULL, NULL),
+    (13, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-08-19T09:00:00', 5, 'TRANSFER', '2026-08-19T10:00:00', 3, '2026-08-19', '2026-11-18', NULL, NULL, NULL),
+    (14, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-08-26T09:00:00', 5, 'CASH', '2026-08-26T10:00:00', 3, '2026-08-26', '2027-02-25', NULL, NULL, NULL),
+    (15, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-09-02T09:00:00', 5, 'TRANSFER', '2026-09-02T10:00:00', 3, '2026-09-02', '2027-09-01', NULL, NULL, NULL),
+    (16, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-09-09T09:00:00', 5, 'CASH', '2026-09-09T10:00:00', 3, '2026-09-09', '2026-10-08', NULL, NULL, NULL),
+    (17, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-09-16T09:00:00', 5, 'TRANSFER', '2026-09-16T10:00:00', 3, '2026-09-16', '2026-12-15', NULL, NULL, NULL),
+    (18, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-09-23T09:00:00', 5, 'CASH', '2026-09-23T10:00:00', 3, '2026-09-23', '2027-03-22', NULL, NULL, NULL),
+    (19, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-09-30T09:00:00', 5, 'TRANSFER', '2026-09-30T10:00:00', 3, '2026-09-30', '2027-09-29', NULL, NULL, NULL),
+    (20, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-05-20T09:00:00', 5, 'CASH', '2026-05-20T10:00:00', 3, '2026-05-20', '2026-06-19', NULL, NULL, NULL),
+    (21, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-05-27T09:00:00', 5, 'TRANSFER', '2026-05-27T10:00:00', 3, '2026-05-27', '2026-08-26', NULL, NULL, NULL),
+    (22, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-06-03T09:00:00', 5, 'CASH', '2026-06-03T10:00:00', 3, '2026-06-03', '2026-12-02', NULL, NULL, NULL),
+    (23, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-06-10T09:00:00', 5, 'TRANSFER', '2026-06-10T10:00:00', 3, '2026-06-10', '2027-06-09', NULL, NULL, NULL),
+    (24, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-06-17T09:00:00', 5, 'CASH', '2026-06-17T10:00:00', 3, '2026-06-17', '2026-07-16', NULL, NULL, NULL),
+    (25, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-06-24T09:00:00', 5, 'TRANSFER', '2026-06-24T10:00:00', 3, '2026-06-24', '2026-09-23', NULL, NULL, NULL),
+    (26, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-07-01T09:00:00', 5, 'CASH', '2026-07-01T10:00:00', 3, '2026-07-01', '2026-12-31', NULL, NULL, NULL),
+    (27, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-07-08T09:00:00', 5, 'TRANSFER', '2026-07-08T10:00:00', 3, '2026-07-08', '2027-07-07', NULL, NULL, NULL),
+    (28, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-07-15T09:00:00', 5, 'CASH', '2026-07-15T10:00:00', 3, '2026-07-15', '2026-08-14', NULL, NULL, NULL),
+    (29, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-07-22T09:00:00', 5, 'TRANSFER', '2026-07-22T10:00:00', 3, '2026-07-22', '2026-10-21', NULL, NULL, NULL),
+    (30, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-07-29T09:00:00', 5, 'CASH', '2026-07-29T10:00:00', 3, '2026-07-29', '2027-01-28', NULL, NULL, NULL),
+    (31, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-08-05T09:00:00', 5, 'TRANSFER', '2026-08-05T10:00:00', 3, '2026-08-05', '2027-08-04', NULL, NULL, NULL),
+    (32, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-08-12T09:00:00', 5, 'CASH', '2026-08-12T10:00:00', 3, '2026-08-12', '2026-09-11', NULL, NULL, NULL),
+    (33, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-08-19T09:00:00', 5, 'TRANSFER', '2026-08-19T10:00:00', 3, '2026-08-19', '2026-11-18', NULL, NULL, NULL),
+    (34, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-08-26T09:00:00', 5, 'CASH', '2026-08-26T10:00:00', 3, '2026-08-26', '2027-02-25', NULL, NULL, NULL),
+    (35, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-09-02T09:00:00', 5, 'TRANSFER', '2026-09-02T10:00:00', 3, '2026-09-02', '2027-09-01', NULL, NULL, NULL),
+    (36, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-09-09T09:00:00', 5, 'CASH', '2026-09-09T10:00:00', 3, '2026-09-09', '2026-10-08', NULL, NULL, NULL),
+    (37, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-09-16T09:00:00', 5, 'TRANSFER', '2026-09-16T10:00:00', 3, '2026-09-16', '2026-12-15', NULL, NULL, NULL),
+    (38, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-09-23T09:00:00', 5, 'CASH', '2026-09-23T10:00:00', 3, '2026-09-23', '2027-03-22', NULL, NULL, NULL),
+    (39, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-09-30T09:00:00', 5, 'TRANSFER', '2026-09-30T10:00:00', 3, '2026-09-30', '2027-09-29', NULL, NULL, NULL),
+    (40, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-05-20T09:00:00', 5, 'CASH', '2026-05-20T10:00:00', 3, '2026-05-20', '2026-06-19', NULL, NULL, NULL),
+    (41, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-05-27T09:00:00', 5, 'TRANSFER', '2026-05-27T10:00:00', 3, '2026-05-27', '2026-08-26', NULL, NULL, NULL),
+    (42, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-06-03T09:00:00', 5, 'CASH', '2026-06-03T10:00:00', 3, '2026-06-03', '2026-12-02', NULL, NULL, NULL),
+    (43, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-06-10T09:00:00', 5, 'TRANSFER', '2026-06-10T10:00:00', 3, '2026-06-10', '2027-06-09', NULL, NULL, NULL),
+    (44, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-06-17T09:00:00', 5, 'CASH', '2026-06-17T10:00:00', 3, '2026-06-17', '2026-07-16', NULL, NULL, NULL),
+    (45, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-06-24T09:00:00', 5, 'TRANSFER', '2026-06-24T10:00:00', 3, '2026-06-24', '2026-09-23', NULL, NULL, NULL),
+    (46, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-07-01T09:00:00', 5, 'CASH', '2026-07-01T10:00:00', 3, '2026-07-01', '2026-12-31', NULL, NULL, NULL),
+    (47, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-07-08T09:00:00', 5, 'TRANSFER', '2026-07-08T10:00:00', 3, '2026-07-08', '2027-07-07', NULL, NULL, NULL),
+    (48, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-07-15T09:00:00', 5, 'CASH', '2026-07-15T10:00:00', 3, '2026-07-15', '2026-08-14', NULL, NULL, NULL),
+    (49, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-07-22T09:00:00', 5, 'TRANSFER', '2026-07-22T10:00:00', 3, '2026-07-22', '2026-10-21', NULL, NULL, NULL),
+    (50, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-07-29T09:00:00', 5, 'CASH', '2026-07-29T10:00:00', 3, '2026-07-29', '2027-01-28', NULL, NULL, NULL),
+    (51, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-08-05T09:00:00', 5, 'TRANSFER', '2026-08-05T10:00:00', 3, '2026-08-05', '2027-08-04', NULL, NULL, NULL),
+    (52, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-08-12T09:00:00', 5, 'CASH', '2026-08-12T10:00:00', 3, '2026-08-12', '2026-09-11', NULL, NULL, NULL),
+    (53, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-08-19T09:00:00', 5, 'TRANSFER', '2026-08-19T10:00:00', 3, '2026-08-19', '2026-11-18', NULL, NULL, NULL),
+    (54, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-08-26T09:00:00', 5, 'CASH', '2026-08-26T10:00:00', 3, '2026-08-26', '2027-02-25', NULL, NULL, NULL),
+    (55, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-09-02T09:00:00', 5, 'TRANSFER', '2026-09-02T10:00:00', 3, '2026-09-02', '2027-09-01', NULL, NULL, NULL),
+    (56, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-09-09T09:00:00', 5, 'CASH', '2026-09-09T10:00:00', 3, '2026-09-09', '2026-10-08', NULL, NULL, NULL),
+    (57, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-09-16T09:00:00', 5, 'TRANSFER', '2026-09-16T10:00:00', 3, '2026-09-16', '2026-12-15', NULL, NULL, NULL),
+    (58, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-09-23T09:00:00', 5, 'CASH', '2026-09-23T10:00:00', 3, '2026-09-23', '2027-03-22', NULL, NULL, NULL),
+    (59, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-09-30T09:00:00', 5, 'TRANSFER', '2026-09-30T10:00:00', 3, '2026-09-30', '2027-09-29', NULL, NULL, NULL),
+    (60, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-05-20T09:00:00', 5, 'CASH', '2026-05-20T10:00:00', 3, '2026-05-20', '2026-06-19', NULL, NULL, NULL),
+    (61, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-05-27T09:00:00', 5, 'TRANSFER', '2026-05-27T10:00:00', 3, '2026-05-27', '2026-08-26', NULL, NULL, NULL),
+    (62, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-06-03T09:00:00', 5, 'CASH', '2026-06-03T10:00:00', 3, '2026-06-03', '2026-12-02', NULL, NULL, NULL),
+    (63, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-06-10T09:00:00', 5, 'TRANSFER', '2026-06-10T10:00:00', 3, '2026-06-10', '2027-06-09', NULL, NULL, NULL),
+    (64, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-06-17T09:00:00', 5, 'CASH', '2026-06-17T10:00:00', 3, '2026-06-17', '2026-07-16', NULL, NULL, NULL),
+    (65, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-06-24T09:00:00', 5, 'TRANSFER', '2026-06-24T10:00:00', 3, '2026-06-24', '2026-09-23', NULL, NULL, NULL),
+    (66, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-07-01T09:00:00', 5, 'CASH', '2026-07-01T10:00:00', 3, '2026-07-01', '2026-12-31', NULL, NULL, NULL),
+    (67, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-07-08T09:00:00', 5, 'TRANSFER', '2026-07-08T10:00:00', 3, '2026-07-08', '2027-07-07', NULL, NULL, NULL),
+    (68, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-07-15T09:00:00', 5, 'CASH', '2026-07-15T10:00:00', 3, '2026-07-15', '2026-08-14', NULL, NULL, NULL),
+    (69, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-07-22T09:00:00', 5, 'TRANSFER', '2026-07-22T10:00:00', 3, '2026-07-22', '2026-10-21', NULL, NULL, NULL),
+    (70, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-07-29T09:00:00', 5, 'CASH', '2026-07-29T10:00:00', 3, '2026-07-29', '2027-01-28', NULL, NULL, NULL),
+    (71, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-08-05T09:00:00', 5, 'TRANSFER', '2026-08-05T10:00:00', 3, '2026-08-05', '2027-08-04', NULL, NULL, NULL),
+    (72, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-08-12T09:00:00', 5, 'CASH', '2026-08-12T10:00:00', 3, '2026-08-12', '2026-09-11', NULL, NULL, NULL),
+    (73, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-08-19T09:00:00', 5, 'TRANSFER', '2026-08-19T10:00:00', 3, '2026-08-19', '2026-11-18', NULL, NULL, NULL),
+    (74, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-08-26T09:00:00', 5, 'CASH', '2026-08-26T10:00:00', 3, '2026-08-26', '2027-02-25', NULL, NULL, NULL),
+    (75, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-09-02T09:00:00', 5, 'TRANSFER', '2026-09-02T10:00:00', 3, '2026-09-02', '2027-09-01', NULL, NULL, NULL),
+    (76, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-09-09T09:00:00', 5, 'CASH', '2026-09-09T10:00:00', 3, '2026-09-09', '2026-10-08', NULL, NULL, NULL),
+    (77, 2, N'Gói Ba Tháng', 3, 1350000, 'PAID', '2026-09-16T09:00:00', 5, 'TRANSFER', '2026-09-16T10:00:00', 3, '2026-09-16', '2026-12-15', NULL, NULL, NULL),
+    (78, 3, N'Gói Sáu Tháng', 6, 2400000, 'PAID', '2026-09-23T09:00:00', 5, 'CASH', '2026-09-23T10:00:00', 3, '2026-09-23', '2027-03-22', NULL, NULL, NULL),
+    (79, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PAID', '2026-09-30T09:00:00', 5, 'TRANSFER', '2026-09-30T10:00:00', 3, '2026-09-30', '2027-09-29', NULL, NULL, NULL),
+    (80, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-05-20T09:00:00', 5, 'CASH', '2026-05-20T10:00:00', 3, '2026-05-20', '2026-06-19', NULL, NULL, NULL),
+    (4, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-22T09:00:00', 5, 'TRANSFER', '2026-10-22T10:00:00', 3, '2026-11-17', '2026-12-16', NULL, NULL, NULL),
+    (5, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-20T09:00:00', 5, 'CASH', '2026-10-20T10:00:00', 3, '2026-10-20', '2026-11-19', NULL, NULL, NULL),
+    (6, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-19T09:00:00', 5, 'TRANSFER', '2026-10-19T10:00:00', 3, '2027-01-01', '2027-01-31', NULL, NULL, NULL),
+    (7, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-18T09:00:00', 5, 'CASH', '2026-10-18T10:00:00', 3, '2027-07-08', '2027-08-07', NULL, NULL, NULL),
+    (8, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-17T09:00:00', 5, 'TRANSFER', '2026-10-17T10:00:00', 3, '2026-10-17', '2026-11-16', NULL, NULL, NULL),
+    (9, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-16T09:00:00', 5, 'CASH', '2026-10-16T10:00:00', 3, '2026-10-22', '2026-11-21', NULL, NULL, NULL),
+    (10, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-15T09:00:00', 5, 'TRANSFER', '2026-10-15T10:00:00', 3, '2027-01-29', '2027-02-27', NULL, NULL, NULL),
+    (11, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-14T09:00:00', 5, 'CASH', '2026-10-14T10:00:00', 3, '2027-08-05', '2027-09-04', NULL, NULL, NULL),
+    (12, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-25T09:00:00', 5, 'TRANSFER', '2026-10-25T10:00:00', 3, '2026-10-25', '2026-11-24', NULL, NULL, NULL),
+    (13, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-24T09:00:00', 5, 'CASH', '2026-10-24T10:00:00', 3, '2026-11-19', '2026-12-18', NULL, NULL, NULL),
+    (14, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-23T09:00:00', 5, 'TRANSFER', '2026-10-23T10:00:00', 3, '2027-02-26', '2027-03-25', NULL, NULL, NULL),
+    (15, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-22T09:00:00', 5, 'CASH', '2026-10-22T10:00:00', 3, '2027-09-02', '2027-10-01', NULL, NULL, NULL),
+    (16, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-21T09:00:00', 5, 'TRANSFER', '2026-10-21T10:00:00', 3, '2026-10-21', '2026-11-20', NULL, NULL, NULL),
+    (17, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-20T09:00:00', 5, 'CASH', '2026-10-20T10:00:00', 3, '2026-12-16', '2027-01-15', NULL, NULL, NULL),
+    (18, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-19T09:00:00', 5, 'TRANSFER', '2026-10-19T10:00:00', 3, '2027-03-23', '2027-04-22', NULL, NULL, NULL),
+    (19, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-18T09:00:00', 5, 'CASH', '2026-10-18T10:00:00', 3, '2027-09-30', '2027-10-29', NULL, NULL, NULL),
+    (20, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-17T09:00:00', 5, 'TRANSFER', '2026-10-17T10:00:00', 3, '2026-10-17', '2026-11-16', NULL, NULL, NULL),
+    (21, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-16T09:00:00', 5, 'CASH', '2026-10-16T10:00:00', 3, '2026-10-16', '2026-11-15', NULL, NULL, NULL),
+    (22, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-15T09:00:00', 5, 'TRANSFER', '2026-10-15T10:00:00', 3, '2026-12-03', '2027-01-02', NULL, NULL, NULL),
+    (23, 1, N'Gói Một Tháng', 1, 500000, 'PAID', '2026-10-14T09:00:00', 5, 'CASH', '2026-10-14T10:00:00', 3, '2027-06-10', '2027-07-09', NULL, NULL, NULL),
+    (61, 2, N'Gói Ba Tháng', 3, 1350000, 'PENDING', '2026-10-21T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (62, 3, N'Gói Sáu Tháng', 6, 2400000, 'PENDING', '2026-10-16T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (63, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PENDING', '2026-10-11T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (64, 1, N'Gói Một Tháng', 1, 500000, 'PENDING', '2026-10-06T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (65, 2, N'Gói Ba Tháng', 3, 1350000, 'PENDING', '2026-10-01T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (66, 5, N'Gói Một Tháng Cũ', 1, 450000, 'PENDING', '2026-09-26T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (67, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PENDING', '2026-10-26T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (68, 1, N'Gói Một Tháng', 1, 500000, 'PENDING', '2026-10-21T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (69, 2, N'Gói Ba Tháng', 3, 1350000, 'PENDING', '2026-10-16T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (70, 3, N'Gói Sáu Tháng', 6, 2400000, 'PENDING', '2026-10-11T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (71, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PENDING', '2026-10-06T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (72, 5, N'Gói Một Tháng Cũ', 1, 450000, 'PENDING', '2026-10-01T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (73, 2, N'Gói Ba Tháng', 3, 1350000, 'PENDING', '2026-09-26T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (74, 3, N'Gói Sáu Tháng', 6, 2400000, 'PENDING', '2026-10-26T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (75, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PENDING', '2026-10-21T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (76, 1, N'Gói Một Tháng', 1, 500000, 'PENDING', '2026-10-16T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (77, 2, N'Gói Ba Tháng', 3, 1350000, 'PENDING', '2026-10-11T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (78, 5, N'Gói Một Tháng Cũ', 1, 450000, 'PENDING', '2026-10-06T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (79, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PENDING', '2026-10-01T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (80, 1, N'Gói Một Tháng', 1, 500000, 'PENDING', '2026-09-26T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (81, 2, N'Gói Ba Tháng', 3, 1350000, 'PENDING', '2026-10-26T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (82, 3, N'Gói Sáu Tháng', 6, 2400000, 'PENDING', '2026-10-21T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (83, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PENDING', '2026-10-16T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (84, 5, N'Gói Một Tháng Cũ', 1, 450000, 'PENDING', '2026-10-11T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (85, 2, N'Gói Ba Tháng', 3, 1350000, 'PENDING', '2026-10-06T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (86, 3, N'Gói Sáu Tháng', 6, 2400000, 'PENDING', '2026-10-01T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (87, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'PENDING', '2026-09-26T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (88, 1, N'Gói Một Tháng', 1, 500000, 'PENDING', '2026-10-26T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (89, 2, N'Gói Ba Tháng', 3, 1350000, 'PENDING', '2026-10-21T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (90, 5, N'Gói Một Tháng Cũ', 1, 450000, 'PENDING', '2026-10-16T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+    (81, 2, N'Gói Ba Tháng', 3, 1350000, 'CANCELLED', '2026-10-25T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-25T11:00:00', 3, N'Hội viên thay đổi nhu cầu đăng ký'),
+    (82, 3, N'Gói Sáu Tháng', 6, 2400000, 'CANCELLED', '2026-10-24T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-24T11:00:00', 3, N'Hội viên thay đổi nhu cầu đăng ký'),
+    (83, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'CANCELLED', '2026-10-23T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-23T11:00:00', 3, N'Hội viên thay đổi nhu cầu đăng ký'),
+    (84, 1, N'Gói Một Tháng', 1, 500000, 'CANCELLED', '2026-10-22T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-22T11:00:00', 3, N'Hội viên thay đổi nhu cầu đăng ký'),
+    (85, 2, N'Gói Ba Tháng', 3, 1350000, 'CANCELLED', '2026-10-21T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-21T11:00:00', 3, N'Hội viên thay đổi nhu cầu đăng ký'),
+    (86, 3, N'Gói Sáu Tháng', 6, 2400000, 'CANCELLED', '2026-10-20T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-20T11:00:00', 3, N'Hội viên thay đổi nhu cầu đăng ký'),
+    (87, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'CANCELLED', '2026-10-19T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-19T11:00:00', 3, N'Hội viên thay đổi nhu cầu đăng ký'),
+    (88, 1, N'Gói Một Tháng', 1, 500000, 'CANCELLED', '2026-10-18T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-18T11:00:00', 3, N'Hội viên thay đổi nhu cầu đăng ký'),
+    (89, 2, N'Gói Ba Tháng', 3, 1350000, 'CANCELLED', '2026-10-17T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-17T11:00:00', 3, N'Hội viên thay đổi nhu cầu đăng ký'),
+    (90, 3, N'Gói Sáu Tháng', 6, 2400000, 'CANCELLED', '2026-10-16T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-16T11:00:00', 3, N'Hội viên thay đổi nhu cầu đăng ký'),
+    (91, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'CANCELLED', '2026-10-15T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-15T11:00:00', 3, N'Hội viên thay đổi nhu cầu đăng ký'),
+    (92, 1, N'Gói Một Tháng', 1, 500000, 'CANCELLED', '2026-10-14T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-14T11:00:00', 3, N'Hội viên thay đổi nhu cầu đăng ký'),
+    (93, 2, N'Gói Ba Tháng', 3, 1350000, 'CANCELLED', '2026-10-13T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-13T11:00:00', 3, N'Xóa hồ sơ hội viên'),
+    (94, 3, N'Gói Sáu Tháng', 6, 2400000, 'CANCELLED', '2026-10-12T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-12T11:00:00', 3, N'Xóa hồ sơ hội viên'),
+    (95, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'CANCELLED', '2026-10-11T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-11T11:00:00', 3, N'Xóa hồ sơ hội viên'),
+    (96, 1, N'Gói Một Tháng', 1, 500000, 'CANCELLED', '2026-10-10T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-10T11:00:00', 3, N'Xóa hồ sơ hội viên'),
+    (97, 2, N'Gói Ba Tháng', 3, 1350000, 'CANCELLED', '2026-10-09T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-09T11:00:00', 3, N'Xóa hồ sơ hội viên'),
+    (98, 3, N'Gói Sáu Tháng', 6, 2400000, 'CANCELLED', '2026-10-08T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-08T11:00:00', 3, N'Xóa hồ sơ hội viên'),
+    (99, 4, N'Gói Mười Hai Tháng', 12, 4500000, 'CANCELLED', '2026-10-07T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-07T11:00:00', 3, N'Xóa hồ sơ hội viên'),
+    (100, 1, N'Gói Một Tháng', 1, 500000, 'CANCELLED', '2026-10-26T09:00:00', 5, NULL, NULL, NULL, NULL, NULL, '2026-10-26T11:00:00', 3, N'Xóa hồ sơ hội viên');
