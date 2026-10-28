@@ -1,4 +1,6 @@
-/*
- * Project styles on top of Bootstrap 5 (served from /assets/vendor/bootstrap, CL-11).
- * TODO: Only small additions here: .field-error, .hint, badges for registration/membership status.
- */
+/* Small additions to the local Bootstrap stylesheet. */
+.field-error { color: var(--bs-danger-text-emphasis); display: block; }
+.hint { color: var(--bs-secondary-color); font-size: .875rem; }
+.badge-pending, .badge-waiting { background: #664d03; color: #fff; }
+.badge-paid, .badge-active { background: #146c43; color: #fff; }
+.badge-cancelled, .badge-expired, .badge-none { background: #495057; color: #fff; }
