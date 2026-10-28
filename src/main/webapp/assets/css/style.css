@@ -1,18 +1,6 @@
 /* Small additions to the local Bootstrap stylesheet. */
 .field-error { color: var(--bs-danger-text-emphasis); display: block; }
 .hint { color: var(--bs-secondary-color); font-size: .875rem; }
-main h1 { margin-bottom: 1.5rem; }
-main form { max-width: 60rem; }
-main label { margin-top: .75rem; }
-main input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
-main select, main textarea {
-    display: block;
-    max-width: 100%;
-    padding: .375rem .75rem;
-    border: 1px solid var(--bs-border-color);
-    border-radius: var(--bs-border-radius);
-}
-main button { margin-block: .75rem; }
 .badge-pending, .badge-waiting { background: #664d03; color: #fff; }
 .badge-paid, .badge-active { background: #146c43; color: #fff; }
 .badge-cancelled, .badge-expired, .badge-none { background: #495057; color: #fff; }
