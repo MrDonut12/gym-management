@@ -1,5 +1,6 @@
 package group4.gym.management.controller.account;
 
+import group4.gym.management.dao.account.AccountDAO;
 import group4.gym.management.service.account.AuthService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -24,6 +25,10 @@ public class LoginServlet extends HttpServlet {
         // TODO: Already logged in -> redirect to /home.
         //       CookieUtil.getRememberedUsername (invalid values are ignored); if present, set username and rememberChecked = true.
         // Output: forward to VIEW (the password is never pre-filled).
+
+
+
+        request.getRequestDispatcher(VIEW).forward(request, response);
     }
 
     @Override
@@ -35,5 +40,11 @@ public class LoginServlet extends HttpServlet {
         //       Success -> SessionUtil.login (changes the session ID);
         //       checked -> CookieUtil.addRememberUsernameCookie, unchecked -> CookieUtil.clearRememberUsernameCookie; redirect to /home.
         // Output: redirect to /home on success; forward to VIEW with the generic error on failure.
+
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        AccountDAO dao = new AccountDAO();
+
     }
 }

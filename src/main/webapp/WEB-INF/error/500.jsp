@@ -9,6 +9,7 @@
 <jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>500 - System error</h1>
-<%-- TODO: Show a friendly message and a link back to /home. --%>
+<p>Something went wrong. Please try again later.</p>
+<a class="btn btn-primary" href="${pageContext.request.contextPath}/home">Back to home</a>
 
 <jsp:include page="/WEB-INF/common/footer.jsp"/>
