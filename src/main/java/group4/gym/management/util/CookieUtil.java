@@ -1,5 +1,6 @@
 package group4.gym.management.util;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -23,9 +24,14 @@ public final class CookieUtil {
      * Send the gym_username cookie after a successful login with "Remember username" checked.
      */
     public static void addRememberUsernameCookie(HttpServletRequest request, HttpServletResponse response, String username) {
-        // TODO: new Cookie(REMEMBER_USERNAME_COOKIE, username) (HL-08 characters are cookie-safe);
-        //       MaxAge = REMEMBER_USERNAME_MAX_AGE; Path = request.getContextPath(); HttpOnly = true; response.addCookie(...).
-        // Output: nothing returned; the response carries a Set-Cookie header with the correct attributes.
+        if (!ValidationUtil.isValidUsername(username)) {
+            throw new IllegalArgumentException("Invalid username");
+        }
+        Cookie cookie = new Cookie(REMEMBER_USERNAME_COOKIE, username);
+        cookie.setMaxAge(REMEMBER_USERNAME_MAX_AGE);
+        cookie.setPath(request.getContextPath().isEmpty() ? "/" : request.getContextPath());
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
     }
 
     /**
@@ -33,18 +39,26 @@ public final class CookieUtil {
      * Must not be called on a failed login or on logout (QT-17).
      */
     public static void clearRememberUsernameCookie(HttpServletRequest request, HttpServletResponse response) {
-        // TODO: Cookie with the same name and Path, empty value, MaxAge = 0, HttpOnly; response.addCookie(...).
-        // Output: nothing returned; the browser removes the cookie.
+        Cookie cookie = new Cookie(REMEMBER_USERNAME_COOKIE, "");
+        cookie.setMaxAge(0);
+        cookie.setPath(request.getContextPath().isEmpty() ? "/" : request.getContextPath());
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
     }
 
     /**
      * Read the remembered username to pre-fill the login page.
      */
     public static String getRememberedUsername(HttpServletRequest request) {
-        // TODO: Iterate request.getCookies() (may be null) and find REMEMBER_USERNAME_COOKIE;
-        //       a value that fails ValidationUtil.isValidUsername (HL-08) is ignored (KT-04: <script>alert(1)</script>).
-        //       The JSP still escapes the value with c:out (CL-04).
-        // Output: the username; null if there is no cookie or the value is invalid.
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (REMEMBER_USERNAME_COOKIE.equals(cookie.getName())
+                        && ValidationUtil.isValidUsername(cookie.getValue())) {
+                    return cookie.getValue();
+                }
+            }
+        }
         return null;
     }
 }

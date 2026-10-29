@@ -24,6 +24,8 @@ public class LoginServlet extends HttpServlet {
         // TODO: Already logged in -> redirect to /home.
         //       CookieUtil.getRememberedUsername (invalid values are ignored); if present, set username and rememberChecked = true.
         // Output: forward to VIEW (the password is never pre-filled).
+
+        request.getRequestDispatcher(VIEW).forward(request, response);
     }
 
     @Override
