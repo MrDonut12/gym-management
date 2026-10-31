@@ -1,6 +1,11 @@
 package group4.gym.management.controller.registration;
 
+import group4.gym.management.exception.ValidationException;
+import group4.gym.management.model.registration.GymPackage;
 import group4.gym.management.service.registration.PackageService;
+import group4.gym.management.util.AppConstants;
+import group4.gym.management.util.RequestUtil;
+import group4.gym.management.util.SessionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -21,15 +26,34 @@ public class PackageCreateServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Set mode = create on the request.
-        // Output: forward to VIEW.
+        request.setAttribute("mode", "create");
+        request.getRequestDispatcher(VIEW).forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Read name (getString), durationMonths (getInteger), price (raw text for HL-12);
-        //       packageService.createPackage(name, durationMonths, price); ValidationException -> forward with fieldErrors.
-        // Output: success: flash + redirect to /staff/packages; failure: forward to VIEW keeping the values.
+        String name = RequestUtil.getString(request, "name");
+        Integer durationMonths = RequestUtil.getInteger(request, "durationMonths");
+        String price = RequestUtil.getRawString(request, "price");
+
+        try {
+            packageService.createPackage(name, durationMonths, price);
+        } catch (ValidationException ex) {
+            // Keep the entered values; the price stays as typed text because it may not be a valid number.
+            GymPackage entered = new GymPackage();
+            entered.setName(name);
+            entered.setDurationMonths(durationMonths == null ? 0 : durationMonths);
+            request.setAttribute("mode", "create");
+            request.setAttribute("gymPackage", entered);
+            request.setAttribute("price", price);
+            request.setAttribute(AppConstants.ATTR_FIELD_ERRORS, ex.getFieldErrors());
+            request.setAttribute(AppConstants.ATTR_ERROR, ex.getMessage());
+            request.getRequestDispatcher(VIEW).forward(request, response);
+            return;
+        }
+
+        SessionUtil.flashMessage(request, "Đã tạo gói tập");
+        response.sendRedirect(request.getContextPath() + "/staff/packages");
     }
 }
