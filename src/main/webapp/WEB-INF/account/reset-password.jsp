@@ -9,14 +9,15 @@
 <jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <h1>Reset password</h1>
-<%-- TODO: Show the target account's username, full name and status (c:out); the lock status is not changed by this action. --%>
+<p><c:out value="${account.username}"/> — <c:out value="${account.fullName}"/> (<c:out value="${account.status}"/>). Status will not change.</p>
 <form method="post" action="${pageContext.request.contextPath}/admin/accounts/reset-password" onsubmit="return validatePasswordForm(this);">
-    <input type="hidden" name="id" value="">
+    <input type="hidden" name="id" value="<c:out value='${account.id}'/>">
     <label for="newPassword">New password (8-64 characters)</label>
-    <input type="password" id="newPassword" name="newPassword" minlength="8" maxlength="64">
+    <input type="password" id="newPassword" name="newPassword" minlength="8" maxlength="64" required>
+    <div class="text-danger" role="alert"><c:out value="${fieldErrors.newPassword}"/></div>
     <label for="confirmPassword">Confirm new password</label>
-    <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" maxlength="64">
-    <%-- TODO: Show fieldErrors. --%>
+    <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" maxlength="64" required>
+    <div class="text-danger" role="alert"><c:out value="${fieldErrors.confirmPassword}"/></div>
     <button type="submit">Reset</button>
     <a href="${pageContext.request.contextPath}/admin/accounts">Cancel</a>
 </form>
