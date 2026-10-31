@@ -3,6 +3,7 @@ package group4.gym.management.util;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 
 /**
  * The single business clock (QT-15, shared interface SRS 9.1, owner TV4).
@@ -21,17 +22,13 @@ public final class AppClock {
      * Current business date-time in Vietnam time.
      */
     public static LocalDateTime now() {
-        // TODO: LocalDateTime.now(ZONE) truncated to seconds (columns are DATETIME2(0)).
-        // Output: the current LocalDateTime in Vietnam time.
-        return null;
+        return LocalDateTime.now(ZONE).truncatedTo(ChronoUnit.SECONDS);
     }
 
     /**
      * "Today" in Vietnam time (SRS 1.5), used by QT-05, QT-07, QT-08, QT-09 and HL-05.
      */
     public static LocalDate today() {
-        // TODO: LocalDate.now(ZONE).
-        // Output: today's LocalDate in Vietnam time.
-        return null;
+        return LocalDate.now(ZONE);
     }
 }
