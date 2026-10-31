@@ -50,6 +50,20 @@ public class RegistrationService {
     }
 
     /**
+     * One member to pre-select in the CN-22 form (button on the member detail page).
+     */
+    public Member getSelectableMember(int memberId) {
+        Member member = memberDAO.findById(memberId);
+        if (member == null) {
+            throw new NotFoundException("Member " + memberId + " not found");
+        }
+        if (member.isDeleted()) {
+            throw new BusinessRuleException("Hội viên đã bị xóa, không thể đăng ký gói");
+        }
+        return member;
+    }
+
+    /**
      * Create a PENDING registration (CN-22) in ONE transaction (QT-06):
      * the member must exist and not be soft-deleted (QT-11), the package must be on sale (QT-04, also when POSTed directly),
      * and the snapshot of name/duration/price is copied from the database, never from the form (QT-03).

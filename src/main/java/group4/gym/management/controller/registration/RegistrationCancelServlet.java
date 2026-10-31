@@ -1,6 +1,11 @@
 package group4.gym.management.controller.registration;
 
+import group4.gym.management.exception.BusinessRuleException;
+import group4.gym.management.exception.NotFoundException;
+import group4.gym.management.exception.ValidationException;
 import group4.gym.management.service.registration.RegistrationService;
+import group4.gym.management.util.RequestUtil;
+import group4.gym.management.util.SessionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -20,9 +25,25 @@ public class RegistrationCancelServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Read id (null / NotFoundException -> 404) and reason (getString);
-        //       registrationService.cancel(sessionUser, id, reason).
-        //       ValidationException (missing/short reason) or BusinessRuleException (no longer PENDING) -> flash error.
-        // Output: redirect to /staff/registrations with a flash message.
+        Integer id = RequestUtil.getPositiveId(request, "id");
+        if (id == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        String reason = RequestUtil.getString(request, "reason");
+
+        try {
+            registrationService.cancel(SessionUtil.getSessionUser(request), id, reason);
+            SessionUtil.flashMessage(request, "Đã hủy đăng ký");
+        } catch (NotFoundException ex) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        } catch (ValidationException ex) {
+            SessionUtil.flashError(request, ex.getFieldErrors().values().iterator().next());
+        } catch (BusinessRuleException ex) {
+            SessionUtil.flashError(request, ex.getMessage());
+        }
+
+        response.sendRedirect(request.getContextPath() + "/staff/registrations");
     }
 }
