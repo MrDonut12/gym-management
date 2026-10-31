@@ -12,19 +12,19 @@
 <a href="${pageContext.request.contextPath}/admin/accounts/create">Create account</a>
 
 <form method="get" action="${pageContext.request.contextPath}/admin/accounts">
-    <input type="text" name="keyword" maxlength="100" placeholder="Username or full name">
-    <select name="role">
+    <input type="text" name="keyword" aria-label="Username or full name" value="<c:out value='${keyword}'/>" maxlength="100" placeholder="Username or full name">
+    <select name="role" aria-label="Role">
         <option value="">All roles</option>
-        <option value="ADMIN">ADMIN</option>
-        <option value="MANAGER">MANAGER</option>
-        <option value="RECEPTIONIST">RECEPTIONIST</option>
+        <option value="ADMIN" ${role == 'ADMIN' ? 'selected' : ''}>ADMIN</option>
+        <option value="MANAGER" ${role == 'MANAGER' ? 'selected' : ''}>MANAGER</option>
+        <option value="RECEPTIONIST" ${role == 'RECEPTIONIST' ? 'selected' : ''}>RECEPTIONIST</option>
     </select>
-    <select name="status">
+    <select name="status" aria-label="Status">
         <option value="">All statuses</option>
-        <option value="ACTIVE">ACTIVE</option>
-        <option value="LOCKED">LOCKED</option>
+        <option value="ACTIVE" ${status == 'ACTIVE' ? 'selected' : ''}>ACTIVE</option>
+        <option value="LOCKED" ${status == 'LOCKED' ? 'selected' : ''}>LOCKED</option>
     </select>
-    <%-- TODO: Re-select the current filter values. --%>
+    <div class="text-danger" role="alert"><c:out value="${fieldErrors.keyword}"/></div>
     <button type="submit">Filter</button>
 </form>
 
@@ -33,10 +33,28 @@
     <tr><th>Username</th><th>Full name</th><th>Phone</th><th>Role</th><th>Status</th><th>Created at</th><th>Actions</th></tr>
     </thead>
     <tbody>
-    <%-- TODO: c:forEach over accounts; c:out for every value; never show the password hash.
-         Actions: Edit (/admin/accounts/edit?id=), Reset password (/admin/accounts/reset-password?id=),
-         POST form to /admin/accounts/lock (id, action=lock|unlock) with a confirmation dialog.
-         Hide Lock and Reset password on the current user's own row (QT-14; the backend refuses anyway). --%>
+    <c:forEach var="account" items="${accounts}">
+        <tr>
+            <td><c:out value="${account.username}"/></td>
+            <td><c:out value="${account.fullName}"/></td>
+            <td><c:out value="${account.phone}"/></td>
+            <td><c:out value="${account.role}"/></td>
+            <td><c:out value="${account.status}"/></td>
+            <td><c:out value="${account.createdAt}"/></td>
+            <td>
+                <a href="${pageContext.request.contextPath}/admin/accounts/edit?id=${account.id}">Edit</a>
+                <c:if test="${account.id != sessionScope.sessionUser.id}">
+                    <a href="${pageContext.request.contextPath}/admin/accounts/reset-password?id=${account.id}">Reset password</a>
+                    <form method="post" action="${pageContext.request.contextPath}/admin/accounts/lock" onsubmit="return confirm('Change this account status?');">
+                        <input type="hidden" name="id" value="${account.id}">
+                        <input type="hidden" name="action" value="${account.status == 'ACTIVE' ? 'lock' : 'unlock'}">
+                        <button type="submit">${account.status == 'ACTIVE' ? 'Lock' : 'Unlock'}</button>
+                    </form>
+                </c:if>
+            </td>
+        </tr>
+    </c:forEach>
+    <c:if test="${empty accounts}"><tr><td colspan="7">No accounts found.</td></tr></c:if>
     </tbody>
 </table>
 

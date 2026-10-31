@@ -1,5 +1,8 @@
 package group4.gym.management.controller;
 
+import group4.gym.management.model.account.SessionUser;
+import group4.gym.management.util.SessionUtil;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -17,8 +20,12 @@ public class HomeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: SessionUtil.getSessionUser(request).getRole():
-        //       ADMIN -> redirect /admin/accounts; MANAGER -> /manager/overview; RECEPTIONIST -> /staff/members.
-        // Output: redirect to the role's home page.
+        SessionUser user = SessionUtil.getSessionUser(request);
+        String destination = user == null ? "/login" : switch (user.getRole()) {
+            case ADMIN -> "/admin/accounts";
+            case MANAGER -> "/manager/overview";
+            case RECEPTIONIST -> "/staff/members";
+        };
+        response.sendRedirect(request.getContextPath() + destination);
     }
 }

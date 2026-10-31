@@ -1,5 +1,12 @@
 package group4.gym.management.controller.account;
 
+import group4.gym.management.model.account.Account;
+import group4.gym.management.model.account.Role;
+import group4.gym.management.util.RequestUtil;
+import group4.gym.management.util.SessionUtil;
+import group4.gym.management.exception.ValidationException;
+import group4.gym.management.exception.BusinessRuleException;
+import group4.gym.management.exception.NotFoundException;
 import group4.gym.management.service.account.AccountService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -22,16 +29,58 @@ public class AccountEditServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: id = RequestUtil.getPositiveId; null or NotFoundException -> 404 (HL-17);
-        //       accountService.getById; set account, mode = edit, roles on the request.
-        // Output: forward to VIEW.
+        Integer id = RequestUtil.getPositiveId(request, "id");
+        if (id == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        try {
+            request.setAttribute("account", accountService.getById(id));
+        } catch (NotFoundException ex) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        request.setAttribute("mode", "edit");
+        request.setAttribute("roles", new Role[]{Role.MANAGER, Role.RECEPTIONIST});
+        request.getRequestDispatcher(VIEW).forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Read id, fullName, phone, email, role (any username parameter is ignored); accountService.updateAccount(sessionUser, account).
-        //       ValidationException -> forward with fieldErrors; BusinessRuleException (QT-14) -> forward with error.
-        // Output: success: flash + redirect to /admin/accounts; failure: forward to VIEW.
+        Integer id = RequestUtil.getPositiveId(request, "id");
+        if (id == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        Account account;
+        try {
+            account = accountService.getById(id);
+        } catch (NotFoundException ex) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        account.setFullName(RequestUtil.getString(request, "fullName"));
+        account.setPhone(RequestUtil.getString(request, "phone"));
+        account.setEmail(RequestUtil.getString(request, "email"));
+        account.setRole(RequestUtil.getEnum(request, "role", Role.class));
+        try {
+            accountService.updateAccount(SessionUtil.getSessionUser(request), account);
+            SessionUtil.flashMessage(request, "Account saved.");
+            response.sendRedirect(request.getContextPath() + "/admin/accounts");
+            return;
+        } catch (ValidationException ex) {
+            request.setAttribute("error", ex.getMessage());
+            request.setAttribute("fieldErrors", ex.getFieldErrors());
+        } catch (BusinessRuleException ex) {
+            request.setAttribute("error", ex.getMessage());
+        } catch (NotFoundException ex) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        request.setAttribute("account", account);
+        request.setAttribute("mode", "edit");
+        request.setAttribute("roles", new Role[]{Role.MANAGER, Role.RECEPTIONIST});
+        request.getRequestDispatcher(VIEW).forward(request, response);
     }
 }
