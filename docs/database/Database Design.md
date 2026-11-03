@@ -178,7 +178,7 @@ Không đổi username (CN-07). Chỉ ADMIN quản lý tài khoản, không tự
 
 | Cột | Kiểu SQL | NULL | Quy tắc |
 |---|---|---|---|
-| `id` | `INT IDENTITY(1,1)` | Không | PK; hiển thị `HV` + ít nhất 6 chữ số |
+| `id` | `INT IDENTITY(1,1)` | Không | PK, `CHECK (id <= 999999)`; hiển thị `HV` + đúng 6 chữ số. Ô tìm kiếm chỉ nhận mã đủ dạng `HV000123` (CN-11, CN-24) |
 | `full_name` | `NVARCHAR(100)` | Không | HL-01 |
 | `phone` | `CHAR(10)` | Không | UNIQUE **kể cả đã xóa mềm**; HL-02 |
 | `email` | `VARCHAR(254)` | Có | HL-04, được trùng |
@@ -209,7 +209,7 @@ Nhiều gói có thể cùng thời hạn. PENDING gói đã ngừng bán vẫn 
 
 | Cột | Kiểu SQL | NULL | Quy tắc |
 |---|---|---|---|
-| `id` | `INT IDENTITY(1,1)` | Không | PK; hiển thị `DK` + ít nhất 6 chữ số |
+| `id` | `INT IDENTITY(1,1)` | Không | PK; hiển thị `DK` + đúng 6 chữ số |
 | `member_id` | `INT` | Không | FK → `members.id` |
 | `package_id` | `INT` | Không | FK → `packages.id` |
 | `package_name_snapshot` | `NVARCHAR(100)` | Không | Tên gói tại thời điểm tạo PENDING |
