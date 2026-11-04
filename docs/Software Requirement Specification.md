@@ -92,7 +92,7 @@ Hệ thống có 28 chức năng chia 4 phân hệ, mỗi phân hệ do một th
 
 | ID | Chức năng | Mô tả và điều kiện chấp nhận | Vai trò |
 | --- | --- | --- | --- |
-| CN-11 | Danh sách và tìm kiếm hội viên | Tìm theo mã (khớp chính xác, nhận `HV000123` hoặc `123`), SĐT (khớp chính xác) hoặc họ tên (khớp một phần, không phân biệt hoa/thường). Lọc: Đang quản lý (mặc định), Đã xóa, Tất cả — hai lựa chọn sau chỉ MANAGER. Phân trang 20 dòng, mới tạo trước. Cột: mã, họ tên, SĐT, tình trạng gói (QT-07), ngày hết hạn gói hiện tại. | MANAGER, RECEPTIONIST |
+| CN-11 | Danh sách và tìm kiếm hội viên | Tìm theo mã (khớp chính xác, bắt buộc đúng dạng `HV` + 6 chữ số như `HV000123`, tiền tố không phân biệt hoa/thường; `123` hay `HV123` không được coi là mã), SĐT (khớp chính xác) hoặc họ tên (khớp một phần, không phân biệt hoa/thường). Lọc: Đang quản lý (mặc định), Đã xóa, Tất cả — hai lựa chọn sau chỉ MANAGER. Phân trang 20 dòng, mới tạo trước. Cột: mã, họ tên, SĐT, tình trạng gói (QT-07), ngày hết hạn gói hiện tại. | MANAGER, RECEPTIONIST |
 | CN-12 | Tạo hội viên | Nhập họ tên, SĐT, email, ngày sinh, giới tính. Mã tự sinh; lưu created\_at, created\_by. SĐT trùng (kể cả hồ sơ đã xóa mềm) thì từ chối và hiển thị mã hồ sơ đang dùng số đó. Tạo được hồ sơ chưa mua gói. | MANAGER, RECEPTIONIST |
 | CN-13 | Xem chi tiết hội viên | Hiển thị thông tin hồ sơ, nhãn đã xóa mềm (nếu có), tình trạng gói hôm nay (QT-07), cảnh báo sắp hết hạn (QT-08) và lịch sử đăng ký mọi trạng thái (mới nhất trước). Có nút chuyển sang tạo đăng ký (CN-22) nếu hồ sơ chưa xóa mềm. | MANAGER, RECEPTIONIST |
 | CN-14 | Cập nhật hội viên | Sửa họ tên, SĐT, email, ngày sinh, giới tính. Mã và created\_at không sửa. Không sửa hồ sơ đã xóa mềm. | MANAGER, RECEPTIONIST |
@@ -110,7 +110,7 @@ Hệ thống có 28 chức năng chia 4 phân hệ, mỗi phân hệ do một th
 | CN-21 | Ngừng bán/mở bán lại | Đổi trạng thái bán theo QT-04. Không xóa loại gói. | MANAGER |
 | CN-22 | Tạo đăng ký | Chọn hội viên chưa xóa mềm và loại gói đang bán; tạo đăng ký PENDING kèm snapshot tên, thời hạn, giá (QT-03), created\_at, created\_by. Giá lấy từ DB, không nhận từ form. Thành công thì chuyển tới bước rà soát CN-25. | MANAGER, RECEPTIONIST |
 | CN-23 | Hủy đăng ký PENDING | Nhập lý do hủy; chuyển PENDING → CANCELLED và lưu cancelled\_at, cancelled\_by, lý do. Chỉ áp dụng cho PENDING (QT-02). | MANAGER, RECEPTIONIST |
-| CN-24 | Danh sách đăng ký/giao dịch | Lọc theo trạng thái, loại gói, mã hoặc SĐT hội viên, và khoảng ngày trên một trục thời gian do người dùng chọn: Ngày tạo (mọi trạng thái) hoặc Ngày thanh toán (chỉ PAID) theo QT-13. Phân trang 20 dòng. Cột: mã, hội viên, gói (snapshot), số tiền, trạng thái, phương thức, ngày tạo, ngày thanh toán, ngày bắt đầu–hết hạn. Dòng PENDING có nút Xác nhận và Hủy. | MANAGER, RECEPTIONIST |
+| CN-24 | Danh sách đăng ký/giao dịch | Lọc theo trạng thái, loại gói, mã hội viên (cùng quy tắc mã của CN-11) hoặc SĐT hội viên, và khoảng ngày trên một trục thời gian do người dùng chọn: Ngày tạo (mọi trạng thái) hoặc Ngày thanh toán (chỉ PAID) theo QT-13. Phân trang 20 dòng. Cột: mã, hội viên, gói (snapshot), số tiền, trạng thái, phương thức, ngày tạo, ngày thanh toán, ngày bắt đầu–hết hạn. Dòng PENDING có nút Xác nhận và Hủy. | MANAGER, RECEPTIONIST |
 
 ### 2.4. Phân hệ D — Thanh toán và báo cáo
 
@@ -214,7 +214,7 @@ Quan hệ: `members 1–n registrations`, `packages 1–n registrations`, `accou
 
 | Cột | Kiểu | Ràng buộc |
 | --- | --- | --- |
-| id | INT IDENTITY | PK; hiển thị dạng mã `HV` + 6 chữ số (`HV000123`), không lưu cột mã riêng |
+| id | INT IDENTITY | PK, CHECK (id <= 999999); hiển thị dạng mã `HV` + đúng 6 chữ số (`HV000123`), không lưu cột mã riêng |
 | full\_name | NVARCHAR(100) | NOT NULL |
 | phone | CHAR(10) | NOT NULL, UNIQUE (kể cả hồ sơ đã xóa mềm) |
 | email | VARCHAR(254) | NULL |
@@ -336,7 +336,7 @@ Không đặt SLA, ngưỡng thời gian phản hồi hay số phiên đồng th
 
 | ID | Tình huống | Kết quả cần đạt | Yêu cầu |
 | --- | --- | --- | --- |
-| KT-09 | Tìm theo `HV000005`, `5`, một phần SĐT, một phần tên viết thường; chuyển trang 1 → 5 | Mã và SĐT chỉ khớp chính xác (một phần SĐT không ra kết quả); tên khớp một phần không phân biệt hoa/thường; phân trang giữ điều kiện tìm | CN-11 |
+| KT-09 | Tìm theo `HV000005`, `hv000005`, `5`, `HV5`, một phần SĐT, một phần tên viết thường; chuyển trang 1 → 5 | `HV000005` và `hv000005` ra hội viên số 5; `5` và `HV5` không được coi là mã nên không ra hội viên số 5; SĐT chỉ khớp chính xác (một phần SĐT không ra kết quả); tên khớp một phần không phân biệt hoa/thường; phân trang giữ điều kiện tìm | CN-11 |
 | KT-10 | Tạo/sửa hội viên với họ tên toàn khoảng trắng, email sai, ngày sinh tương lai, SĐT trùng hồ sơ đã xóa mềm; gửi POST trực tiếp bỏ qua HTML5 | Tất cả bị từ chối ở backend, không lưu; SĐT trùng hiển thị mã hồ sơ đang giữ số | CN-12, CN-14, HL-01 – HL-06 |
 | KT-11 | Hội viên có PAID đang hiệu lực (hoặc chỉ có PAID chờ hiệu lực) và 2 PENDING: MANAGER xóa mềm | Bị từ chối kèm lý do; hai PENDING không đổi | CN-15, QT-09 |
 | KT-12 | Hội viên có mọi PAID đã hết hạn và 2 PENDING: MANAGER xóa mềm; RECEPTIONIST thử xóa | MANAGER thành công: is\_deleted = 1, hai PENDING thành CANCELLED trong cùng transaction, PAID không đổi; RECEPTIONIST nhận 403 | CN-15, QT-06, QT-09 |
