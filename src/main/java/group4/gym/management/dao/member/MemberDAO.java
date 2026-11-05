@@ -2,297 +2,334 @@ package group4.gym.management.dao.member;
 
 import group4.gym.management.database.DBContext;
 import group4.gym.management.exception.AppException;
-import group4.gym.management.exception.ValidationException;
-import group4.gym.management.model.member.*;
-import java.sql.*;
+import group4.gym.management.model.member.ExpiringMember;
+import group4.gym.management.model.member.Gender;
+import group4.gym.management.model.member.Member;
+import group4.gym.management.model.member.MemberListItem;
+import group4.gym.management.model.member.MemberScope;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-/**
- * Data access for members (table members, DL-02). No physical deletion (QT-16).
- * Every query uses PreparedStatement parameters (CL-02). Methods without a
- * Connection open their own with DBContext.getConnection() and wrap
- * SQLException in AppException; methods with a Connection run inside the
- * caller's transaction (SRS 9.1) and throw SQLException.
- *
- * Search keyword (CN-11): "HV000123" or "123" -> id exact; "0912345678" ->
- * phone exact; otherwise full_name LIKE %keyword% (case-insensitive). A partial
- * phone therefore finds nothing (KT-09).
- *
- * @author toan
- */
 public class MemberDAO {
 
     /**
-     * Find a member by ID, including soft-deleted (shared interface SRS 9.1,
-     * used by TV3).
-     */
-    public Member findById(int id) {
-        // Query: SELECT ... FROM members WHERE id = ?.
-        // Output: Member; null if it does not exist.
-        String sql = "SELECT * FROM dbo.members WHERE id = ?";
-        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? mapRow(rs) : null;
-            }
-        } catch (SQLException ex) {
-            throw new AppException("Cannot read member.", ex);
-        }
-    }
-
-    /**
-     * Lock the member row at the start of a QT-06 transaction (shared interface
-     * SRS 9.1, used by CN-15, CN-22, CN-25).
+     * Locks and returns a member during a transaction to prevent conflicting updates.
+     * Returns null if the member does not exist.
      */
     public Member lockForUpdate(Connection conn, int memberId) throws SQLException {
-        // Query: SELECT ... FROM members WITH (UPDLOCK, HOLDLOCK) WHERE id = ?.
-        // Output: the locked Member; null if it does not exist.
         String sql = "SELECT * FROM dbo.members WITH (UPDLOCK, HOLDLOCK) WHERE id = ?";
+
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, memberId);
+
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? mapRow(rs) : null;
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+                return null;
             }
         }
     }
 
     /**
-     * Find a member by phone, including soft-deleted (CN-12: a duplicate phone
-     * shows the code of the profile using it).
+     * Finds a member by exact phone number, including soft-deleted profiles.
+     * Returns null if no matching profile exists.
      */
     public Member findByPhone(String phone) {
-        // Query: SELECT ... FROM members WHERE phone = ?.
-        // Output: Member; null if it does not exist.
+        phone = getKeyword(phone);
+        if (phone.isEmpty()) {
+            return null;
+        }
+
         String sql = "SELECT * FROM dbo.members WHERE phone = ?";
-        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        try (Connection conn = DBContext.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, phone);
+
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? mapRow(rs) : null;
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+                return null;
             }
         } catch (SQLException ex) {
-            throw new AppException("Cannot look up member phone.", ex);
+            throw new AppException("Cannot find member by phone", ex);
         }
     }
 
     /**
-     * One page of the member list (CN-11), newest first, with the PAID
-     * aggregates needed by QT-07.
-     *
-     * @param keyword null = no search
-     * @param today AppClock.today(), used for paidCoveringToday
+     * Returns a page of members matching a partial name or an exact phone number, newest first.
+     * Applies the deletion filter and includes paid-package expiry and coverage information.
      */
-    public List<MemberListItem> search(String keyword, MemberScope scope, LocalDate today, int offset, int limit) {
-        // Query: Read PAID aggregates using subqueries and paginate with OFFSET/FETCH.
-        // Output: list of MemberListItem.
-        checkPage(offset, limit);
-        Filter filter = filter(keyword, scope);
-        String sql = """
-                SELECT m.*,
-                    (SELECT MAX(r.end_date) FROM dbo.registrations r
-                     WHERE r.member_id = m.id AND r.status = 'PAID') AS current_end_date,
-                    CASE WHEN EXISTS (
-                        SELECT 1 FROM dbo.registrations r
-                        WHERE r.member_id = m.id AND r.status = 'PAID'
-                          AND r.start_date <= ? AND r.end_date >= ?
-                    ) THEN 1 ELSE 0 END AS covers_today
-                FROM dbo.members m
-                """ + filter.where() + " ORDER BY m.created_at DESC, m.id DESC "
-                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setObject(1, today);
-            ps.setObject(2, today);
-            int i = bindFilter(ps, filter, 3);
-            ps.setInt(i++, offset);
-            ps.setInt(i, limit);
+    public List<MemberListItem> search(String keyword, MemberScope scope,
+            LocalDate today, int offset, int limit) {
+        if (today == null || offset < 0 || limit <= 0) {
+            throw new IllegalArgumentException("Invalid date or pagination");
+        }
+        keyword = getKeyword(keyword);
+
+        String sql = "SELECT m.*, "
+                + "(SELECT MAX(r.end_date) FROM dbo.registrations r "
+                + " WHERE r.member_id = m.id AND r.status = 'PAID') AS current_end_date, "
+                + "CASE WHEN EXISTS (SELECT 1 FROM dbo.registrations r "
+                + " WHERE r.member_id = m.id AND r.status = 'PAID' "
+                + " AND r.start_date <= ? AND r.end_date >= ?) "
+                + "THEN 1 ELSE 0 END AS covers_today "
+                + "FROM dbo.members m WHERE " + getScopeCondition(scope)
+                + " AND (m.full_name COLLATE Vietnamese_100_CI_AS LIKE ? ESCAPE N'~'"
+                + " OR m.phone = ?)"
+                + " ORDER BY m.created_at DESC, m.id DESC"
+                + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        List<MemberListItem> list = new ArrayList<>();
+
+        try (Connection conn = DBContext.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDate(1, Date.valueOf(today));
+            ps.setDate(2, Date.valueOf(today));
+            ps.setNString(3, getNamePattern(keyword));
+            ps.setString(4, keyword);
+            ps.setInt(5, offset);
+            ps.setInt(6, limit);
+
             try (ResultSet rs = ps.executeQuery()) {
-                List<MemberListItem> result = new ArrayList<>();
                 while (rs.next()) {
                     MemberListItem item = new MemberListItem();
                     item.setMember(mapRow(rs));
-                    Date lastEnd = rs.getDate("current_end_date");
-                    item.setCurrentEndDate(lastEnd == null ? null : lastEnd.toLocalDate());
-                    item.setPaidCoveringToday(rs.getInt("covers_today") == 1);
-                    result.add(item);
+                    item.setPaidCoveringToday(rs.getBoolean("covers_today"));
+
+                    Date endDate = rs.getDate("current_end_date");
+                    if (endDate != null) {
+                        item.setCurrentEndDate(endDate.toLocalDate());
+                    }
+
+                    list.add(item);
                 }
-                return result;
             }
+            return list;
         } catch (SQLException ex) {
-            throw new AppException("Cannot search members.", ex);
+            throw new AppException("Cannot search members", ex);
         }
     }
 
     /**
-     * Total rows of search() for the same keyword and scope (pagination).
+     * Counts members matching the keyword and deletion filter for pagination.
      */
     public int count(String keyword, MemberScope scope) {
-        // Query: SELECT COUNT(*) FROM members WHERE <scope> AND <keyword>.
-        // Output: number of matching members.
-        Filter filter = filter(keyword, scope);
-        String sql = "SELECT COUNT(*) FROM dbo.members m" + filter.where();
-        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            bindFilter(ps, filter, 1);
+        keyword = getKeyword(keyword);
+        String sql = "SELECT COUNT(*) FROM dbo.members m WHERE " + getScopeCondition(scope)
+                + " AND (m.full_name COLLATE Vietnamese_100_CI_AS LIKE ? ESCAPE N'~'"
+                + " OR m.phone = ?)";
+
+        try (Connection conn = DBContext.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setNString(1, getNamePattern(keyword));
+            ps.setString(2, keyword);
+
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getInt(1) : 0;
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+                throw new SQLException("Member count returned no row");
             }
         } catch (SQLException ex) {
-            throw new AppException("Cannot count members.", ex);
+            throw new AppException("Cannot count members", ex);
         }
     }
 
     /**
-     * Search members that are not soft-deleted (shared interface SRS 9.1: TV3
-     * picks a member for CN-22).
+     * Finds up to the requested limit of non-deleted members by partial name or exact phone number.
      */
     public List<Member> searchActive(String keyword, int limit) {
-        // Query: Same keyword rules as search(), AND is_deleted = 0, ORDER BY full_name, TOP (?).
-        // Output: list of Member.
-        if (limit <= 0 || limit > 100) {
-            throw new IllegalArgumentException("limit must be between 1 and 100");
+        if (limit <= 0) {
+            throw new IllegalArgumentException("limit must be > 0");
         }
-        Filter filter = filter(keyword, MemberScope.ACTIVE);
-        String sql = "SELECT TOP (?) m.* FROM dbo.members m" + filter.where()
+        keyword = getKeyword(keyword);
+
+        String sql = "SELECT TOP (?) m.* FROM dbo.members m WHERE "
+                + getScopeCondition(MemberScope.ACTIVE)
+                + " AND (m.full_name COLLATE Vietnamese_100_CI_AS LIKE ? ESCAPE N'~'"
+                + " OR m.phone = ?)"
                 + " ORDER BY m.full_name, m.id";
-        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        List<Member> list = new ArrayList<>();
+
+        try (Connection conn = DBContext.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, limit);
-            bindFilter(ps, filter, 2);
+            ps.setNString(2, getNamePattern(keyword));
+            ps.setString(3, keyword);
+
             try (ResultSet rs = ps.executeQuery()) {
-                List<Member> result = new ArrayList<>();
                 while (rs.next()) {
-                    result.add(mapRow(rs));
+                    list.add(mapRow(rs));
                 }
-                return result;
             }
+            return list;
         } catch (SQLException ex) {
-            throw new AppException("Cannot search active members.", ex);
+            throw new AppException("Cannot search active member profiles", ex);
         }
     }
 
     /**
-     * Members expiring soon (QT-08, CN-17): not soft-deleted, some PAID covers
-     * today, and the largest PAID end_date is within [today, today +
-     * maxDaysAhead]. A member with a follow-on PAID is excluded because
-     * MAX(end_date) moves forward.
+     * Lists non-deleted members with a paid package valid today whose latest paid package
+     * ends between today and today plus maxDaysAhead, including both dates.
      */
     public List<ExpiringMember> findExpiringSoon(LocalDate today, int maxDaysAhead) {
-        // Query: Find the latest PAID end_date per member; exclude deleted and already-renewed profiles.
-        // Output: list of ExpiringMember.
-        if (maxDaysAhead < 0 || maxDaysAhead > 366) {
-            throw new IllegalArgumentException("Invalid expiration window");
+        if (today == null || maxDaysAhead < 0) {
+            throw new IllegalArgumentException("Invalid date or maxDaysAhead");
         }
-        String sql = """
-                SELECT m.*, latest.end_date AS current_end_date,
-                       latest.package_name_snapshot
-                FROM dbo.members m
-                CROSS APPLY (
-                    SELECT TOP (1) r.end_date, r.package_name_snapshot
-                    FROM dbo.registrations r
-                    WHERE r.member_id = m.id AND r.status = 'PAID'
-                    ORDER BY r.end_date DESC, r.id DESC
-                ) latest
-                WHERE m.is_deleted = 0
-                  AND latest.end_date BETWEEN ? AND ?
-                  AND EXISTS (
-                      SELECT 1 FROM dbo.registrations r
-                      WHERE r.member_id = m.id AND r.status = 'PAID'
-                        AND r.start_date <= ? AND r.end_date >= ?
-                  )
-                ORDER BY latest.end_date ASC, m.id ASC
-                """;
-        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setObject(1, today);
-            ps.setObject(2, today.plusDays(maxDaysAhead));
-            ps.setObject(3, today);
-            ps.setObject(4, today);
+
+        String sql = "SELECT m.*, r.package_name_snapshot, r.end_date AS current_end_date, "
+                + "DATEDIFF(DAY, ?, r.end_date) + 1 AS days_left "
+                + "FROM dbo.members m JOIN dbo.registrations r ON r.member_id = m.id "
+                + "WHERE m.is_deleted = 0 AND r.status = 'PAID' "
+                + "AND r.end_date BETWEEN ? AND ? "
+                + "AND r.id = (SELECT TOP (1) r2.id FROM dbo.registrations r2 "
+                + " WHERE r2.member_id = m.id AND r2.status = 'PAID' "
+                + " ORDER BY r2.end_date DESC, r2.id DESC) "
+                + "AND EXISTS (SELECT 1 FROM dbo.registrations r3 "
+                + " WHERE r3.member_id = m.id AND r3.status = 'PAID' "
+                + " AND r3.start_date <= ? AND r3.end_date >= ?) "
+                + "ORDER BY r.end_date ASC, m.id ASC";
+
+        List<ExpiringMember> list = new ArrayList<>();
+
+        try (Connection conn = DBContext.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setDate(1, Date.valueOf(today));
+            ps.setDate(2, Date.valueOf(today));
+            ps.setDate(3, Date.valueOf(today.plusDays(maxDaysAhead)));
+            ps.setDate(4, Date.valueOf(today));
+            ps.setDate(5, Date.valueOf(today));
+
             try (ResultSet rs = ps.executeQuery()) {
-                List<ExpiringMember> result = new ArrayList<>();
                 while (rs.next()) {
                     ExpiringMember item = new ExpiringMember();
                     item.setMember(mapRow(rs));
                     item.setPackageName(rs.getString("package_name_snapshot"));
-                    LocalDate end = rs.getDate("current_end_date").toLocalDate();
-                    item.setEndDate(end);
-                    item.setDaysLeft((int) ChronoUnit.DAYS.between(today, end) + 1);
-                    result.add(item);
+                    item.setEndDate(rs.getDate("current_end_date").toLocalDate());
+                    item.setDaysLeft(rs.getInt("days_left"));
+                    list.add(item);
                 }
-                return result;
             }
+            return list;
         } catch (SQLException ex) {
-            throw new AppException("Cannot read expiring members.", ex);
+            throw new AppException("Cannot read expiring members", ex);
         }
     }
 
     /**
-     * Insert a member profile (CN-12).
+     * Saves a new member profile and returns the database-generated ID.
      */
     public int insert(Member member) {
-        // Query: INSERT (full_name, phone, email, date_of_birth, gender (label), is_deleted = 0, created_at, created_by).
-        // Output: the generated ID.
-        String sql = """
-                INSERT INTO dbo.members
-                (full_name, phone, email, date_of_birth, gender, is_deleted, created_at, created_by)
-                VALUES (?, ?, ?, ?, ?, 0, ?, ?)
-                """;
-        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, member.getFullName());
+        if (member == null) {
+            throw new IllegalArgumentException("member is required");
+        }
+
+        String sql = "INSERT INTO dbo.members "
+                + "(full_name, phone, email, date_of_birth, gender, is_deleted, created_at, created_by) "
+                + "VALUES (?, ?, ?, ?, ?, 0, ?, ?)";
+
+        try (Connection conn = DBContext.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setNString(1, member.getFullName());
             ps.setString(2, member.getPhone());
             ps.setString(3, member.getEmail());
-            ps.setObject(4, member.getDateOfBirth());
-            ps.setString(5, member.getGender() == null ? null : member.getGender().getLabel());
-            ps.setObject(6, member.getCreatedAt());
-            ps.setObject(7, member.getCreatedBy());
-            if (ps.executeUpdate() != 1) {
-                throw new SQLException("Member was not inserted");
+
+            if (member.getDateOfBirth() == null) {
+                ps.setNull(4, Types.DATE);
+            } else {
+                ps.setDate(4, Date.valueOf(member.getDateOfBirth()));
             }
-            try (ResultSet keys = ps.getGeneratedKeys()) {
-                if (keys.next()) {
-                    return keys.getInt(1);
+
+            if (member.getGender() == null) {
+                ps.setNull(5, Types.NVARCHAR);
+            } else {
+                ps.setNString(5, member.getGender().getLabel());
+            }
+
+            if (member.getCreatedAt() == null) {
+                ps.setNull(6, Types.TIMESTAMP);
+            } else {
+                ps.setTimestamp(6, Timestamp.valueOf(member.getCreatedAt()));
+            }
+
+            if (member.getCreatedBy() == null) {
+                ps.setNull(7, Types.INTEGER);
+            } else {
+                ps.setInt(7, member.getCreatedBy());
+            }
+
+            if (ps.executeUpdate() != 1) {
+                throw new SQLException("Member insert did not affect exactly one row");
+            }
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
                 }
-                throw new SQLException("Missing generated member ID");
+                throw new SQLException("Member insert returned no generated key");
             }
         } catch (SQLException ex) {
-            throw saveFailure(ex, member);
+            throw new AppException("Cannot create member", ex);
         }
     }
 
     /**
-     * Update a profile that is not soft-deleted (CN-14). id and created_at are
-     * never updated.
+     * Updates the editable details of a non-deleted member.
+     * Returns true when one profile is updated.
      */
     public boolean update(Member member) {
-        // Query: UPDATE members SET full_name, phone, email, date_of_birth, gender WHERE id = ? AND is_deleted = 0.
-        // Output: true if exactly 1 row was updated; false if missing or soft-deleted.
         if (member == null || member.getId() == null) {
-            return false;
+            throw new IllegalArgumentException("member.id is required for update");
         }
-        String sql = """
-                UPDATE dbo.members
-                SET full_name = ?, phone = ?, email = ?, date_of_birth = ?, gender = ?
-                WHERE id = ? AND is_deleted = 0
-                """;
-        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, member.getFullName());
+
+        String sql = "UPDATE dbo.members "
+                + "SET full_name = ?, phone = ?, email = ?, date_of_birth = ?, gender = ? "
+                + "WHERE id = ? AND is_deleted = 0";
+
+        try (Connection conn = DBContext.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setNString(1, member.getFullName());
             ps.setString(2, member.getPhone());
             ps.setString(3, member.getEmail());
-            ps.setObject(4, member.getDateOfBirth());
-            ps.setString(5, member.getGender() == null ? null : member.getGender().getLabel());
+
+            if (member.getDateOfBirth() == null) {
+                ps.setNull(4, Types.DATE);
+            } else {
+                ps.setDate(4, Date.valueOf(member.getDateOfBirth()));
+            }
+
+            if (member.getGender() == null) {
+                ps.setNull(5, Types.NVARCHAR);
+            } else {
+                ps.setNString(5, member.getGender().getLabel());
+            }
+
             ps.setInt(6, member.getId());
             return ps.executeUpdate() == 1;
         } catch (SQLException ex) {
-            throw saveFailure(ex, member);
+            throw new AppException("Cannot update member " + member.getId(), ex);
         }
     }
 
     /**
-     * Soft-delete inside the QT-06/QT-09 transaction of CN-15.
+     * Marks a member as deleted without removing the record, using the supplied transaction.
+     * Returns true when one profile is marked as deleted.
      */
     public boolean markDeleted(Connection conn, int id) throws SQLException {
-        // Query: UPDATE members SET is_deleted = 1 WHERE id = ? AND is_deleted = 0.
-        // Output: true if exactly 1 row was updated.
         String sql = "UPDATE dbo.members SET is_deleted = 1 WHERE id = ? AND is_deleted = 0";
+
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             return ps.executeUpdate() == 1;
@@ -300,24 +337,22 @@ public class MemberDAO {
     }
 
     /**
-     * Restore a soft-deleted profile (CN-16, QT-10); code, created_at and
-     * history are kept.
+     * Restores a soft-deleted member profile and returns whether the record was updated.
      */
     public boolean restore(int id) {
-        // Query: UPDATE members SET is_deleted = 0 WHERE id = ? AND is_deleted = 1.
-        // Output: true if exactly 1 row was updated.
         String sql = "UPDATE dbo.members SET is_deleted = 0 WHERE id = ? AND is_deleted = 1";
-        try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        try (Connection conn = DBContext.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             return ps.executeUpdate() == 1;
         } catch (SQLException ex) {
-            throw new AppException("Cannot restore member.", ex);
+            throw new AppException("Cannot restore member " + id, ex);
         }
     }
 
     /**
-     * Read the database's Vietnamese gender label using the existing Gender
-     * enum.
+     * Converts the current database result row into a Member object.
      */
     private Member mapRow(ResultSet rs) throws SQLException {
         Member member = new Member();
@@ -325,91 +360,54 @@ public class MemberDAO {
         member.setFullName(rs.getString("full_name"));
         member.setPhone(rs.getString("phone"));
         member.setEmail(rs.getString("email"));
-        Date birthday = rs.getDate("date_of_birth");
-        member.setDateOfBirth(birthday == null ? null : birthday.toLocalDate());
         member.setGender(Gender.fromLabel(rs.getString("gender")));
         member.setDeleted(rs.getBoolean("is_deleted"));
-        member.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-        int creator = rs.getInt("created_by");
-        member.setCreatedBy(rs.wasNull() ? null : creator);
+        member.setCreatedBy(rs.getInt("created_by"));
+
+        Date dateOfBirth = rs.getDate("date_of_birth");
+        if (dateOfBirth != null) {
+            member.setDateOfBirth(dateOfBirth.toLocalDate());
+        }
+
+        Timestamp createdAt = rs.getTimestamp("created_at");
+        if (createdAt != null) {
+            member.setCreatedAt(createdAt.toLocalDateTime());
+        }
+
         return member;
     }
 
     /**
-     * All SQL fragments here are constants; user content only enters bound
-     * parameters.
+     * Removes surrounding whitespace from the keyword and returns an empty string for null.
      */
-    private record Filter(String where, Object value) {
-
-    }
-
-    private Filter filter(String keyword, MemberScope scope) {
-        MemberScope safeScope = scope == null ? MemberScope.ACTIVE : scope;
-        String where = switch (safeScope) {
-            case ACTIVE ->
-                " WHERE m.is_deleted = 0";
-            case DELETED ->
-                " WHERE m.is_deleted = 1";
-            case ALL ->
-                " WHERE 1 = 1";
-        };
-        String q = keyword == null ? "" : keyword.trim();
-        if (q.length() > 100) {
-            throw new IllegalArgumentException("Search keyword too long");
+    private String getKeyword(String keyword) {
+        if (keyword == null) {
+            return "";
         }
-        if (q.isEmpty()) {
-            return new Filter(where, null);
-        }
-
-        if (q.matches("(?i)HV[0-9]{6}")) {
-            return new Filter(where + " AND m.id = ?", idOrMinusOne(q.substring(2)));
-        }
-        if (q.matches("[0-9]+")) {
-            // Numbers starting with zero are phone searches. A partial phone cannot match an ID.
-            return q.startsWith("0")
-                    ? new Filter(where + " AND m.phone = ?", q)
-                    : new Filter(where + " AND m.id = ?", idOrMinusOne(q));
-        }
-        return new Filter(where + " AND m.full_name COLLATE Vietnamese_100_CI_AS LIKE ? ESCAPE '!'",
-                "%" + q.replace("!", "!!").replace("%", "!%")
-                        .replace("_", "!_").replace("[", "![") + "%");
-    }
-
-    private static int idOrMinusOne(String raw) {
-        try {
-            return Integer.parseInt(raw);
-        } catch (NumberFormatException ex) {
-            return -1; // Never match a valid ID; malformed/overflowing search is not a server error.
-        }
-    }
-
-    private static int bindFilter(PreparedStatement ps, Filter filter, int index) throws SQLException {
-        if (filter.value() != null) {
-            ps.setObject(index++, filter.value());
-        }
-        return index;
-    }
-
-    private static void checkPage(int offset, int limit) {
-        if (offset < 0 || limit <= 0 || limit > 100) {
-            throw new IllegalArgumentException("Invalid pagination parameters");
-        }
+        return keyword.trim();
     }
 
     /**
-     * Database UNIQUE is the last line of defense against concurrent duplicate
-     * phones.
+     * Builds a partial-name search pattern while treating SQL LIKE special characters as literal text.
      */
-    private RuntimeException saveFailure(SQLException ex, Member member) {
-        for (SQLException cause = ex; cause != null; cause = cause.getNextException()) {
-            if (cause.getErrorCode() == 2601 || cause.getErrorCode() == 2627) {
-                Member existing = member.getPhone() == null ? null : findByPhone(member.getPhone());
-                String owner = existing == null ? "another profile" : existing.getCode();
-                return new ValidationException("Duplicate phone number.",
-                        Map.of("phone",
-                                "This phone number is already associated with member profile " + owner + "."));
-            }
+    private String getNamePattern(String keyword) {
+        String name = keyword.replace("~", "~~");
+        name = name.replace("%", "~%");
+        name = name.replace("_", "~_");
+        name = name.replace("[", "~[");
+        return "%" + name + "%";
+    }
+
+    /**
+     * Returns the SQL filter for non-deleted, deleted, or all member profiles.
+     */
+    private String getScopeCondition(MemberScope scope) {
+        if (scope == MemberScope.DELETED) {
+            return "m.is_deleted = 1";
+        } else if (scope == MemberScope.ALL) {
+            return "1 = 1";
+        } else {
+            return "m.is_deleted = 0";
         }
-        return new AppException("Cannot save member.", ex);
     }
 }
