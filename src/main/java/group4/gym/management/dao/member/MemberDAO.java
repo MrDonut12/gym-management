@@ -22,6 +22,28 @@ import java.util.List;
 public class MemberDAO {
 
     /**
+     * Finds a member by ID, including soft-deleted profiles.
+     * Returns null if the member does not exist.
+     */
+    public Member findById(int id) {
+        String sql = "SELECT * FROM dbo.members WHERE id = ?";
+
+        try (Connection conn = DBContext.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+                return null;
+            }
+        } catch (SQLException ex) {
+            throw new AppException("Cannot read member " + id, ex);
+        }
+    }
+
+    /**
      * Locks and returns a member during a transaction to prevent conflicting updates.
      * Returns null if the member does not exist.
      */
