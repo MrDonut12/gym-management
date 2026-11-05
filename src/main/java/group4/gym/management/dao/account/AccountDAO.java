@@ -8,14 +8,14 @@ import java.sql.SQLException;
 import java.util.List;
 
 /**
- * Data access for staff accounts (table accounts, DL-01). No physical deletion (QT-16).
- * Every query uses PreparedStatement parameters (CL-02). Methods open their own connection with
+ * Data access for staff accounts (table accounts, DR-01). No physical deletion (BR-16).
+ * Every query uses PreparedStatement parameters (NFR-02). Methods open their own connection with
  * DBContext.getConnection() and wrap SQLException in AppException.
  */
 public class AccountDAO {
 
     /**
-     * Find an account by ID (used by AuthFilter on every request, CN-03).
+     * Find an account by ID (used by AuthFilter on every request, FR-03).
      */
     public Account findById(int id) {
         // TODO: SELECT ... FROM accounts WHERE id = ?.
@@ -24,7 +24,7 @@ public class AccountDAO {
     }
 
     /**
-     * Find an account by username, case-insensitive (CN-01). The column uses a case-insensitive collation (DL-01).
+     * Find an account by username, case-insensitive (FR-01). The column uses a case-insensitive collation (DR-01).
      */
     public Account findByUsername(String username) {
         // TODO: SELECT ... FROM accounts WHERE username = ?.
@@ -33,7 +33,7 @@ public class AccountDAO {
     }
 
     /**
-     * Account list (CN-05). A null parameter means the criterion is ignored.
+     * Account list (FR-05). A null parameter means the criterion is ignored.
      *
      * @param keyword partial match on username or full name, case-insensitive
      */
@@ -45,7 +45,7 @@ public class AccountDAO {
     }
 
     /**
-     * Whether the username already exists, case-insensitive (HL-08).
+     * Whether the username already exists, case-insensitive (VR-08).
      */
     public boolean existsByUsername(String username) {
         // TODO: SELECT COUNT(*) FROM accounts WHERE username = ?.
@@ -54,7 +54,7 @@ public class AccountDAO {
     }
 
     /**
-     * Whether the phone already exists within accounts (HL-03). It may equal a member's phone.
+     * Whether the phone already exists within accounts (VR-03). It may equal a member's phone.
      *
      * @param excludeId ignore this account when updating; null when creating
      */
@@ -65,7 +65,7 @@ public class AccountDAO {
     }
 
     /**
-     * Insert a new account (CN-06).
+     * Insert a new account (FR-06).
      */
     public int insert(Account account) {
         // TODO: INSERT (username, password_hash, full_name, phone, email, role, status, created_at).
@@ -74,7 +74,7 @@ public class AccountDAO {
     }
 
     /**
-     * Update full name, phone, email and role (CN-07). The username is never updated.
+     * Update full name, phone, email and role (FR-07). The username is never updated.
      */
     public boolean update(Account account) {
         // TODO: UPDATE accounts SET full_name = ?, phone = ?, email = ?, role = ? WHERE id = ?.
@@ -83,7 +83,7 @@ public class AccountDAO {
     }
 
     /**
-     * Lock/unlock an account (CN-08).
+     * Lock/unlock an account (FR-08).
      */
     public boolean updateStatus(int id, AccountStatus status) {
         // TODO: UPDATE accounts SET status = ? WHERE id = ?.
@@ -92,7 +92,7 @@ public class AccountDAO {
     }
 
     /**
-     * Update the password hash (CN-09 own change, CN-10 ADMIN reset). Does not touch the status.
+     * Update the password hash (FR-09 own change, FR-10 ADMIN reset). Does not touch the status.
      */
     public boolean updatePasswordHash(int id, String passwordHash) {
         // TODO: UPDATE accounts SET password_hash = ? WHERE id = ?.

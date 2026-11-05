@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Member list and search (CN-11), the RECEPTIONIST home page. Servlet: MemberListServlet (/staff/members).
+    Member list and search (FR-11), the RECEPTIONIST home page. Servlet: MemberListServlet (/staff/members).
     Roles: MANAGER, RECEPTIONIST. Plain search, no AJAX (FUT-01).
     Request attributes: page (Page<MemberListItem>), keyword, scope (MemberScope).
 --%>
@@ -14,8 +14,8 @@
 <a href="${pageContext.request.contextPath}/staff/members/expiring">Expiring soon</a>
 
 <form method="get" action="${pageContext.request.contextPath}/staff/members">
-    <input type="text" name="keyword" maxlength="100" placeholder="Code (HV000123 / 123), phone or full name">
-    <%-- TODO: Show the scope select only for MANAGER (QT-11); RECEPTIONIST always gets ACTIVE. --%>
+    <input type="text" name="keyword" maxlength="100" placeholder="Code (HV000123), phone or full name">
+    <%-- TODO: Show the scope select only for MANAGER (BR-11); RECEPTIONIST always gets ACTIVE. --%>
     <select name="scope">
         <option value="ACTIVE">Managed (not deleted)</option>
         <option value="DELETED">Soft-deleted</option>
@@ -33,6 +33,6 @@
          "Soft-deleted" badge when member.deleted; Detail link (/staff/members/detail?id=). No results -> a message row. --%>
     </tbody>
 </table>
-<%-- TODO: Pagination (page.page / page.totalPages); links keep keyword and scope (KT-09). --%>
+<%-- TODO: Pagination (page.page / page.totalPages); links keep keyword and scope (AC-09). --%>
 
 <jsp:include page="/WEB-INF/common/footer.jsp"/>

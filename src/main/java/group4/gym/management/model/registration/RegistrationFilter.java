@@ -3,7 +3,7 @@ package group4.gym.management.model.registration;
 import java.time.LocalDate;
 
 /**
- * Filter criteria of the registration/transaction list (CN-24). A null field means "not filtered".
+ * Filter criteria of the registration/transaction list (FR-24). A null field means "not filtered".
  */
 public class RegistrationFilter {
 
@@ -13,19 +13,19 @@ public class RegistrationFilter {
     /** Package (optional) */
     private Integer packageId;
 
-    /** Member code (HV000123 or 123) or phone, exact match (optional) */
+    /** One search box: member code (HV + 6 digits) or phone, exact match; or full name, partial match (optional, see MemberKeyword) */
     private String memberKeyword;
 
     /** Time axis of the date range (default CREATED_AT) */
     private DateAxis axis;
 
-    /** Start date (inclusive, QT-13) */
+    /** Start date (inclusive, BR-13) */
     private LocalDate fromDate;
 
-    /** End date (inclusive of the whole day, QT-13) */
+    /** End date (inclusive of the whole day, BR-13) */
     private LocalDate toDate;
 
-    /** Page number >= 1 (HL-07) */
+    /** Page number >= 1 (VR-07) */
     private int page = 1;
 
     public RegistrationFilter() {

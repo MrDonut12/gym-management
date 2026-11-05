@@ -8,8 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Home page by role after login (section 2.4): ADMIN -> account list (CN-05), MANAGER -> member overview (CN-28),
- * RECEPTIONIST -> member list (CN-11). Any logged-in role.
+ * Home page by role after login (section 2.4): ADMIN -> account list (FR-05), MANAGER -> member overview (FR-28),
+ * RECEPTIONIST -> member list (FR-11). Any logged-in role.
  */
 @WebServlet(name = "HomeServlet", urlPatterns = {"/home"})
 public class HomeServlet extends HttpServlet {

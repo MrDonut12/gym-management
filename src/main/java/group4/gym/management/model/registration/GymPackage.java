@@ -3,24 +3,24 @@ package group4.gym.management.model.registration;
 import java.time.LocalDateTime;
 
 /**
- * Package type (DL-03, CN-18 to CN-21). Named GymPackage to avoid clashing with java.lang.Package.
- * Only name and price are editable; the duration is fixed after creation. Never deleted: deactivated instead (QT-16).
+ * Package type (DR-03, FR-18 to FR-21). Named GymPackage to avoid clashing with java.lang.Package.
+ * Only name and price are editable; the duration is fixed after creation. Never deleted: deactivated instead (BR-16).
  */
 public class GymPackage {
 
     /** Auto-generated ID */
     private Integer id;
 
-    /** HL-11: unique after collapsing whitespace and ignoring case */
+    /** VR-11: unique after collapsing whitespace and ignoring case */
     private String name;
 
-    /** HL-13: 1, 3, 6 or 12 months; read-only after creation */
+    /** VR-13: 1, 3, 6 or 12 months; read-only after creation */
     private int durationMonths;
 
-    /** HL-12: integer 1..100,000,000 VND */
+    /** VR-12: integer 1..100,000,000 VND */
     private int price;
 
-    /** true = on sale (default); false = not shown when creating registrations (QT-04) */
+    /** true = on sale (default); false = not shown when creating registrations (BR-04) */
     private boolean active;
 
     /** Creation time (AppClock) */

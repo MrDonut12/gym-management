@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Staff account list (CN-05), the ADMIN home page. Servlet: AccountListServlet (/admin/accounts). ADMIN only.
+    Staff account list (FR-05), the ADMIN home page. Servlet: AccountListServlet (/admin/accounts). ADMIN only.
     Request attributes: accounts (List<Account>), keyword, role, status.
 --%>
 <c:set var="pageTitle" value="Staff accounts" scope="request"/>
@@ -36,7 +36,7 @@
     <%-- TODO: c:forEach over accounts; c:out for every value; never show the password hash.
          Actions: Edit (/admin/accounts/edit?id=), Reset password (/admin/accounts/reset-password?id=),
          POST form to /admin/accounts/lock (id, action=lock|unlock) with a confirmation dialog.
-         Hide Lock and Reset password on the current user's own row (QT-14; the backend refuses anyway). --%>
+         Hide Lock and Reset password on the current user's own row (BR-14; the backend refuses anyway). --%>
     </tbody>
 </table>
 

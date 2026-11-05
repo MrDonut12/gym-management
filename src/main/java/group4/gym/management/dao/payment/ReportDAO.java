@@ -7,26 +7,26 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Aggregate queries for the reports (CN-26 to CN-28). Every range is [fromInclusive, toExclusive) (QT-13).
- * Revenue = SUM(price_snapshot) of PAID registrations with paid_at in the range; PENDING/CANCELLED excluded (QT-12).
- * Every query uses PreparedStatement parameters (CL-02). Methods open their own connection with
+ * Aggregate queries for the reports (FR-26 to FR-28). Every range is [fromInclusive, toExclusive) (BR-13).
+ * Revenue = SUM(price_snapshot) of PAID registrations with paid_at in the range; PENDING/CANCELLED excluded (BR-12).
+ * Every query uses PreparedStatement parameters (NFR-02). Methods open their own connection with
  * DBContext.getConnection() and wrap SQLException in AppException.
  */
 public class ReportDAO {
 
     /**
-     * Revenue per day or month (CN-26). Periods without revenue may be omitted.
+     * Revenue per day or month (FR-26). Periods without revenue may be omitted.
      */
     public List<RevenueRow> revenueByPeriod(LocalDateTime fromInclusive, LocalDateTime toExclusive, RevenueGranularity granularity) {
         // TODO: SELECT period = CAST(paid_at AS DATE) (DAY) or DATEFROMPARTS(YEAR(paid_at), MONTH(paid_at), 1) (MONTH),
         //       COUNT(*), SUM(CAST(price_snapshot AS BIGINT)) WHERE status = 'PAID' AND paid_at >= ? AND paid_at < ?
-        //       GROUP BY period ORDER BY period. The SQL fragment comes from a fixed switch on granularity (CL-02).
+        //       GROUP BY period ORDER BY period. The SQL fragment comes from a fixed switch on granularity (NFR-02).
         // Output: list of RevenueRow (periodStart, transactionCount, revenue).
         return null;
     }
 
     /**
-     * Revenue per package (CN-27): grouped by package_id, labelled with the CURRENT package name (QT-12).
+     * Revenue per package (FR-27): grouped by package_id, labelled with the CURRENT package name (BR-12).
      */
     public List<RevenueRow> revenueByPackage(LocalDateTime fromInclusive, LocalDateTime toExclusive) {
         // TODO: SELECT r.package_id, p.name, COUNT(*), SUM(CAST(r.price_snapshot AS BIGINT)) FROM registrations r
@@ -37,7 +37,7 @@ public class ReportDAO {
     }
 
     /**
-     * Count profiles by soft-delete flag (CN-28).
+     * Count profiles by soft-delete flag (FR-28).
      */
     public int countMembers(boolean deleted) {
         // TODO: SELECT COUNT(*) FROM members WHERE is_deleted = ?.
@@ -46,7 +46,7 @@ public class ReportDAO {
     }
 
     /**
-     * Members with a PAID registration covering today, i.e. membership status ACTIVE (CN-28, QT-07).
+     * Members with a PAID registration covering today, i.e. membership status ACTIVE (FR-28, BR-07).
      */
     public int countMembersWithActivePackage(LocalDate today) {
         // TODO: SELECT COUNT(DISTINCT member_id) FROM registrations WHERE status = 'PAID' AND start_date <= ? AND end_date >= ?.
@@ -55,7 +55,7 @@ public class ReportDAO {
     }
 
     /**
-     * New members by created_at in the range, including profiles soft-deleted later (CN-28).
+     * New members by created_at in the range, including profiles soft-deleted later (FR-28).
      */
     public int countNewMembers(LocalDateTime fromInclusive, LocalDateTime toExclusive) {
         // TODO: SELECT COUNT(*) FROM members WHERE created_at >= ? AND created_at < ?.

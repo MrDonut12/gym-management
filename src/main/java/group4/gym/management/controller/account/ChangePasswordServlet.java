@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Change own password (CN-09). Every role; the current session is kept.
+ * Change own password (FR-09). Every role; the current session is kept.
  */
 @WebServlet(name = "ChangePasswordServlet", urlPatterns = {"/change-password"})
 public class ChangePasswordServlet extends HttpServlet {
@@ -30,6 +30,6 @@ public class ChangePasswordServlet extends HttpServlet {
             throws ServletException, IOException {
         // TODO: currentPassword, newPassword, confirmPassword via RequestUtil.getRawString;
         //       accountService.changeOwnPassword(sessionUser, ...); catch ValidationException/BusinessRuleException.
-        // Output: success: flash message + redirect to /change-password (CL-07); failure: forward to VIEW with errors (no password re-filled).
+        // Output: success: flash message + redirect to /change-password (NFR-07); failure: forward to VIEW with errors (no password re-filled).
     }
 }

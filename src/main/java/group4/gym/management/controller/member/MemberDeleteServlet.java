@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Soft-delete a member (CN-15, QT-06, QT-09), after a confirmation dialog. MANAGER only, POST only.
+ * Soft-delete a member (FR-15, BR-06, BR-09), after a confirmation dialog. MANAGER only, POST only.
  */
 @WebServlet(name = "MemberDeleteServlet", urlPatterns = {"/manager/members/delete"})
 public class MemberDeleteServlet extends HttpServlet {
@@ -20,7 +20,7 @@ public class MemberDeleteServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // TODO: id = getPositiveId (null / NotFoundException -> 404); memberService.softDelete(sessionUser, id).
-        //       BusinessRuleException (unexpired PAID) -> flash error with the reason (KT-11).
+        //       BusinessRuleException (unexpired PAID) -> flash error with the reason (AC-11).
         // Output: redirect to /staff/members/detail?id=<id> with a flash message.
     }
 }

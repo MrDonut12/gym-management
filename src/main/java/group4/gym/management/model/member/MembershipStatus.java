@@ -1,7 +1,7 @@
 package group4.gym.management.model.member;
 
 /**
- * Membership status of a member at "today" (QT-07). Not stored in the database; derived from PAID registrations.
+ * Membership status of a member at "today" (BR-07). Not stored in the database; derived from PAID registrations.
  * Priority order: ACTIVE -> UPCOMING -> EXPIRED -> NONE.
  */
 public enum MembershipStatus {

@@ -11,13 +11,14 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Data access for members (table members, DL-02). No physical deletion (QT-16).
- * Every query uses PreparedStatement parameters (CL-02). Methods without a Connection open their own with
+ * Data access for members (table members, DR-02). No physical deletion (BR-16).
+ * Every query uses PreparedStatement parameters (NFR-02). Methods without a Connection open their own with
  * DBContext.getConnection() and wrap SQLException in AppException; methods with a Connection run inside the
  * caller's transaction (SRS 9.1) and throw SQLException.
  *
- * Search keyword (CN-11): "HV000123" or "123" -> id exact; "0912345678" -> phone exact; otherwise
- * full_name LIKE %keyword% (case-insensitive). A partial phone therefore finds nothing (KT-09).
+ * Search keyword (FR-11): classify it with MemberKeyword.parse(), shared with RegistrationDAO. CODE ("HV" + 6 digits,
+ * prefix case-insensitive) -> id exact; PHONE (VR-02 format) -> phone exact; NAME (no digit) -> full_name LIKE
+ * (case-insensitive, use getLikePattern() with ESCAPE); NONE -> no rows ("5", "HV5", a partial phone: AC-09).
  */
 public class MemberDAO {
 
@@ -31,7 +32,7 @@ public class MemberDAO {
     }
 
     /**
-     * Lock the member row at the start of a QT-06 transaction (shared interface SRS 9.1, used by CN-15, CN-22, CN-25).
+     * Lock the member row at the start of a BR-06 transaction (shared interface SRS 9.1, used by FR-15, FR-22, FR-25).
      */
     public Member lockForUpdate(Connection conn, int memberId) throws SQLException {
         // TODO: SELECT ... FROM members WITH (UPDLOCK, HOLDLOCK) WHERE id = ?.
@@ -40,7 +41,7 @@ public class MemberDAO {
     }
 
     /**
-     * Find a member by phone, including soft-deleted (CN-12: a duplicate phone shows the code of the profile using it).
+     * Find a member by phone, including soft-deleted (FR-12: a duplicate phone shows the code of the profile using it).
      */
     public Member findByPhone(String phone) {
         // TODO: SELECT ... FROM members WHERE phone = ?.
@@ -49,7 +50,7 @@ public class MemberDAO {
     }
 
     /**
-     * One page of the member list (CN-11), newest first, with the PAID aggregates needed by QT-07.
+     * One page of the member list (FR-11), newest first, with the PAID aggregates needed by BR-07.
      *
      * @param keyword null = no search
      * @param today   AppClock.today(), used for paidCoveringToday
@@ -59,7 +60,7 @@ public class MemberDAO {
         //              MAX(CASE WHEN r.start_date <= ? AND r.end_date >= ? THEN 1 ELSE 0 END) AS covers_today
         //       FROM members m LEFT JOIN registrations r ON r.member_id = m.id AND r.status = 'PAID'
         //       WHERE <scope> AND <keyword> GROUP BY m.* ORDER BY m.created_at DESC, m.id DESC
-        //       OFFSET ? ROWS FETCH NEXT ? ROWS ONLY (CL-09). Leave status empty: the service derives it.
+        //       OFFSET ? ROWS FETCH NEXT ? ROWS ONLY (NFR-09). Leave status empty: the service derives it.
         // Output: list of MemberListItem.
         return null;
     }
@@ -74,7 +75,7 @@ public class MemberDAO {
     }
 
     /**
-     * Search members that are not soft-deleted (shared interface SRS 9.1: TV3 picks a member for CN-22).
+     * Search members that are not soft-deleted (shared interface SRS 9.1: TV3 picks a member for FR-22).
      */
     public List<Member> searchActive(String keyword, int limit) {
         // TODO: Same keyword rules as search(), AND is_deleted = 0, ORDER BY full_name, TOP (?).
@@ -83,7 +84,7 @@ public class MemberDAO {
     }
 
     /**
-     * Members expiring soon (QT-08, CN-17): not soft-deleted, some PAID covers today, and the largest PAID end_date
+     * Members expiring soon (BR-08, FR-17): not soft-deleted, some PAID covers today, and the largest PAID end_date
      * is within [today, today + maxDaysAhead]. A member with a follow-on PAID is excluded because MAX(end_date) moves forward.
      */
     public List<ExpiringMember> findExpiringSoon(LocalDate today, int maxDaysAhead) {
@@ -94,7 +95,7 @@ public class MemberDAO {
     }
 
     /**
-     * Insert a member profile (CN-12).
+     * Insert a member profile (FR-12).
      */
     public int insert(Member member) {
         // TODO: INSERT (full_name, phone, email, date_of_birth, gender (label), is_deleted = 0, created_at, created_by).
@@ -103,7 +104,7 @@ public class MemberDAO {
     }
 
     /**
-     * Update a profile that is not soft-deleted (CN-14). id and created_at are never updated.
+     * Update a profile that is not soft-deleted (FR-14). id and created_at are never updated.
      */
     public boolean update(Member member) {
         // TODO: UPDATE members SET full_name, phone, email, date_of_birth, gender WHERE id = ? AND is_deleted = 0.
@@ -112,7 +113,7 @@ public class MemberDAO {
     }
 
     /**
-     * Soft-delete inside the QT-06/QT-09 transaction of CN-15.
+     * Soft-delete inside the BR-06/BR-09 transaction of FR-15.
      */
     public boolean markDeleted(Connection conn, int id) throws SQLException {
         // TODO: UPDATE members SET is_deleted = 1 WHERE id = ? AND is_deleted = 0.
@@ -121,7 +122,7 @@ public class MemberDAO {
     }
 
     /**
-     * Restore a soft-deleted profile (CN-16, QT-10); code, created_at and history are kept.
+     * Restore a soft-deleted profile (FR-16, BR-10); code, created_at and history are kept.
      */
     public boolean restore(int id) {
         // TODO: UPDATE members SET is_deleted = 0 WHERE id = ? AND is_deleted = 1.

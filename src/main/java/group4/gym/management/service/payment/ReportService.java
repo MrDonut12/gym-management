@@ -9,7 +9,7 @@ import group4.gym.management.util.DateRange;
 import java.util.List;
 
 /**
- * Reports (CN-26 to CN-28, QT-12, QT-13). Ranges come from DateRange: [from 00:00, to+1 00:00), default current month.
+ * Reports (FR-26 to FR-28, BR-12, BR-13). Ranges come from DateRange: [from 00:00, to+1 00:00), default current month.
  */
 public class ReportService {
 
@@ -17,7 +17,7 @@ public class ReportService {
     private final MembershipStatusService membershipStatusService = new MembershipStatusService();
 
     /**
-     * Revenue per day or month (CN-26).
+     * Revenue per day or month (FR-26).
      */
     public List<RevenueRow> revenueByPeriod(DateRange range, RevenueGranularity granularity) {
         // TODO: granularity null -> DAY; reportDAO.revenueByPeriod(range.getFromInclusive(), range.getToExclusive(), granularity);
@@ -27,11 +27,11 @@ public class ReportService {
     }
 
     /**
-     * Revenue per package (CN-27), same range as CN-26. A renamed package stays one row (grouped by package_id).
+     * Revenue per package (FR-27), same range as FR-26. A renamed package stays one row (grouped by package_id).
      */
     public List<RevenueRow> revenueByPackage(DateRange range) {
         // TODO: reportDAO.revenueByPackage; sharePercent = revenue * 100.0 / total (0 when total = 0).
-        // Output: list of RevenueRow; its total equals the CN-26 total for the same range (KT-24).
+        // Output: list of RevenueRow; its total equals the FR-26 total for the same range (AC-24).
         return null;
     }
 
@@ -45,7 +45,7 @@ public class ReportService {
     }
 
     /**
-     * Member overview, the MANAGER home page (CN-28).
+     * Member overview, the MANAGER home page (FR-28).
      */
     public MemberOverview memberOverview(DateRange range) {
         // TODO: activeProfiles = reportDAO.countMembers(false); deletedProfiles = countMembers(true);

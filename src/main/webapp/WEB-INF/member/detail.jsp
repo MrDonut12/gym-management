@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Member detail (CN-13). Servlet: MemberDetailServlet (/staff/members/detail). Roles: MANAGER, RECEPTIONIST.
+    Member detail (FR-13). Servlet: MemberDetailServlet (/staff/members/detail). Roles: MANAGER, RECEPTIONIST.
     Request attributes: detail (MemberDetailView).
 --%>
 <c:set var="pageTitle" value="Member details" scope="request"/>
@@ -13,12 +13,12 @@
 <section>
     <h2>Profile</h2>
     <%-- TODO: Code, full name, phone, email, date of birth, gender label, created at (c:out);
-         "Soft-deleted" label when detail.member.deleted (independent from the membership status, QT-01). --%>
-    <%-- TODO: Membership status today (QT-07) and expiry date; "Expiring soon" warning when detail.expiringSoon (QT-08). --%>
+         "Soft-deleted" label when detail.member.deleted (independent from the membership status, BR-01). --%>
+    <%-- TODO: Membership status today (BR-07) and expiry date; "Expiring soon" warning when detail.expiringSoon (BR-08). --%>
     <%-- TODO: Actions:
          - not deleted: Edit (/staff/members/edit?id=), Create registration (/staff/registrations/create?memberId=)
-         - MANAGER and not deleted: POST form to /manager/members/delete with a confirmation dialog (CN-15)
-         - MANAGER and deleted: POST form to /manager/members/restore (CN-16) --%>
+         - MANAGER and not deleted: POST form to /manager/members/delete with a confirmation dialog (FR-15)
+         - MANAGER and deleted: POST form to /manager/members/restore (FR-16) --%>
 </section>
 
 <section>

@@ -4,30 +4,30 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * Member profile (DL-02). Not a login account. The soft-delete flag and the membership status are
- * independent (QT-01); the profile can exist before any package is bought.
+ * Member profile (DR-02). Not a login account. The soft-delete flag and the membership status are
+ * independent (BR-01); the profile can exist before any package is bought.
  */
 public class Member {
 
     /** Auto-generated ID; displayed as the code HV + 6 digits, no separate code column */
     private Integer id;
 
-    /** HL-01 */
+    /** VR-01 */
     private String fullName;
 
-    /** HL-02: unique including soft-deleted profiles */
+    /** VR-02: unique including soft-deleted profiles */
     private String phone;
 
-    /** Optional (HL-04) */
+    /** Optional (VR-04) */
     private String email;
 
-    /** Optional (HL-05) */
+    /** Optional (VR-05) */
     private LocalDate dateOfBirth;
 
-    /** Optional (HL-06) */
+    /** Optional (VR-06) */
     private Gender gender;
 
-    /** Soft-delete flag (QT-09, QT-10) */
+    /** Soft-delete flag (BR-09, BR-10) */
     private boolean deleted;
 
     /** Creation time (AppClock); not editable */
@@ -40,7 +40,7 @@ public class Member {
     }
 
     /**
-     * Display code, for example HV000123 (DL-02).
+     * Display code, for example HV000123 (DR-04).
      */
     public String getCode() {
         return id == null ? null : String.format("HV%06d", id);

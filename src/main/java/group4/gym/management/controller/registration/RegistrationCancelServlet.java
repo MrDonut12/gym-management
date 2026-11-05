@@ -9,8 +9,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Cancel a PENDING registration with a reason (CN-23, QT-02, HL-15). MANAGER, RECEPTIONIST. POST only.
- * The reason is entered in the cancel form of the registration list (CN-24).
+ * Cancel a PENDING registration with a reason (FR-23, BR-02, VR-15). MANAGER, RECEPTIONIST. POST only.
+ * The reason is entered in the cancel form of the registration list (FR-24).
  */
 @WebServlet(name = "RegistrationCancelServlet", urlPatterns = {"/staff/registrations/cancel"})
 public class RegistrationCancelServlet extends HttpServlet {

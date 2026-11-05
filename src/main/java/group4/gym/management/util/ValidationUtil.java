@@ -29,7 +29,7 @@ public final class ValidationUtil {
     }
 
     /**
-     * HL-01 full name (member, staff): 2-100 characters after trim, no digits.
+     * VR-01 full name (member, staff): 2-100 characters after trim, no digits.
      */
     public static boolean isValidFullName(String fullName) {
         if (fullName == null || fullName.length() < 2 || fullName.length() > 100) {
@@ -45,21 +45,21 @@ public final class ValidationUtil {
     }
 
     /**
-     * HL-02 / HL-03 phone (member and staff use the same format): regex ^0[0-9]{9}$.
+     * VR-02 / VR-03 phone (member and staff use the same format): regex ^0[0-9]{9}$.
      */
     public static boolean isValidPhone(String phone) {
         return phone != null && PHONE.matcher(phone).matches();
     }
 
     /**
-     * HL-04 email (optional): at most 254 characters, regex ^[^@\s]+@[^@\s]+\.[^@\s]+$.
+     * VR-04 email (optional): at most 254 characters, regex ^[^@\s]+@[^@\s]+\.[^@\s]+$.
      */
     public static boolean isValidEmail(String email) {
         return email != null && email.length() <= 254 && EMAIL.matcher(email).matches();
     }
 
     /**
-     * HL-05 date of birth (optional): from 01/01/1900 to today (AppClock.today()).
+     * VR-05 date of birth (optional): from 01/01/1900 to today (AppClock.today()).
      */
     public static boolean isValidDateOfBirth(LocalDate dateOfBirth) {
         return dateOfBirth != null
@@ -68,35 +68,35 @@ public final class ValidationUtil {
     }
 
     /**
-     * HL-07 search keyword (optional): at most 100 characters.
+     * VR-07 search keyword (optional): at most 100 characters.
      */
     public static boolean isValidKeyword(String keyword) {
         return keyword == null || keyword.length() <= 100;
     }
 
     /**
-     * HL-08 username: regex ^[a-zA-Z][a-zA-Z0-9_]{3,49}$ (4-50 characters, no accents, no spaces).
+     * VR-08 username: regex ^[a-zA-Z][a-zA-Z0-9_]{3,49}$ (4-50 characters, no accents, no spaces).
      */
     public static boolean isValidUsername(String username) {
         return username != null && USERNAME.matcher(username).matches();
     }
 
     /**
-     * HL-09 password: 8-64 characters, kept exactly as entered (leading/trailing spaces count).
+     * VR-09 password: 8-64 characters, kept exactly as entered (leading/trailing spaces count).
      */
     public static boolean isValidPassword(String password) {
         return password != null && password.length() >= 8 && password.length() <= 64;
     }
 
     /**
-     * HL-11 package name: 2-100 characters after trim.
+     * VR-11 package name: 2-100 characters after trim.
      */
     public static boolean isValidPackageName(String name) {
         return name != null && name.length() >= 2 && name.length() <= 100;
     }
 
     /**
-     * HL-11 normalize a package name for duplicate checks: collapse runs of whitespace, trim, lower-case.
+     * VR-11 normalize a package name for duplicate checks: collapse runs of whitespace, trim, lower-case.
      */
     public static String normalizePackageName(String name) {
         if (name == null) {
@@ -106,7 +106,7 @@ public final class ValidationUtil {
     }
 
     /**
-     * HL-12 package price: digits only, integer 1..100,000,000 VND.
+     * VR-12 package price: digits only, integer 1..100,000,000 VND.
      */
     public static Integer parsePrice(String raw) {
         // The length guard keeps parseInt away from overflow on absurdly long digit strings.
@@ -118,14 +118,14 @@ public final class ValidationUtil {
     }
 
     /**
-     * HL-13 package duration: 1, 3, 6 or 12 months.
+     * VR-13 package duration: 1, 3, 6 or 12 months.
      */
     public static boolean isValidDurationMonths(Integer months) {
         return months != null && (months == 1 || months == 3 || months == 6 || months == 12);
     }
 
     /**
-     * HL-15 cancel reason: 3-255 characters after trim.
+     * VR-15 cancel reason: 3-255 characters after trim.
      */
     public static boolean isValidCancelReason(String reason) {
         return reason != null && reason.length() >= 3 && reason.length() <= 255;

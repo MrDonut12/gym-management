@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Member list and search (CN-11), the RECEPTIONIST home page. MANAGER, RECEPTIONIST.
+ * Member list and search (FR-11), the RECEPTIONIST home page. MANAGER, RECEPTIONIST.
  * Scope DELETED/ALL is MANAGER only (checked in MemberService, 403 otherwise).
  */
 @WebServlet(name = "MemberListServlet", urlPatterns = {"/staff/members"})
@@ -24,7 +24,7 @@ public class MemberListServlet extends HttpServlet {
             throws ServletException, IOException {
         // TODO: Read keyword, scope (MemberScope, default ACTIVE), page (RequestUtil.getPage);
         //       memberService.search(sessionUser, keyword, scope, page); AccessDeniedException -> 403.
-        //       Set page (Page<MemberListItem>), keyword, scope on the request; pagination links keep keyword and scope (KT-09).
+        //       Set page (Page<MemberListItem>), keyword, scope on the request; pagination links keep keyword and scope (AC-09).
         // Output: forward to VIEW.
     }
 }

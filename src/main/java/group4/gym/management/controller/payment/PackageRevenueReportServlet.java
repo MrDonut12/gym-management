@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Revenue per package (CN-27): current package name, PAID count, revenue, share %. Same range rules as CN-26.
+ * Revenue per package (FR-27): current package name, PAID count, revenue, share %. Same range rules as FR-26.
  * MANAGER only.
  */
 @WebServlet(name = "PackageRevenueReportServlet", urlPatterns = {"/manager/reports/revenue-by-package"})

@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Login screen (CN-01, CN-04, QT-17). Servlet: LoginServlet (/login). Public.
+    Login screen (FR-01, FR-04, BR-17). Servlet: LoginServlet (/login). Public.
     Request attributes: username (pre-filled from the gym_username cookie or the failed attempt), rememberChecked (boolean), error.
     No reCAPTCHA (FUT-02).
 --%>
@@ -12,7 +12,7 @@
 <h1>Login</h1>
 <form method="post" action="${pageContext.request.contextPath}/login" onsubmit="return validateLoginForm(this);">
     <label for="username">Username</label>
-    <%-- TODO: value = c:out / fn:escapeXml of requestScope.username (CL-04, KT-04). --%>
+    <%-- TODO: value = c:out / fn:escapeXml of requestScope.username (NFR-04, AC-04). --%>
     <input type="text" id="username" name="username" maxlength="50" required>
 
     <label for="password">Password</label>

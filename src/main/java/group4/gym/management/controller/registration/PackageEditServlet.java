@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Edit package name and price (CN-20). The duration is read-only. MANAGER only.
+ * Edit package name and price (FR-20). The duration is read-only. MANAGER only.
  */
 @WebServlet(name = "PackageEditServlet", urlPatterns = {"/manager/packages/edit"})
 public class PackageEditServlet extends HttpServlet {
@@ -28,7 +28,7 @@ public class PackageEditServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Read id, name, price; IGNORE any durationMonths parameter (KT-15);
+        // TODO: Read id, name, price; IGNORE any durationMonths parameter (AC-15);
         //       packageService.updateNameAndPrice(id, name, price).
         // Output: success: flash + redirect to /staff/packages; failure: forward to VIEW with errors.
     }

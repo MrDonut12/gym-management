@@ -28,7 +28,7 @@
             <version>3.1.0</version>
             <scope>provided</scope>
         </dependency>
-        <!-- JDBC driver for Microsoft SQL Server 2022 (SRS 1.4, CL-09) -->
+        <!-- JDBC driver for Microsoft SQL Server 2022 (SRS 1.4, NFR-09) -->
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>

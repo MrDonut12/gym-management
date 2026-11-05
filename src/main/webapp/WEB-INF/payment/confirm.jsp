@@ -2,12 +2,12 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Two-step payment confirmation (CN-25). Servlet: PaymentConfirmServlet (/staff/payments/confirm). Roles: MANAGER, RECEPTIONIST.
+    Two-step payment confirmation (FR-25). Servlet: PaymentConfirmServlet (/staff/payments/confirm). Roles: MANAGER, RECEPTIONIST.
     Request attributes:
-      preview (SchedulePreview) - step 1 while PENDING: member, package snapshot, amount snapshot, expected start/end (QT-05)
+      preview (SchedulePreview) - step 1 while PENDING: member, package snapshot, amount snapshot, expected start/end (BR-05)
       registration (Registration) - after a successful confirmation: the schedule actually saved
       error
-    No amount or date input: the backend never reads them from the client (KT-20).
+    No amount or date input: the backend never reads them from the client (AC-20).
 --%>
 <c:set var="pageTitle" value="Confirm payment" scope="request"/>
 <jsp:include page="/WEB-INF/common/header.jsp"/>

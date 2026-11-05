@@ -95,8 +95,7 @@ CREATE TABLE dbo.registrations (
 
 INSERT INTO dbo.accounts (username, password_hash, full_name, phone, email, role, status, created_at)
 VALUES
-    ('admin1', 'pbkdf2$600000$BrrU4X3e5FCgwfTUy4rEEg==$pIaylwbsOMf5TTlVUyk3UMT949WLwVJrpyeNJ993Sis=', N'Quản trị An', '0900000001', 'admin1@example.invalid', 'ADMIN', 'ACTIVE', '2026-04-29T08:00:00'),
-    ('admin2', 'pbkdf2$600000$6PKV9TZsfGWruw5jhb7lfg==$z2Y+Yt8DIAOIaa1H+Xg0nPZBM1TdQdwSpa1uuOc7fEk=', N'Quản trị Bình', '0900000002', 'admin2@example.invalid', 'ADMIN', 'ACTIVE', '2026-04-29T08:00:00'),
+    ('admin', 'pbkdf2$600000$BrrU4X3e5FCgwfTUy4rEEg==$pIaylwbsOMf5TTlVUyk3UMT949WLwVJrpyeNJ993Sis=', N'Quản trị An', '0900000001', 'admin1@example.invalid', 'ADMIN', 'ACTIVE', '2026-04-29T08:00:00'),
     ('manager1', 'pbkdf2$600000$4XVluJjEG4ghduQUoj1lCg==$SzvmZsTlzSC2+k9WNwrWkKshtX0Nys9zrXZe1Aa22gw=', N'Quản lý Châu', '0900000003', 'manager1@example.invalid', 'MANAGER', 'ACTIVE', '2026-04-29T08:00:00'),
     ('manager2', 'pbkdf2$600000$GxWBsbLmJHhtmfmGqKy5Qw==$VshI+i3OCOl2sta6qsapDPXmfBgRKPGI3OzelvUyAho=', N'Quản lý Dung', '0900000004', 'manager2@example.invalid', 'MANAGER', 'ACTIVE', '2026-04-29T08:00:00'),
     ('reception1', 'pbkdf2$600000$yOamvi0oe+UPdBvYX2nhIA==$QCeRXAKkjZUaCz05VtOGWoU7Pk+zH8eIgSj2ZQxph5Y=', N'Lễ tân Giang', '0900000005', 'reception1@example.invalid', 'RECEPTIONIST', 'ACTIVE', '2026-04-29T08:00:00'),

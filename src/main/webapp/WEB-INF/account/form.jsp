@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Create/edit form for staff accounts (CN-06, CN-07, DL-01, HL-01, HL-03, HL-04, HL-08 to HL-10).
+    Create/edit form for staff accounts (FR-06, FR-07, DR-01, VR-01, VR-03, VR-04, VR-08 to VR-10).
     Servlets: AccountCreateServlet (/admin/accounts/create), AccountEditServlet (/admin/accounts/edit). ADMIN only.
     Request attributes: mode (create|edit), account (Account), roles (Role[]), fieldErrors, error.
 --%>
@@ -36,7 +36,7 @@
 
     <label for="role">Role *</label>
     <select id="role" name="role">
-        <%-- TODO: c:forEach over roles. On edit of the current user's own account, the role is read-only (QT-14). --%>
+        <%-- TODO: c:forEach over roles. On edit of the current user's own account, the role is read-only (BR-14). --%>
     </select>
 
     <%-- TODO: Re-fill values with c:out; show fieldErrors next to each field. --%>

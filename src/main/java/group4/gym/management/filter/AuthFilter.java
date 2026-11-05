@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Session and authorization filter (CN-02, CN-03, section 3). Registered in web.xml and runs after EncodingFilter.
+ * Session and authorization filter (FR-02, FR-03, section 3). Registered in web.xml and runs after EncodingFilter.
  * Public paths: /login and static resources (/assets/*). Every other URL requires a valid session.
  * Authorization by URL prefix, fixed in code (no dynamic permission table):
  * <ul>
@@ -20,7 +20,7 @@ import java.io.IOException;
  *   <li>/staff/*   - MANAGER, RECEPTIONIST</li>
  *   <li>other protected URLs (/home, /logout, /change-password) - any logged-in role</li>
  * </ul>
- * Finer rules inside one URL (for example only MANAGER may list soft-deleted members, QT-11) are checked in the service layer.
+ * Finer rules inside one URL (for example only MANAGER may list soft-deleted members, BR-11) are checked in the service layer.
  */
 public class AuthFilter implements Filter {
 
@@ -32,10 +32,10 @@ public class AuthFilter implements Filter {
         // TODO: 1. path = HttpServletRequest.getServletPath(); isPublic(path) -> chain.doFilter and return.
         //       2. SessionUser user = SessionUtil.getSessionUser(request); null (not logged in / 30-minute timeout) -> redirect to /login.
         //       3. Re-read the account from the DB on EVERY request: authService.loadAccount(user.getId()).
-        //          null, status LOCKED, or role different from user.getRole() -> SessionUtil.invalidate, redirect to /login (KT-03).
+        //          null, status LOCKED, or role different from user.getRole() -> SessionUtil.invalidate, redirect to /login (AC-03).
         //          Any DB error -> deny (invalidate + redirect to /login); never let the request through.
-        //       4. !isAllowed(path, user.getRole()) -> sendError(403) for GET and POST alike, no data changed (KT-05).
-        //       5. setNoCacheHeaders(response) (CN-02: Back after logout must not show protected data); chain.doFilter.
+        //       4. !isAllowed(path, user.getRole()) -> sendError(403) for GET and POST alike, no data changed (AC-05).
+        //       5. setNoCacheHeaders(response) (FR-02: Back after logout must not show protected data); chain.doFilter.
         // Output: only authenticated and authorized requests continue down the filter chain.
 
         // Placeholder: let the request continue while this filter is not implemented.
@@ -61,7 +61,7 @@ public class AuthFilter implements Filter {
     }
 
     /**
-     * Anti-cache headers for protected pages (CN-02).
+     * Anti-cache headers for protected pages (FR-02).
      */
     private static void setNoCacheHeaders(HttpServletResponse response) {
         // TODO: Cache-Control: no-store, no-cache, must-revalidate; Pragma: no-cache; Expires: 0.

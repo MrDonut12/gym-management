@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Registration/transaction list (CN-24, QT-13). Servlet: RegistrationListServlet (/staff/registrations).
+    Registration/transaction list (FR-24, BR-13). Servlet: RegistrationListServlet (/staff/registrations).
     Roles: MANAGER, RECEPTIONIST.
     Request attributes: page (Page<RegistrationView>), filter (RegistrationFilter), packages (List<GymPackage>), error.
 --%>
@@ -23,7 +23,7 @@
         <option value="">All packages</option>
         <%-- TODO: c:forEach over packages. --%>
     </select>
-    <input type="text" name="memberKeyword" maxlength="100" placeholder="Member code or phone">
+    <input type="text" name="memberKeyword" maxlength="100" placeholder="Member code (HV000123), phone or full name">
     <select name="axis">
         <option value="CREATED_AT">By created date</option>
         <option value="PAID_AT">By payment date (PAID only)</option>
@@ -42,7 +42,7 @@
     <tbody>
     <%-- TODO: c:forEach over page.items; c:out; fmt:formatNumber for amounts.
          PENDING rows: "Confirm" link (/staff/payments/confirm?id=) and a POST form to /staff/registrations/cancel
-         (onsubmit="return validateCancelForm(this);") with hidden id and a required reason input (3-255 characters, HL-15).
+         (onsubmit="return validateCancelForm(this);") with hidden id and a required reason input (3-255 characters, VR-15).
          PAID/CANCELLED rows: no actions. --%>
     </tbody>
 </table>

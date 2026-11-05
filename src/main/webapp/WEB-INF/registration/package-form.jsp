@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Create a package / edit name and price (CN-19, CN-20, HL-11 to HL-13). MANAGER only.
+    Create a package / edit name and price (FR-19, FR-20, VR-11 to VR-13). MANAGER only.
     Servlets: PackageCreateServlet (/manager/packages/create), PackageEditServlet (/manager/packages/edit).
     Request attributes: mode (create|edit), gymPackage (GymPackage), fieldErrors, error.
 --%>
@@ -18,7 +18,7 @@
     <input type="text" id="name" name="name" maxlength="100" required>
 
     <label for="durationMonths">Duration *</label>
-    <%-- TODO: mode = create: this select. mode = edit: display the duration as read-only text and do NOT submit it (CN-20). --%>
+    <%-- TODO: mode = create: this select. mode = edit: display the duration as read-only text and do NOT submit it (FR-20). --%>
     <select id="durationMonths" name="durationMonths">
         <option value="1">1 month</option>
         <option value="3">3 months</option>

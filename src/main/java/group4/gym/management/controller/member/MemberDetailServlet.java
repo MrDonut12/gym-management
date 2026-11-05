@@ -9,8 +9,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Member detail (CN-13): profile, soft-delete label, status today, expiry warning, registration history.
- * MANAGER, RECEPTIONIST (a soft-deleted profile: MANAGER only, QT-11).
+ * Member detail (FR-13): profile, soft-delete label, status today, expiry warning, registration history.
+ * MANAGER, RECEPTIONIST (a soft-deleted profile: MANAGER only, BR-11).
  */
 @WebServlet(name = "MemberDetailServlet", urlPatterns = {"/staff/members/detail"})
 public class MemberDetailServlet extends HttpServlet {

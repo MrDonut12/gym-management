@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Expiring-soon list (CN-17, QT-08). Servlet: ExpiringMemberListServlet (/staff/members/expiring). Roles: MANAGER, RECEPTIONIST.
+    Expiring-soon list (FR-17, BR-08). Servlet: ExpiringMemberListServlet (/staff/members/expiring). Roles: MANAGER, RECEPTIONIST.
     Display only; no notification is sent.
     Request attributes: members (List<ExpiringMember>), sorted by end date ascending.
 --%>

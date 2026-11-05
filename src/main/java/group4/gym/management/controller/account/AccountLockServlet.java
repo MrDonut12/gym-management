@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Lock / unlock an account (CN-08), after a confirmation dialog on the list. An ADMIN cannot lock themselves (QT-14).
+ * Lock / unlock an account (FR-08), after a confirmation dialog on the list. An ADMIN cannot lock themselves (BR-14).
  * ADMIN only, POST only.
  */
 @WebServlet(name = "AccountLockServlet", urlPatterns = {"/admin/accounts/lock"})

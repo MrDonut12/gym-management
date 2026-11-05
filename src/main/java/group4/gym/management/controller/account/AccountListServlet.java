@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Staff account list (CN-05), the ADMIN home page. ADMIN only.
+ * Staff account list (FR-05), the ADMIN home page. ADMIN only.
  */
 @WebServlet(name = "AccountListServlet", urlPatterns = {"/admin/accounts"})
 public class AccountListServlet extends HttpServlet {

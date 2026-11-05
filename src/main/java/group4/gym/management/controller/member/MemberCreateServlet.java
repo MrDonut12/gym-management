@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Create a member profile (CN-12). MANAGER, RECEPTIONIST.
+ * Create a member profile (FR-12). MANAGER, RECEPTIONIST.
  */
 @WebServlet(name = "MemberCreateServlet", urlPatterns = {"/staff/members/create"})
 public class MemberCreateServlet extends HttpServlet {
@@ -28,7 +28,7 @@ public class MemberCreateServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Read fullName, phone, email, dateOfBirth (invalid date -> field error, HL-05), gender -> Member.
+        // TODO: Read fullName, phone, email, dateOfBirth (invalid date -> field error, VR-05), gender -> Member.
         //       memberService.createMember(sessionUser, member); ValidationException -> forward with fieldErrors
         //       (a duplicate phone error contains the code of the profile using it).
         // Output: success: flash + redirect to /staff/members/detail?id=<new id>; failure: forward to VIEW keeping the values.

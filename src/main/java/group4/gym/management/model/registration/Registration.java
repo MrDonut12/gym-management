@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * Registration = one package purchase and its payment transaction (DL-04).
- * Snapshot columns are copied from the package at creation and never change (QT-03).
- * Payment columns are set only when PAID; cancel columns only when CANCELLED (cross-column CHECKs in DL-04).
+ * Registration = one package purchase and its payment transaction (DR-04).
+ * Snapshot columns are copied from the package at creation and never change (BR-03).
+ * Payment columns are set only when PAID; cancel columns only when CANCELLED (cross-column CHECKs in DR-04).
  */
 public class Registration {
 
@@ -16,13 +16,13 @@ public class Registration {
     /** Member */
     private Integer memberId;
 
-    /** Source package (revenue by package groups by this ID, QT-12) */
+    /** Source package (revenue by package groups by this ID, BR-12) */
     private Integer packageId;
 
     /** Package name at creation time */
     private String packageNameSnapshot;
 
-    /** Duration (months) at creation time; used by the schedule formula (QT-05) */
+    /** Duration (months) at creation time; used by the schedule formula (BR-05) */
     private int durationMonthsSnapshot;
 
     /** Price at creation time; the amount paid and counted as revenue */
@@ -58,14 +58,14 @@ public class Registration {
     /** Account that cancelled; null unless CANCELLED */
     private Integer cancelledBy;
 
-    /** HL-15 or the fixed reason of QT-09; null unless CANCELLED */
+    /** VR-15 or the fixed reason of BR-09; null unless CANCELLED */
     private String cancelReason;
 
     public Registration() {
     }
 
     /**
-     * Display code, for example DK000045 (DL-04).
+     * Display code, for example DK000045 (DR-04).
      */
     public String getCode() {
         return id == null ? null : String.format("DK%06d", id);

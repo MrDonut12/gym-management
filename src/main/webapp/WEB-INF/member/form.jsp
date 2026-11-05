@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Create/update form for member profiles (CN-12, CN-14, HL-01, HL-02, HL-04 to HL-06).
+    Create/update form for member profiles (FR-12, FR-14, VR-01, VR-02, VR-04 to VR-06).
     Servlets: MemberCreateServlet (/staff/members/create), MemberEditServlet (/staff/members/edit). Roles: MANAGER, RECEPTIONIST.
     Request attributes: mode (create|edit), member (Member), genders (Gender[]), fieldErrors, error.
 --%>

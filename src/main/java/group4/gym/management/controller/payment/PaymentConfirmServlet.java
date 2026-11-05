@@ -9,9 +9,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Two-step payment confirmation with plain JSP (CN-25). MANAGER, RECEPTIONIST.
- * GET = step 1 (review, changes nothing; going back changes nothing). POST = step 2 (final confirmation, QT-06).
- * Amount and dates are never read from the request (KT-20).
+ * Two-step payment confirmation with plain JSP (FR-25). MANAGER, RECEPTIONIST.
+ * GET = step 1 (review, changes nothing; going back changes nothing). POST = step 2 (final confirmation, BR-06).
+ * Amount and dates are never read from the request (AC-20).
  */
 @WebServlet(name = "PaymentConfirmServlet", urlPatterns = {"/staff/payments/confirm"})
 public class PaymentConfirmServlet extends HttpServlet {
@@ -35,8 +35,8 @@ public class PaymentConfirmServlet extends HttpServlet {
             throws ServletException, IOException {
         // TODO: Read id and paymentMethod (getEnum PaymentMethod) ONLY; ignore amount/date parameters.
         //       paymentService.confirm(id, method, sessionUser.getId());
-        //       ValidationException (no method, HL-14) or BusinessRuleException (no longer PENDING / member soft-deleted)
+        //       ValidationException (no method, VR-14) or BusinessRuleException (no longer PENDING / member soft-deleted)
         //       -> flash error, data unchanged.
-        // Output: redirect to /staff/payments/confirm?id=<id> (PRG, CL-07), which then shows the saved schedule or the error.
+        // Output: redirect to /staff/payments/confirm?id=<id> (PRG, NFR-07), which then shows the saved schedule or the error.
     }
 }

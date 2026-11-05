@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Package list (CN-18). Servlet: PackageListServlet (/staff/packages). Roles: MANAGER, RECEPTIONIST.
+    Package list (FR-18). Servlet: PackageListServlet (/staff/packages). Roles: MANAGER, RECEPTIONIST.
     Request attributes: packages (List<GymPackage>), active (filter value: "", "true", "false").
 --%>
 <c:set var="pageTitle" value="Packages" scope="request"/>
@@ -27,7 +27,7 @@
     <tbody>
     <%-- TODO: c:forEach over packages; c:out; fmt:formatNumber for the price.
          MANAGER actions: Edit (/manager/packages/edit?id=), POST form to /manager/packages/status
-         (action=deactivate when on sale, activate otherwise). No delete button (QT-16). --%>
+         (action=deactivate when on sale, activate otherwise). No delete button (BR-16). --%>
     </tbody>
 </table>
 

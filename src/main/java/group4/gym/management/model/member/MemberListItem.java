@@ -3,7 +3,7 @@ package group4.gym.management.model.member;
 import java.time.LocalDate;
 
 /**
- * One row of the member list (CN-11): code, full name, phone, membership status (QT-07), current expiry date.
+ * One row of the member list (FR-11): code, full name, phone, membership status (BR-07), current expiry date.
  * MemberDAO fills the raw PAID aggregates; MembershipStatusService derives the status.
  */
 public class MemberListItem {
@@ -14,7 +14,7 @@ public class MemberListItem {
     /** Some PAID registration covers today (start_date <= today <= end_date) */
     private boolean paidCoveringToday;
 
-    /** Largest end_date of the member's PAID registrations; null if there is none ("Ngày hết hạn gói", QT-07) */
+    /** Largest end_date of the member's PAID registrations; null if there is none ("Ngày hết hạn gói", BR-07) */
     private LocalDate currentEndDate;
 
     /** Derived membership status */

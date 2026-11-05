@@ -9,10 +9,10 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 /**
- * Password hashing and verification (CL-03), using only the JDK.
+ * Password hashing and verification (NFR-03), using only the JDK.
  * Stored format: pbkdf2$iterations$Base64(salt)$Base64(hash).
  * New hashes are 83 ASCII characters and fit accounts.password_hash VARCHAR(100).
- * Passwords are used exactly as entered: no trimming or normalization (HL-09).
+ * Passwords are used exactly as entered: no trimming or normalization (VR-09).
  */
 public final class PasswordUtil {
 
