@@ -2,6 +2,7 @@ package group4.gym.management.dao.member;
 
 import group4.gym.management.database.DBContext;
 import group4.gym.management.exception.AppException;
+import group4.gym.management.exception.ValidationException;
 import group4.gym.management.model.member.ExpiringMember;
 import group4.gym.management.model.member.Gender;
 import group4.gym.management.model.member.Member;
@@ -18,6 +19,7 @@ import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MemberDAO {
 
@@ -303,7 +305,7 @@ public class MemberDAO {
                 throw new SQLException("Member insert returned no generated key");
             }
         } catch (SQLException ex) {
-            throw new AppException("Cannot create member", ex);
+            throw saveFailure(ex, member);
         }
     }
 
@@ -341,7 +343,7 @@ public class MemberDAO {
             ps.setInt(6, member.getId());
             return ps.executeUpdate() == 1;
         } catch (SQLException ex) {
-            throw new AppException("Cannot update member " + member.getId(), ex);
+            throw saveFailure(ex, member);
         }
     }
 
@@ -371,6 +373,34 @@ public class MemberDAO {
         } catch (SQLException ex) {
             throw new AppException("Cannot restore member " + id, ex);
         }
+    }
+
+    /**
+     * Converts duplicate-key errors into a phone validation error and wraps other database errors.
+     */
+    private RuntimeException saveFailure(SQLException ex, Member member) {
+        for (SQLException cause = ex; cause != null; cause = cause.getNextException()) {
+            int code = cause.getErrorCode();
+
+            if (code == 2601 || code == 2627) {
+                Member existing = null;
+                try {
+                    if (member.getPhone() != null) {
+                        existing = findByPhone(member.getPhone());
+                    }
+                } catch (RuntimeException lookupFailure) {
+                    // Preserve the duplicate error if the owner lookup fails.
+                }
+
+                String owner = existing == null ? "another profile" : existing.getCode();
+                return new ValidationException(
+                        "Duplicate phone number.",
+                        Map.of("phone",
+                                "This phone number is already associated with member profile " + owner + "."));
+            }
+        }
+
+        return new AppException("Cannot save member.", ex);
     }
 
     /**
