@@ -1,5 +1,7 @@
 package group4.gym.management.controller.account;
 
+import group4.gym.management.util.SessionUtil;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -16,7 +18,7 @@ public class LogoutServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: SessionUtil.invalidate(request).
-        // Output: redirect to /login.
+        SessionUtil.invalidate(request);
+        response.sendRedirect(request.getContextPath() + "/login");
     }
 }

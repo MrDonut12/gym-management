@@ -12,14 +12,16 @@
 <form method="post" action="${pageContext.request.contextPath}/change-password" onsubmit="return validatePasswordForm(this);">
     <label for="currentPassword">Current password</label>
     <input type="password" id="currentPassword" name="currentPassword" required>
+    <div class="text-danger" role="alert"><c:out value="${fieldErrors.currentPassword}"/></div>
 
     <label for="newPassword">New password (8-64 characters)</label>
     <input type="password" id="newPassword" name="newPassword" minlength="8" maxlength="64" required>
+    <div class="text-danger" role="alert"><c:out value="${fieldErrors.newPassword}"/></div>
 
     <label for="confirmPassword">Confirm new password</label>
     <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" maxlength="64" required>
+    <div class="text-danger" role="alert"><c:out value="${fieldErrors.confirmPassword}"/></div>
 
-    <%-- TODO: Show fieldErrors next to each field. Password fields are never re-filled. --%>
     <button type="submit">Save</button>
 </form>
 

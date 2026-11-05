@@ -1,47 +1,46 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
-<%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
-<%--
-    Create/edit form for staff accounts (CN-06, CN-07, DL-01, HL-01, HL-03, HL-04, HL-08 to HL-10).
-    Servlets: AccountCreateServlet (/admin/accounts/create), AccountEditServlet (/admin/accounts/edit). ADMIN only.
-    Request attributes: mode (create|edit), account (Account), roles (Role[]), fieldErrors, error.
---%>
 <c:set var="pageTitle" value="Account details" scope="request"/>
 <jsp:include page="/WEB-INF/common/header.jsp"/>
-
 <h1>Account details</h1>
-<%-- TODO: action = /admin/accounts/create when mode = create, /admin/accounts/edit when mode = edit. --%>
-<form method="post" action="" onsubmit="return validateAccountForm(this);">
-    <%-- TODO: hidden id when mode = edit. --%>
-    <input type="hidden" name="id" value="">
-
-    <label for="username">Username * (4-50 characters, letters/digits/_, starts with a letter)</label>
-    <%-- TODO: editable only on create; read-only text on edit (the username cannot be changed). --%>
-    <input type="text" id="username" name="username" maxlength="50" pattern="[a-zA-Z][a-zA-Z0-9_]{3,49}">
-
-    <%-- TODO: Show the two password fields only when mode = create; never re-fill them. --%>
-    <label for="password">Initial password * (8-64 characters)</label>
-    <input type="password" id="password" name="password" minlength="8" maxlength="64">
-    <label for="confirmPassword">Confirm password *</label>
-    <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" maxlength="64">
-
-    <label for="fullName">Full name *</label>
-    <input type="text" id="fullName" name="fullName" maxlength="100">
-
-    <label for="phone">Phone * (10 digits, starting with 0)</label>
-    <input type="text" id="phone" name="phone" maxlength="10" pattern="0[0-9]{9}">
-
+<form method="post" action="${pageContext.request.contextPath}/admin/accounts/${mode == 'edit' ? 'edit' : 'create'}" onsubmit="return validateAccountForm(this);">
+    <c:if test="${mode == 'edit'}"><input type="hidden" name="id" value="<c:out value='${account.id}'/>"/></c:if>
+    <label for="username">Username (4-50 characters)</label>
+    <input id="username" name="username" value="<c:out value='${account.username}'/>" maxlength="50" pattern="[a-zA-Z][a-zA-Z0-9_]{3,49}" required ${mode == 'edit' ? 'readonly' : ''}>
+    <div class="text-danger" role="alert"><c:out value="${fieldErrors.username}"/></div>
+    <c:if test="${mode == 'create'}">
+    <label for="password">Initial password</label>
+    <input type="password" id="password" name="password" minlength="8" maxlength="64" autocomplete="new-password" required>
+    <div class="text-danger" role="alert"><c:out value="${fieldErrors.password}"/></div>
+    <label for="confirmPassword">Confirm password</label>
+    <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" maxlength="64" autocomplete="new-password" required>
+    <div class="text-danger" role="alert"><c:out value="${fieldErrors.confirmPassword}"/></div>
+    </c:if>
+    <label for="fullName">Full name</label>
+    <input type="text" id="fullName" name="fullName" value="<c:out value='${account.fullName}'/>" minlength="2" maxlength="100" required>
+    <div class="text-danger" role="alert"><c:out value="${fieldErrors.fullName}"/></div>
+    <label for="phone">Phone</label>
+    <input type="tel" id="phone" name="phone" value="<c:out value='${account.phone}'/>" maxlength="10" pattern="0[0-9]{9}" required>
+    <div class="text-danger" role="alert"><c:out value="${fieldErrors.phone}"/></div>
     <label for="email">Email</label>
-    <input type="email" id="email" name="email" maxlength="254">
-
-    <label for="role">Role *</label>
-    <select id="role" name="role">
-        <%-- TODO: c:forEach over roles. On edit of the current user's own account, the role is read-only (QT-14). --%>
-    </select>
-
-    <%-- TODO: Re-fill values with c:out; show fieldErrors next to each field. --%>
+    <input type="email" id="email" name="email" value="<c:out value='${account.email}'/>" maxlength="254">
+    <div class="text-danger" role="alert"><c:out value="${fieldErrors.email}"/></div>
+    <label for="role">Role</label>
+    <c:choose>
+        <c:when test="${mode == 'edit' and account.id == sessionScope.sessionUser.id}">
+            <input id="role" name="role" value="<c:out value='${sessionScope.sessionUser.role}'/>" readonly>
+        </c:when>
+        <c:otherwise>
+            <select id="role" name="role" required>
+                <option value="">Select role</option>
+                <c:forEach var="item" items="${roles}">
+                    <option value="${item}" ${account.role == item ? 'selected' : ''}><c:out value="${item}"/></option>
+                </c:forEach>
+            </select>
+        </c:otherwise>
+    </c:choose>
+    <div class="text-danger" role="alert"><c:out value="${fieldErrors.role}"/></div>
     <button type="submit">Save</button>
     <a href="${pageContext.request.contextPath}/admin/accounts">Cancel</a>
 </form>
-
 <jsp:include page="/WEB-INF/common/footer.jsp"/>

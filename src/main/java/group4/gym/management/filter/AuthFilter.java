@@ -1,6 +1,12 @@
 package group4.gym.management.filter;
 
 import group4.gym.management.model.account.Role;
+import group4.gym.management.model.account.Account;
+import group4.gym.management.model.account.AccountStatus;
+import group4.gym.management.model.account.SessionUser;
+import group4.gym.management.util.SessionUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import java.net.URI;
 import group4.gym.management.service.account.AuthService;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -29,16 +35,42 @@ public class AuthFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        // TODO: 1. path = HttpServletRequest.getServletPath(); isPublic(path) -> chain.doFilter and return.
-        //       2. SessionUser user = SessionUtil.getSessionUser(request); null (not logged in / 30-minute timeout) -> redirect to /login.
-        //       3. Re-read the account from the DB on EVERY request: authService.loadAccount(user.getId()).
-        //          null, status LOCKED, or role different from user.getRole() -> SessionUtil.invalidate, redirect to /login (KT-03).
-        //          Any DB error -> deny (invalidate + redirect to /login); never let the request through.
-        //       4. !isAllowed(path, user.getRole()) -> sendError(403) for GET and POST alike, no data changed (KT-05).
-        //       5. setNoCacheHeaders(response) (CN-02: Back after logout must not show protected data); chain.doFilter.
-        // Output: only authenticated and authorized requests continue down the filter chain.
-
-        // Placeholder: let the request continue while this filter is not implemented.
+        HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse res = (HttpServletResponse) response;
+        String path = req.getServletPath();
+        if (isPublic(path)) {
+            if ("/login".equals(path)) setNoCacheHeaders(res);
+            if (!isSafeRequest(req)) {
+                res.sendError(HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
+            chain.doFilter(request, response);
+            return;
+        }
+        setNoCacheHeaders(res);
+        SessionUser user = SessionUtil.getSessionUser(req);
+        if (user == null) {
+            res.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+        Account account;
+        try {
+            account = authService.loadAccount(user.getId());
+        } catch (RuntimeException ex) {
+            req.getServletContext().log("Unable to validate session account.", ex);
+            SessionUtil.invalidate(req);
+            res.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+        if (account == null || account.getStatus() != AccountStatus.ACTIVE || account.getRole() != user.getRole()) {
+            SessionUtil.invalidate(req);
+            res.sendRedirect(req.getContextPath() + "/login");
+            return;
+        }
+        if (!isAllowed(path, user.getRole()) || !isSafeRequest(req)) {
+            res.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
         chain.doFilter(request, response);
     }
 
@@ -46,25 +78,44 @@ public class AuthFilter implements Filter {
      * Paths reachable without a session.
      */
     static boolean isPublic(String path) {
-        // TODO: "/login" or path starting with "/assets/".
-        // Output: true if public.
-        return false;
+        return "/login".equals(path) || path.startsWith("/assets/");
     }
 
     /**
      * Whether the role may access the path according to its prefix (section 3).
      */
     static boolean isAllowed(String path, Role role) {
-        // TODO: "/admin/" -> ADMIN; "/manager/" -> MANAGER; "/staff/" -> MANAGER or RECEPTIONIST; other paths -> true.
-        // Output: true if allowed.
-        return false;
+        if (role == null) return false;
+        if (path.equals("/admin") || path.startsWith("/admin/")) return role == Role.ADMIN;
+        if (path.equals("/manager") || path.startsWith("/manager/")) return role == Role.MANAGER;
+        if (path.equals("/staff") || path.startsWith("/staff/")) return role == Role.MANAGER || role == Role.RECEPTIONIST;
+        return true;
     }
 
     /**
      * Anti-cache headers for protected pages (CN-02).
      */
     private static void setNoCacheHeaders(HttpServletResponse response) {
-        // TODO: Cache-Control: no-store, no-cache, must-revalidate; Pragma: no-cache; Expires: 0.
-        // Output: nothing returned.
+        response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setDateHeader("Expires", 0);
+    }
+    /** Browser form writes must originate from this application origin (CSRF protection). */
+    private static boolean isSafeRequest(HttpServletRequest request) {
+        String method = request.getMethod();
+        if ("GET".equals(method) || "HEAD".equals(method) || "OPTIONS".equals(method)) return true;
+        String source = request.getHeader("Origin");
+        if (source == null) source = request.getHeader("Referer");
+        if (source == null) return false;
+        try {
+            URI origin = URI.create(source);
+            int port = origin.getPort() == -1 ? ("https".equalsIgnoreCase(origin.getScheme()) ? 443 : 80) : origin.getPort();
+            return origin.getUserInfo() == null
+                    && request.getScheme().equalsIgnoreCase(origin.getScheme())
+                    && request.getServerName().equalsIgnoreCase(origin.getHost())
+                    && request.getServerPort() == port;
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
     }
 }

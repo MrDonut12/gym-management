@@ -1,5 +1,11 @@
 package group4.gym.management.controller.account;
 
+import group4.gym.management.model.account.Account;
+import group4.gym.management.util.AppConstants;
+import group4.gym.management.util.CookieUtil;
+import group4.gym.management.util.RequestUtil;
+import group4.gym.management.util.SessionUtil;
+
 import group4.gym.management.service.account.AuthService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,21 +27,32 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Already logged in -> redirect to /home.
-        //       CookieUtil.getRememberedUsername (invalid values are ignored); if present, set username and rememberChecked = true.
-        // Output: forward to VIEW (the password is never pre-filled).
-
+        if (SessionUtil.getSessionUser(request) != null) {
+            response.sendRedirect(request.getContextPath() + "/home");
+            return;
+        }
+        String username = CookieUtil.getRememberedUsername(request);
+        request.setAttribute("username", username);
+        request.setAttribute("rememberChecked", username != null);
         request.getRequestDispatcher(VIEW).forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: username/password via RequestUtil.getRawString (not trimmed); rememberUsername checkbox.
-        //       authService.authenticate == null -> error = AppConstants.MSG_LOGIN_FAILED, keep username,
-        //       do NOT create/refresh/delete the cookie, forward to VIEW.
-        //       Success -> SessionUtil.login (changes the session ID);
-        //       checked -> CookieUtil.addRememberUsernameCookie, unchecked -> CookieUtil.clearRememberUsernameCookie; redirect to /home.
-        // Output: redirect to /home on success; forward to VIEW with the generic error on failure.
+        String username = RequestUtil.getRawString(request, "username");
+        boolean remember = "true".equals(request.getParameter("rememberUsername"));
+        Account account = authService.authenticate(username, RequestUtil.getRawString(request, "password"));
+        if (account == null) {
+            request.setAttribute("error", AppConstants.MSG_LOGIN_FAILED);
+            request.setAttribute("username", username);
+            request.setAttribute("rememberChecked", remember);
+            request.getRequestDispatcher(VIEW).forward(request, response);
+            return;
+        }
+        SessionUtil.login(request, account);
+        if (remember) CookieUtil.addRememberUsernameCookie(request, response, account.getUsername());
+        else CookieUtil.clearRememberUsernameCookie(request, response);
+        response.sendRedirect(request.getContextPath() + "/home");
     }
 }
