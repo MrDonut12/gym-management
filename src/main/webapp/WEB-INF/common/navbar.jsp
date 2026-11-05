@@ -27,10 +27,10 @@
                 </c:if>
             </div>
             <div class="d-flex align-items-center flex-wrap gap-3 ms-lg-auto">
-                <span><c:out value="${sessionScope.sessionUser.fullName}"/> (<c:out value="${sessionScope.sessionUser.role}"/>)</span>
-                <a href="${pageContext.request.contextPath}/change-password">Change password</a>
+                <span class="small text-body-secondary"><c:out value="${sessionScope.sessionUser.fullName}"/> (<c:out value="${sessionScope.sessionUser.role}"/>)</span>
+                <a class="btn btn-sm btn-outline-secondary" href="${pageContext.request.contextPath}/change-password">Change password</a>
                 <form method="post" action="${pageContext.request.contextPath}/logout">
-                    <button class="btn btn-outline-secondary" type="submit">Logout</button>
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">Logout</button>
                 </form>
             </div>
         </div>

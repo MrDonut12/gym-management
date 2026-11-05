@@ -8,8 +8,11 @@
 <c:set var="pageTitle" value="System error" scope="request"/>
 <jsp:include page="/WEB-INF/common/header.jsp"/>
 
-<h1>500 - System error</h1>
-<p>Something went wrong. Please try again later.</p>
+<div class="text-center py-5">
+<h1 class="h3 mb-3">500 - System error</h1>
+<p class="text-body-secondary mb-4">Something went wrong. Please try again later.</p>
 <a class="btn btn-primary" href="${pageContext.request.contextPath}/home">Back to home</a>
+
+</div>
 
 <jsp:include page="/WEB-INF/common/footer.jsp"/>

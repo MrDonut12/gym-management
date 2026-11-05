@@ -8,21 +8,31 @@
 <c:set var="pageTitle" value="Change password" scope="request"/>
 <jsp:include page="/WEB-INF/common/header.jsp"/>
 
-<h1>Change password</h1>
-<form method="post" action="${pageContext.request.contextPath}/change-password" onsubmit="return validatePasswordForm(this);">
-    <label for="currentPassword">Current password</label>
-    <input type="password" id="currentPassword" name="currentPassword" required>
-    <div class="text-danger" role="alert"><c:out value="${fieldErrors.currentPassword}"/></div>
+<div class="row justify-content-center">
+<div class="col-12 col-md-8 col-lg-6">
+<div class="card">
+<div class="card-body p-4">
+<h1 class="h3 mb-4">Change password</h1>
+<form class="d-grid gap-2" method="post" action="${pageContext.request.contextPath}/change-password" onsubmit="return validatePasswordForm(this);">
+    <label class="form-label mt-2 mb-0" for="currentPassword">Current password</label>
+    <input class="form-control" type="password" id="currentPassword" name="currentPassword" autocomplete="current-password" maxlength="64" required>
+    <div class="small text-danger" role="alert"><c:out value="${fieldErrors.currentPassword}"/></div>
 
-    <label for="newPassword">New password (8-64 characters)</label>
-    <input type="password" id="newPassword" name="newPassword" minlength="8" maxlength="64" required>
-    <div class="text-danger" role="alert"><c:out value="${fieldErrors.newPassword}"/></div>
+    <label class="form-label mt-2 mb-0" for="newPassword">New password (8-64 characters)</label>
+    <input class="form-control" type="password" id="newPassword" name="newPassword" autocomplete="new-password" minlength="8" maxlength="64" required>
+    <div class="small text-danger" role="alert"><c:out value="${fieldErrors.newPassword}"/></div>
 
-    <label for="confirmPassword">Confirm new password</label>
-    <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" maxlength="64" required>
-    <div class="text-danger" role="alert"><c:out value="${fieldErrors.confirmPassword}"/></div>
+    <label class="form-label mt-2 mb-0" for="confirmPassword">Confirm new password</label>
+    <input class="form-control" type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" minlength="8" maxlength="64" required>
+    <div class="small text-danger" role="alert"><c:out value="${fieldErrors.confirmPassword}"/></div>
 
-    <button type="submit">Save</button>
+    <button class="btn btn-primary mt-3" type="submit">Save</button>
+    <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/home">Cancel</a>
 </form>
+
+</div>
+</div>
+</div>
+</div>
 
 <jsp:include page="/WEB-INF/common/footer.jsp"/>
