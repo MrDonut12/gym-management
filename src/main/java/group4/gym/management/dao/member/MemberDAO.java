@@ -393,10 +393,8 @@ public class MemberDAO {
                 }
 
                 String owner = existing == null ? "another profile" : existing.getCode();
-                return new ValidationException(
-                        "Duplicate phone number.",
-                        Map.of("phone",
-                                "This phone number is already associated with member profile " + owner + "."));
+                String message = "This phone number is already associated with member profile " + owner + ".";
+                return new ValidationException(message, Map.of("phone", message));
             }
         }
 
