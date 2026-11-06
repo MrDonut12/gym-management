@@ -25,12 +25,12 @@
     <h2>Registrations</h2>
     <table class="table">
         <thead>
-        <tr><th>Code</th><th>Package (snapshot)</th><th>Amount</th><th>Status</th><th>Created at</th>
-            <th>Paid at</th><th>Start</th><th>End</th><th>Cancel reason</th></tr>
+            <tr><th>Code</th><th>Package (snapshot)</th><th>Amount</th><th>Status</th><th>Created at</th>
+                <th>Paid at</th><th>Start</th><th>End</th><th>Cancel reason</th></tr>
         </thead>
         <tbody>
-        <%-- TODO: c:forEach over detail.registrations (every status, newest first); amounts with fmt:formatNumber;
-             schedule columns empty for PENDING/CANCELLED. --%>
+            <%-- TODO: c:forEach over detail.registrations (every status, newest first); amounts with fmt:formatNumber;
+                 schedule columns empty for PENDING/CANCELLED. --%>
         </tbody>
     </table>
 </section>

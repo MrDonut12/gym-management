@@ -26,11 +26,11 @@
 
 <table class="table">
     <thead>
-    <tr><th>Code</th><th>Full name</th><th>Phone</th><th>Membership status</th><th>Expiry date</th><th></th></tr>
+        <tr><th>Code</th><th>Full name</th><th>Phone</th><th>Membership status</th><th>Expiry date</th><th></th></tr>
     </thead>
     <tbody>
-    <%-- TODO: c:forEach over page.items; c:out for every value; status label (ACTIVE/UPCOMING/EXPIRED/NONE);
-         "Soft-deleted" badge when member.deleted; Detail link (/staff/members/detail?id=). No results -> a message row. --%>
+        <%-- TODO: c:forEach over page.items; c:out for every value; status label (ACTIVE/UPCOMING/EXPIRED/NONE);
+             "Soft-deleted" badge when member.deleted; Detail link (/staff/members/detail?id=). No results -> a message row. --%>
     </tbody>
 </table>
 <%-- TODO: Pagination (page.page / page.totalPages); links keep keyword and scope (KT-09). --%>

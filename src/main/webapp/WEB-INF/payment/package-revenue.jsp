@@ -15,7 +15,7 @@
 <form method="get" action="${pageContext.request.contextPath}/manager/reports/revenue-by-package">
     <label>From <input type="date" name="fromDate"></label>
     <label>To <input type="date" name="toDate"></label>
-    <%-- TODO: Re-fill the current values (default range: current month). --%>
+        <%-- TODO: Re-fill the current values (default range: current month). --%>
     <button type="submit">View</button>
 </form>
 

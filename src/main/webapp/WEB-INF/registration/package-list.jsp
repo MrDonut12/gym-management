@@ -25,9 +25,9 @@
 <table class="table">
     <thead><tr><th>Name</th><th>Duration (months)</th><th>Price (VND)</th><th>Sale status</th><th></th></tr></thead>
     <tbody>
-    <%-- TODO: c:forEach over packages; c:out; fmt:formatNumber for the price.
-         MANAGER actions: Edit (/manager/packages/edit?id=), POST form to /manager/packages/status
-         (action=deactivate when on sale, activate otherwise). No delete button (QT-16). --%>
+        <%-- TODO: c:forEach over packages; c:out; fmt:formatNumber for the price.
+             MANAGER actions: Edit (/manager/packages/edit?id=), POST form to /manager/packages/status
+             (action=deactivate when on sale, activate otherwise). No delete button (QT-16). --%>
     </tbody>
 </table>
 
