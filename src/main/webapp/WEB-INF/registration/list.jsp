@@ -30,20 +30,20 @@
     </select>
     <label>From <input type="date" name="fromDate"></label>
     <label>To <input type="date" name="toDate"></label>
-    <%-- TODO: Re-select/re-fill the current filter values (default range: current month). --%>
+        <%-- TODO: Re-select/re-fill the current filter values (default range: current month). --%>
     <button type="submit">Filter</button>
 </form>
 
 <table class="table">
     <thead>
-    <tr><th>Code</th><th>Member</th><th>Package (snapshot)</th><th>Amount</th><th>Status</th><th>Method</th>
-        <th>Created at</th><th>Paid at</th><th>Start - End</th><th></th></tr>
+        <tr><th>Code</th><th>Member</th><th>Package (snapshot)</th><th>Amount</th><th>Status</th><th>Method</th>
+            <th>Created at</th><th>Paid at</th><th>Start - End</th><th></th></tr>
     </thead>
     <tbody>
-    <%-- TODO: c:forEach over page.items; c:out; fmt:formatNumber for amounts.
-         PENDING rows: "Confirm" link (/staff/payments/confirm?id=) and a POST form to /staff/registrations/cancel
-         (onsubmit="return validateCancelForm(this);") with hidden id and a required reason input (3-255 characters, HL-15).
-         PAID/CANCELLED rows: no actions. --%>
+        <%-- TODO: c:forEach over page.items; c:out; fmt:formatNumber for amounts.
+             PENDING rows: "Confirm" link (/staff/payments/confirm?id=) and a POST form to /staff/registrations/cancel
+             (onsubmit="return validateCancelForm(this);") with hidden id and a required reason input (3-255 characters, HL-15).
+             PAID/CANCELLED rows: no actions. --%>
     </tbody>
 </table>
 <%-- TODO: Pagination; links keep every filter value. --%>

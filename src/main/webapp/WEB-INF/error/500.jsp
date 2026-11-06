@@ -9,9 +9,9 @@
 <jsp:include page="/WEB-INF/common/header.jsp"/>
 
 <div class="text-center py-5">
-<h1 class="h3 mb-3">500 - System error</h1>
-<p class="text-body-secondary mb-4">Something went wrong. Please try again later.</p>
-<a class="btn btn-primary" href="${pageContext.request.contextPath}/home">Back to home</a>
+    <h1 class="h3 mb-3">500 - System error</h1>
+    <p class="text-body-secondary mb-4">Something went wrong. Please try again later.</p>
+    <a class="btn btn-primary" href="${pageContext.request.contextPath}/home">Back to home</a>
 
 </div>
 

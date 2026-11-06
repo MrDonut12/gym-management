@@ -14,10 +14,10 @@
 
 <table class="table">
     <thead>
-    <tr><th>Code</th><th>Full name</th><th>Phone</th><th>Package</th><th>Expiry date</th><th>Days left</th><th></th></tr>
+        <tr><th>Code</th><th>Full name</th><th>Phone</th><th>Package</th><th>Expiry date</th><th>Days left</th><th></th></tr>
     </thead>
     <tbody>
-    <%-- TODO: c:forEach over members; c:out; Detail link (/staff/members/detail?id=). No rows -> a message row. --%>
+        <%-- TODO: c:forEach over members; c:out; Detail link (/staff/members/detail?id=). No rows -> a message row. --%>
     </tbody>
 </table>
 
