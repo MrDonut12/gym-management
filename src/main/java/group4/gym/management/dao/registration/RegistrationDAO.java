@@ -18,8 +18,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Data access for registrations (table registrations, DL-04; owner TV3, payment columns written for TV4).
@@ -30,9 +28,6 @@ import java.util.regex.Pattern;
  * caller's transaction (SRS 9.1) and throw SQLException.
  */
 public class RegistrationDAO {
-
-    /** Member code as typed in the list filter: "HV000123" or "123" (CN-24). */
-    private static final Pattern MEMBER_CODE = Pattern.compile("(?i)^(?:HV)?(\\d{1,9})$");
 
     /**
      * Insert a PENDING registration with its snapshot (CN-22, inside the QT-06 transaction).
@@ -129,26 +124,10 @@ public class RegistrationDAO {
             int offset, int limit) {
         String sql = "SELECT r.*, m.full_name, m.phone, m.is_deleted FROM registrations r JOIN members m ON m.id = r.member_id" + buildWhere(filter)
                 + " ORDER BY " + axisColumn(filter) + " DESC, r.id DESC OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-        String keyword = keywordOf(filter);
         try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            int i = 1;
-            if (filter.getStatus() != null) {
-                ps.setString(i++, filter.getStatus().name());
-            }
-            if (filter.getPackageId() != null) {
-                ps.setInt(i++, filter.getPackageId());
-            }
-            if (!keyword.isEmpty()) {
-                Matcher code = MEMBER_CODE.matcher(keyword);
-                if (code.matches()) {
-                    ps.setInt(i++, Integer.parseInt(code.group(1)));
-                }
-                ps.setString(i++, keyword);
-            }
-            ps.setObject(i++, fromInclusive);
-            ps.setObject(i++, toExclusive);
-            ps.setInt(i++, offset);
-            ps.setInt(i, limit);
+            int nextParameter = bindFilters(ps, filter, fromInclusive, toExclusive);
+            ps.setInt(nextParameter, offset);
+            ps.setInt(nextParameter + 1, limit);
             try (ResultSet rs = ps.executeQuery()) {
                 List<RegistrationView> list = new ArrayList<>();
                 while (rs.next()) {
@@ -166,24 +145,8 @@ public class RegistrationDAO {
      */
     public int count(RegistrationFilter filter, LocalDateTime fromInclusive, LocalDateTime toExclusive) {
         String sql = "SELECT COUNT(*) FROM registrations r JOIN members m ON m.id = r.member_id" + buildWhere(filter);
-        String keyword = keywordOf(filter);
         try (Connection conn = DBContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            int i = 1;
-            if (filter.getStatus() != null) {
-                ps.setString(i++, filter.getStatus().name());
-            }
-            if (filter.getPackageId() != null) {
-                ps.setInt(i++, filter.getPackageId());
-            }
-            if (!keyword.isEmpty()) {
-                Matcher code = MEMBER_CODE.matcher(keyword);
-                if (code.matches()) {
-                    ps.setInt(i++, Integer.parseInt(code.group(1)));
-                }
-                ps.setString(i++, keyword);
-            }
-            ps.setObject(i++, fromInclusive);
-            ps.setObject(i, toExclusive);
+            bindFilters(ps, filter, fromInclusive, toExclusive);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getInt(1) : 0;
             }
@@ -293,8 +256,7 @@ public class RegistrationDAO {
     }
 
     /**
-     * WHERE clause shared by search() and count(). The placeholders appear in this order: status, package,
-     * member (id then phone, or phone only), range start, range end; callers set them in the same order.
+     * Builds the shared filters, matching a partial member name or an exact phone number.
      */
     private String buildWhere(RegistrationFilter filter) {
         StringBuilder where = new StringBuilder(" WHERE 1 = 1");
@@ -306,11 +268,37 @@ public class RegistrationDAO {
         }
         String keyword = keywordOf(filter);
         if (!keyword.isEmpty()) {
-            where.append(MEMBER_CODE.matcher(keyword).matches() ? " AND (m.id = ? OR m.phone = ?)" : " AND m.phone = ?");
+            where.append(" AND (m.full_name COLLATE Vietnamese_100_CI_AS LIKE ? ESCAPE N'~' OR m.phone = ?)");
         }
         String axis = axisColumn(filter);
         where.append(" AND ").append(axis).append(" >= ? AND ").append(axis).append(" < ?");
         return where.toString();
+    }
+
+    /**
+     * Binds the shared search filters and returns the next free parameter index.
+     */
+    private int bindFilters(PreparedStatement ps, RegistrationFilter filter,
+            LocalDateTime fromInclusive, LocalDateTime toExclusive) throws SQLException {
+        int index = 1;
+        if (filter.getStatus() != null) {
+            ps.setString(index++, filter.getStatus().name());
+        }
+        if (filter.getPackageId() != null) {
+            ps.setInt(index++, filter.getPackageId());
+        }
+        String keyword = keywordOf(filter);
+        if (!keyword.isEmpty()) {
+            String name = keyword.replace("~", "~~")
+                    .replace("%", "~%")
+                    .replace("_", "~_")
+                    .replace("[", "~[");
+            ps.setNString(index++, "%" + name + "%");
+            ps.setString(index++, keyword);
+        }
+        ps.setObject(index++, fromInclusive);
+        ps.setObject(index++, toExclusive);
+        return index;
     }
 
     private Registration mapRow(ResultSet rs) throws SQLException {
