@@ -1,6 +1,10 @@
 package group4.gym.management.controller.member;
 
+import group4.gym.management.exception.AccessDeniedException;
+import group4.gym.management.exception.NotFoundException;
 import group4.gym.management.service.member.MemberService;
+import group4.gym.management.util.RequestUtil;
+import group4.gym.management.util.SessionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -22,8 +26,20 @@ public class MemberDetailServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: id = getPositiveId; memberService.getDetail(sessionUser, id);
-        //       null id / NotFoundException -> 404; AccessDeniedException -> 403; set detail on the request.
-        // Output: forward to VIEW.
+        Integer id = RequestUtil.getPositiveId(request, "id");
+        if (id == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        try {
+            request.setAttribute("detail", memberService.getDetail(SessionUtil.getSessionUser(request), id));
+        } catch (NotFoundException ex) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        } catch (AccessDeniedException ex) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+        request.getRequestDispatcher(VIEW).forward(request, response);
     }
 }
