@@ -21,7 +21,7 @@ public class ExpiringMemberListServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: memberService.listExpiringSoon(); set members on the request.
-        // Output: forward to VIEW.
+        request.setAttribute("members", memberService.listExpiringSoon());
+        request.getRequestDispatcher(VIEW).forward(request, response);
     }
 }

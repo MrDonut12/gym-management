@@ -1,0 +1,10 @@
+<%--
+    Membership status badge (QT-07), statically included by member/list.jsp and member/detail.jsp.
+    Reads the page-scoped variable memberStatus (MembershipStatus).
+--%>
+<c:choose>
+    <c:when test="${memberStatus == 'ACTIVE'}"><span class="badge badge-active">Active</span></c:when>
+    <c:when test="${memberStatus == 'UPCOMING'}"><span class="badge badge-waiting">Upcoming</span></c:when>
+    <c:when test="${memberStatus == 'EXPIRED'}"><span class="badge badge-expired">Expired</span></c:when>
+    <c:otherwise><span class="badge badge-none">No package</span></c:otherwise>
+</c:choose>
