@@ -61,8 +61,7 @@ public class MemberEditServlet extends HttpServlet {
         Member member = MemberForm.read(request, fieldErrors);
         member.setId(id);
         if (!fieldErrors.isEmpty()) {
-            MemberForm.forwardWithErrors(request, response, MODE, member,
-                    "Please correct the member details.", fieldErrors);
+            MemberForm.forwardWithErrors(request, response, MODE, member, fieldErrors);
             return;
         }
 
@@ -71,8 +70,7 @@ public class MemberEditServlet extends HttpServlet {
             SessionUtil.flashMessage(request, "Member profile saved.");
             response.sendRedirect(request.getContextPath() + "/staff/members/detail?id=" + id);
         } catch (ValidationException ex) {
-            MemberForm.forwardWithErrors(request, response, MODE, member,
-                    ex.getMessage(), ex.getFieldErrors());
+            MemberForm.forwardWithErrors(request, response, MODE, member, ex.getFieldErrors());
         } catch (NotFoundException ex) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } catch (BusinessRuleException ex) {

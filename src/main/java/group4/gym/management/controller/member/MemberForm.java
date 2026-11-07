@@ -18,6 +18,8 @@ final class MemberForm {
 
     static final String VIEW = "/WEB-INF/member/form.jsp";
 
+    private static final String GENERIC_ERROR = "Please correct the member details.";
+
     private MemberForm() {
     }
 
@@ -62,11 +64,12 @@ final class MemberForm {
 
     /**
      * Forwards back to the form with the submitted values and the validation errors.
+     * The top alert stays generic; each specific message is shown once, next to its field.
      */
     static void forwardWithErrors(HttpServletRequest request, HttpServletResponse response,
-            String mode, Member member, String error, Map<String, String> fieldErrors)
+            String mode, Member member, Map<String, String> fieldErrors)
             throws ServletException, IOException {
-        request.setAttribute("error", error);
+        request.setAttribute("error", GENERIC_ERROR);
         request.setAttribute("fieldErrors", fieldErrors);
         forward(request, response, mode, member);
     }

@@ -76,12 +76,19 @@
 <c:if test="${page.totalPages > 1}">
     <nav class="mt-3" aria-label="Member pages">
         <ul class="pagination flex-wrap mb-0">
-            <c:url var="prevUrl" value="/staff/members">
-                <c:param name="keyword" value="${keyword}"/>
-                <c:param name="scope" value="${scope}"/>
-                <c:param name="page" value="${page.page - 1}"/>
-            </c:url>
-            <li class="page-item ${page.hasPrevious ? '' : 'disabled'}"><a class="page-link" href="${prevUrl}">Previous</a></li>
+            <c:choose>
+                <c:when test="${page.hasPrevious}">
+                    <c:url var="prevUrl" value="/staff/members">
+                        <c:param name="keyword" value="${keyword}"/>
+                        <c:param name="scope" value="${scope}"/>
+                        <c:param name="page" value="${page.page - 1}"/>
+                    </c:url>
+                    <li class="page-item"><a class="page-link" href="${prevUrl}">Previous</a></li>
+                </c:when>
+                <c:otherwise>
+                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                </c:otherwise>
+            </c:choose>
             <c:forEach var="number" begin="1" end="${page.totalPages}">
                 <c:url var="pageUrl" value="/staff/members">
                     <c:param name="keyword" value="${keyword}"/>
@@ -92,12 +99,19 @@
                     <a class="page-link" href="${pageUrl}" ${number == page.page ? 'aria-current="page"' : ''}>${number}</a>
                 </li>
             </c:forEach>
-            <c:url var="nextUrl" value="/staff/members">
-                <c:param name="keyword" value="${keyword}"/>
-                <c:param name="scope" value="${scope}"/>
-                <c:param name="page" value="${page.page + 1}"/>
-            </c:url>
-            <li class="page-item ${page.hasNext ? '' : 'disabled'}"><a class="page-link" href="${nextUrl}">Next</a></li>
+            <c:choose>
+                <c:when test="${page.hasNext}">
+                    <c:url var="nextUrl" value="/staff/members">
+                        <c:param name="keyword" value="${keyword}"/>
+                        <c:param name="scope" value="${scope}"/>
+                        <c:param name="page" value="${page.page + 1}"/>
+                    </c:url>
+                    <li class="page-item"><a class="page-link" href="${nextUrl}">Next</a></li>
+                </c:when>
+                <c:otherwise>
+                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                </c:otherwise>
+            </c:choose>
         </ul>
     </nav>
     <p class="hint mt-2">Page ${page.page} of ${page.totalPages} (${page.totalItems} members).</p>
