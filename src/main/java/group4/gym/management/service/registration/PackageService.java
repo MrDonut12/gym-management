@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Package type management (CN-18 to CN-21, QT-03, QT-04, QT-16).
+ * Package type management (FR-18 to FR-21, BR-03, BR-04, BR-16).
  * Create/edit/deactivate are reached through /manager/* only; listing is shared with RECEPTIONIST (on-sale packages only).
  */
 public class PackageService {
@@ -26,7 +26,7 @@ public class PackageService {
     private final PackageDAO packageDAO = new PackageDAO();
 
     /**
-     * Package list (CN-18). MANAGER sees everything and may filter on sale / not on sale;
+     * Package list (FR-18). MANAGER sees everything and may filter on sale / not on sale;
      * RECEPTIONIST always gets on-sale packages only, whatever filter was sent.
      *
      * @param activeFilter null = all (MANAGER only)
@@ -39,14 +39,14 @@ public class PackageService {
     }
 
     /**
-     * Packages that can be chosen when creating a registration (CN-22, QT-04).
+     * Packages that can be chosen when creating a registration (FR-22, BR-04).
      */
     public List<GymPackage> listOnSale() {
         return packageDAO.findAll(true);
     }
 
     /**
-     * Get a package by ID (HL-17).
+     * Get a package by ID (VR-17).
      */
     public GymPackage getById(int packageId) {
         GymPackage gymPackage = packageDAO.findById(packageId);
@@ -57,9 +57,9 @@ public class PackageService {
     }
 
     /**
-     * Create a package (CN-19), on sale by default.
+     * Create a package (FR-19), on sale by default.
      *
-     * @param rawPrice the price exactly as typed (HL-12 accepts digits only)
+     * @param rawPrice the price exactly as typed (VR-12 accepts digits only)
      */
     public int createPackage(String name, Integer durationMonths, String rawPrice) {
         String trimmedName = name == null ? null : name.trim();
@@ -86,8 +86,8 @@ public class PackageService {
     }
 
     /**
-     * Edit name and price only (CN-20). The duration is read-only: any duration parameter is ignored (KT-15).
-     * Existing registrations keep their snapshot (QT-03).
+     * Edit name and price only (FR-20). The duration is read-only: any duration parameter is ignored (AC-15).
+     * Existing registrations keep their snapshot (BR-03).
      */
     public void updateNameAndPrice(int packageId, String name, String rawPrice) {
         getById(packageId);
@@ -109,7 +109,7 @@ public class PackageService {
     }
 
     /**
-     * Stop selling or resume selling (CN-21, QT-04). Packages are never deleted.
+     * Stop selling or resume selling (FR-21, BR-04). Packages are never deleted.
      * PENDING registrations of a package that stopped selling can still be confirmed.
      */
     public void setActive(int packageId, boolean active) {

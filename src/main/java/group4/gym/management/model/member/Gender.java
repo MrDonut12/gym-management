@@ -1,8 +1,8 @@
 package group4.gym.management.model.member;
 
 /**
- * Member gender (HL-06); may be left empty (null).
- * The database stores the label: CHECK IN (N'Nam', N'Nữ', N'Khác') (DL-02).
+ * Member gender (VR-06); may be left empty (null).
+ * The database stores the label: CHECK IN (N'Nam', N'Nữ', N'Khác') (DR-02).
  */
 public enum Gender {
     /** Male */

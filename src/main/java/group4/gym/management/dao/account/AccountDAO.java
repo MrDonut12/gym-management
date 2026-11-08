@@ -12,12 +12,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** SQL access for accounts; accounts are never physically deleted. */
+/**
+ * Data access for staff accounts (table accounts, DR-01). No physical deletion (BR-16).
+ * Every query uses PreparedStatement parameters (NFR-02). Methods open their own connection with
+ * DBContext.getConnection() and wrap SQLException in AppException.
+ */
 public class AccountDAO {
+
+    /**
+     * Find an account by ID (used by AuthFilter on every request, FR-03).
+     */
     public Account findById(int id) {
         return find("SELECT * FROM accounts WHERE id = ?", id);
     }
 
+    /**
+     * Find an account by username, case-insensitive (FR-01). The column uses a case-insensitive collation (DR-01).
+     */
     public Account findByUsername(String username) {
         return find("SELECT * FROM accounts WHERE username = ?", username);
     }
@@ -72,6 +83,11 @@ public class AccountDAO {
         return findByUsername(username) != null;
     }
 
+    /**
+     * Whether the phone already exists within accounts (VR-03). It may equal a member's phone.
+     *
+     * @param excludeId ignore this account when updating; null when creating
+     */
     public boolean existsByPhone(String phone, Integer excludeId) {
         String sql = "SELECT 1 FROM accounts WHERE phone = ?" + (excludeId == null ? "" : " AND id <> ?");
         try (Connection c = DBContext.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {

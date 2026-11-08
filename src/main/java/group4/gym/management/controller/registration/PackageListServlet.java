@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Package list (CN-18). MANAGER: every package, filter on sale / not on sale, action buttons.
+ * Package list (FR-18). MANAGER: every package, filter on sale / not on sale, action buttons.
  * RECEPTIONIST: on-sale packages only, no action buttons. MANAGER, RECEPTIONIST.
  */
 @WebServlet(name = "PackageListServlet", urlPatterns = {"/staff/packages"})

@@ -1,7 +1,7 @@
 package group4.gym.management.model.payment;
 
 /**
- * Member overview, the MANAGER home page (CN-28).
+ * Member overview, the MANAGER home page (FR-28).
  */
 public class MemberOverview {
 
@@ -11,10 +11,10 @@ public class MemberOverview {
     /** Today: soft-deleted profiles */
     private int deletedProfiles;
 
-    /** Today: members with a membership status ACTIVE (QT-07) */
+    /** Today: members with a membership status ACTIVE (BR-07) */
     private int membersWithActivePackage;
 
-    /** Today: members expiring soon (QT-08) */
+    /** Today: members expiring soon (BR-08) */
     private int expiringSoon;
 
     /** In the date range: profiles by created_at, including those soft-deleted later */

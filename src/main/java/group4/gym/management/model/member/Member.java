@@ -13,22 +13,22 @@ public class Member {
     /** Auto-generated database ID. */
     private Integer id;
 
-    /** HL-01 */
+    /** VR-01 */
     private String fullName;
 
-    /** HL-02: unique including soft-deleted profiles */
+    /** VR-02: unique including soft-deleted profiles */
     private String phone;
 
-    /** Optional (HL-04) */
+    /** Optional (VR-04) */
     private String email;
 
-    /** Optional (HL-05) */
+    /** Optional (VR-05) */
     private LocalDate dateOfBirth;
 
-    /** Optional (HL-06) */
+    /** Optional (VR-06) */
     private Gender gender;
 
-    /** Soft-delete flag (QT-09, QT-10) */
+    /** Soft-delete flag (BR-09, BR-10) */
     private boolean deleted;
 
     /** Creation time (AppClock); not editable */

@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    ADMIN sets a new password for another account (CN-10, HL-09). Servlet: AccountResetPasswordServlet (/admin/accounts/reset-password).
+    ADMIN sets a new password for another account (FR-10, VR-09). Servlet: AccountResetPasswordServlet (/admin/accounts/reset-password).
     Request attributes: account (target Account), fieldErrors, error.
 --%>
 <c:set var="pageTitle" value="Reset password" scope="request"/>

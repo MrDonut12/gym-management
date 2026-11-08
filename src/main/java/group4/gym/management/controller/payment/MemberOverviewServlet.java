@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Member overview (CN-28), the MANAGER home page. MANAGER only.
+ * Member overview (FR-28), the MANAGER home page. MANAGER only.
  */
 @WebServlet(name = "MemberOverviewServlet", urlPatterns = {"/manager/overview"})
 public class MemberOverviewServlet extends HttpServlet {

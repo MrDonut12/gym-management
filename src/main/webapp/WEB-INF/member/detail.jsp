@@ -3,7 +3,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Member detail (CN-13). Servlet: MemberDetailServlet (/staff/members/detail). Roles: MANAGER, RECEPTIONIST.
+    Member detail (FR-13). Servlet: MemberDetailServlet (/staff/members/detail). Roles: MANAGER, RECEPTIONIST.
     Request attributes: detail (MemberDetailView).
 --%>
 <c:set var="pageTitle" value="Member details" scope="request"/>

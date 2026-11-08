@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Aggregate queries for the reports (CN-26 to CN-28). Every range is [fromInclusive, toExclusive) (QT-13).
- * Revenue = SUM(price_snapshot) of PAID registrations with paid_at in the range; PENDING/CANCELLED excluded (QT-12).
- * Every query uses PreparedStatement parameters (CL-02). Methods open their own connection with
+ * Aggregate queries for the reports (FR-26 to FR-28). Every range is [fromInclusive, toExclusive) (BR-13).
+ * Revenue = SUM(price_snapshot) of PAID registrations with paid_at in the range; PENDING/CANCELLED excluded (BR-12).
+ * Every query uses PreparedStatement parameters (NFR-02). Methods open their own connection with
  * DBContext.getConnection() and wrap SQLException in AppException.
  */
 public class ReportDAO {
@@ -65,7 +65,7 @@ public class ReportDAO {
     }
 
     /**
-     * Revenue per package (CN-27): grouped by package_id, labelled with the CURRENT package name (QT-12).
+     * Revenue per package (FR-27): grouped by package_id, labelled with the CURRENT package name (BR-12).
      */
     public List<RevenueRow> revenueByPackage(LocalDateTime fromInclusive, LocalDateTime toExclusive) {
         requireRange(fromInclusive, toExclusive);
@@ -99,7 +99,7 @@ public class ReportDAO {
     }
 
     /**
-     * Count profiles by soft-delete flag (CN-28).
+     * Count profiles by soft-delete flag (FR-28).
      */
     public int countMembers(boolean deleted) {
         String sql = "SELECT COUNT(*) FROM dbo.members WHERE is_deleted = ?";
@@ -134,7 +134,7 @@ public class ReportDAO {
     }
 
     /**
-     * New members by created_at in the range, including profiles soft-deleted later (CN-28).
+     * New members by created_at in the range, including profiles soft-deleted later (FR-28).
      */
     public int countNewMembers(LocalDateTime fromInclusive, LocalDateTime toExclusive) {
         requireRange(fromInclusive, toExclusive);

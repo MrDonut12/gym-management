@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Create a PENDING registration (CN-22): choose a member not soft-deleted and a package on sale. MANAGER, RECEPTIONIST.
+ * Create a PENDING registration (FR-22): choose a member not soft-deleted and a package on sale. MANAGER, RECEPTIONIST.
  * The price is taken from the database, never from the form.
  */
 @WebServlet(name = "RegistrationCreateServlet", urlPatterns = {"/staff/registrations/create"})

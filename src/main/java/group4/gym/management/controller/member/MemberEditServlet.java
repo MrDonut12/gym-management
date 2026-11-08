@@ -17,7 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Update a member profile that is not soft-deleted (CN-14, QT-11). MANAGER, RECEPTIONIST.
+ * Update a member profile that is not soft-deleted (FR-14, BR-11). MANAGER, RECEPTIONIST.
  */
 @WebServlet(name = "MemberEditServlet", urlPatterns = {"/staff/members/edit"})
 public class MemberEditServlet extends HttpServlet {

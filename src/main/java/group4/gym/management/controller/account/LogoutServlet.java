@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Logout (CN-02). POST only (GET answers 405). Does not delete the gym_username cookie (QT-17).
+ * Logout (FR-02). POST only (GET answers 405). Does not delete the gym_username cookie (BR-17).
  */
 @WebServlet(name = "LogoutServlet", urlPatterns = {"/logout"})
 public class LogoutServlet extends HttpServlet {

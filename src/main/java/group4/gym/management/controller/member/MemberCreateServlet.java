@@ -14,7 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Create a member profile (CN-12). MANAGER, RECEPTIONIST.
+ * Create a member profile (FR-12). MANAGER, RECEPTIONIST.
  */
 @WebServlet(name = "MemberCreateServlet", urlPatterns = {"/staff/members/create"})
 public class MemberCreateServlet extends HttpServlet {

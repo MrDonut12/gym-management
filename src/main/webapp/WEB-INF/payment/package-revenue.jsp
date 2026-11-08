@@ -3,9 +3,9 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Revenue per package (CN-27, QT-12). Servlet: PackageRevenueReportServlet (/manager/reports/revenue-by-package). MANAGER only.
-    Grouped by package ID and labelled with the CURRENT package name; the total equals CN-26 for the same range (KT-24).
-    Request attributes: range (DateRange), rows (List<RevenueRow>), total (RevenueRow), error, fieldErrors.
+    Revenue per package (FR-27, BR-12). Servlet: PackageRevenueReportServlet (/manager/reports/revenue-by-package). MANAGER only.
+    Grouped by package ID and labelled with the CURRENT package name; the total equals FR-26 for the same range (AC-24).
+    Request attributes: range (DateRange), rows (List<RevenueRow>), total (RevenueRow), error.
 --%>
 <c:set var="pageTitle" value="Revenue by package" scope="request"/>
 <jsp:include page="/WEB-INF/common/header.jsp"/>

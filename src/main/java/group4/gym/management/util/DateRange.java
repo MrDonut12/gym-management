@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
- * Date filter range (QT-13, HL-16).
+ * Date filter range (BR-13, VR-16).
  *
  * From A to B means [A 00:00, B+1 00:00).
  * Both whole days are included.

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Registrations (CN-22 to CN-24, QT-02 to QT-04, QT-06, QT-11, QT-13).
+ * Registrations (FR-22 to FR-24, BR-02 to BR-04, BR-06, BR-11, BR-13).
  */
 public class RegistrationService {
 
@@ -39,7 +39,7 @@ public class RegistrationService {
     private final MemberDAO memberDAO = new MemberDAO();
 
     /**
-     * Members that may receive a registration: not soft-deleted (CN-22, QT-11).
+     * Members that may receive a registration: not soft-deleted (FR-22, BR-11).
      */
     public List<Member> findSelectableMembers(String keyword) {
         String trimmed = keyword == null ? null : keyword.trim();
@@ -64,11 +64,11 @@ public class RegistrationService {
     }
 
     /**
-     * Create a PENDING registration (CN-22) in ONE transaction (QT-06):
-     * the member must exist and not be soft-deleted (QT-11), the package must be on sale (QT-04, also when POSTed directly),
-     * and the snapshot of name/duration/price is copied from the database, never from the form (QT-03).
+     * Create a PENDING registration (FR-22) in ONE transaction (BR-06):
+     * the member must exist and not be soft-deleted (BR-11), the package must be on sale (BR-04, also when POSTed directly),
+     * and the snapshot of name/duration/price is copied from the database, never from the form (BR-03).
      *
-     * @return ID of the new registration (the servlet redirects to the CN-25 review step)
+     * @return ID of the new registration (the servlet redirects to the FR-25 review step)
      */
     public int createPending(SessionUser actor, int memberId, int packageId) {
         GymPackage gymPackage = packageDAO.findById(packageId);
@@ -111,7 +111,7 @@ public class RegistrationService {
     }
 
     /**
-     * Cancel a PENDING registration with a reason (CN-23, QT-02, HL-15). PAID and CANCELLED never change.
+     * Cancel a PENDING registration with a reason (FR-23, BR-02, VR-15). PAID and CANCELLED never change.
      */
     public void cancel(SessionUser actor, int registrationId, String reason) {
         String trimmed = reason == null ? null : reason.trim();
@@ -127,7 +127,7 @@ public class RegistrationService {
     }
 
     /**
-     * Registration/transaction list (CN-24), 20 rows per page.
+     * Registration/transaction list (FR-24), 20 rows per page.
      */
     public Page<RegistrationView> search(RegistrationFilter filter) {
         String keyword = filter.getMemberKeyword() == null ? null : filter.getMemberKeyword().trim();

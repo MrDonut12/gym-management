@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Edit package name and price (CN-20). The duration is read-only. MANAGER only.
+ * Edit package name and price (FR-20). The duration is read-only. MANAGER only.
  */
 @WebServlet(name = "PackageEditServlet", urlPatterns = {"/manager/packages/edit"})
 public class PackageEditServlet extends HttpServlet {

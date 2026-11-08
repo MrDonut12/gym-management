@@ -24,7 +24,7 @@ public class ReportService {
     private final MembershipStatusService membershipStatusService = new MembershipStatusService();
 
     /**
-     * Revenue per day or month (CN-26).
+     * Revenue per day or month (FR-26).
      */
     public List<RevenueRow> revenueByPeriod(DateRange range, RevenueGranularity granularity) {
         if (granularity == null) {
@@ -41,7 +41,7 @@ public class ReportService {
     }
 
     /**
-     * Revenue per package (CN-27), same range as CN-26. A renamed package stays one row (grouped by package_id).
+     * Revenue per package (FR-27), same range as FR-26. A renamed package stays one row (grouped by package_id).
      */
     public List<RevenueRow> revenueByPackage(DateRange range) {
         DateRange safeRange = rangeOrDefault(range);
@@ -78,7 +78,7 @@ public class ReportService {
     }
 
     /**
-     * Member overview, the MANAGER home page (CN-28).
+     * Member overview, the MANAGER home page (FR-28).
      */
     public MemberOverview memberOverview(DateRange range) {
         DateRange safeRange = rangeOrDefault(range);

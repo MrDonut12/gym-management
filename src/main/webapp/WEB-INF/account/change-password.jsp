@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Change own password (CN-09, HL-09). Servlet: ChangePasswordServlet (/change-password). Every role.
+    Change own password (FR-09, VR-09). Servlet: ChangePasswordServlet (/change-password). Every role.
     Request attributes: fieldErrors (Map), error.
 --%>
 <c:set var="pageTitle" value="Change password" scope="request"/>

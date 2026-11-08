@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Create a package / edit name and price (CN-19, CN-20, HL-11 to HL-13). MANAGER only.
+    Create a package / edit name and price (FR-19, FR-20, VR-11 to VR-13). MANAGER only.
     Servlets: PackageCreateServlet (/manager/packages/create), PackageEditServlet (/manager/packages/edit).
     Request attributes: mode (create|edit), gymPackage (GymPackage), price (price text as typed / stored),
                         fieldErrors (keys: name, durationMonths, price), error.

@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * Parsing and formatting of dates for forms and views.
- * "Now"/"today" always come from AppClock (QT-15).
+ * "Now"/"today" always come from AppClock (BR-15).
  */
 public final class DateTimeUtil {
 

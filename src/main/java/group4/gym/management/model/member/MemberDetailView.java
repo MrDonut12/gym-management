@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * View data for the member detail screen (CN-13): profile, soft-delete label, membership status today,
+ * View data for the member detail screen (FR-13): profile, soft-delete label, membership status today,
  * expiry warning and the registration history of every status (newest first).
  */
 public class MemberDetailView {
@@ -13,13 +13,13 @@ public class MemberDetailView {
     /** Member profile */
     private Member member;
 
-    /** Membership status today (QT-07) */
+    /** Membership status today (BR-07) */
     private MembershipStatus status;
 
     /** Largest PAID end_date; null if there is no PAID */
     private LocalDate currentEndDate;
 
-    /** Expiry warning (QT-08) */
+    /** Expiry warning (BR-08) */
     private boolean expiringSoon;
 
     /** Registrations of every status, newest first (RegistrationDAO.findByMember) */

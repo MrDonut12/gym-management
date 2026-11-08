@@ -21,8 +21,8 @@ import java.time.DateTimeException;
 import java.util.List;
 
 /**
- * Registration/transaction list (CN-24): filter by status, package, member code or phone, and a date range on the
- * chosen axis (created_at or paid_at, QT-13). 20 rows per page. PENDING rows show Confirm and Cancel.
+ * Registration/transaction list (FR-24): filter by status, package, member code or phone, and a date range on the
+ * chosen axis (created_at or paid_at, BR-13). 20 rows per page. PENDING rows show Confirm and Cancel.
  * MANAGER, RECEPTIONIST.
  */
 @WebServlet(name = "RegistrationListServlet", urlPatterns = {"/staff/registrations"})

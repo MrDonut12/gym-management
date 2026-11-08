@@ -6,7 +6,7 @@
 
     <display-name>Gym Management</display-name>
 
-    <!-- CN-03, CL-05: the session expires after 30 minutes of inactivity; JSESSIONID is HttpOnly and tracked by cookie only.
+    <!-- FR-03, NFR-05: the session expires after 30 minutes of inactivity; JSESSIONID is HttpOnly and tracked by cookie only.
          Keep in sync with AppConstants.SESSION_TIMEOUT_MINUTES. -->
     <session-config>
         <session-timeout>30</session-timeout>
@@ -39,7 +39,7 @@
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 
-    <!-- CL-08: shared error pages; never show stack traces or SQL errors to the user -->
+    <!-- NFR-08: shared error pages; never show stack traces or SQL errors to the user -->
     <error-page>
         <error-code>403</error-code>
         <location>/WEB-INF/error/403.jsp</location>

@@ -14,14 +14,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data access for package types (table packages, DL-03). No delete and no duration update (QT-16, CN-20).
- * Every query uses PreparedStatement parameters (CL-02). Methods open their own connection with
+ * Data access for package types (table packages, DR-03). No delete and no duration update (BR-16, FR-20).
+ * Every query uses PreparedStatement parameters (NFR-02). Methods open their own connection with
  * DBContext.getConnection() and wrap SQLException in AppException.
  */
 public class PackageDAO {
 
     /**
-     * List packages (CN-18).
+     * List packages (FR-18).
      *
      * @param active null = all; true = on sale; false = not on sale
      */
@@ -63,7 +63,7 @@ public class PackageDAO {
     }
 
     /**
-     * Whether a package name already exists after normalization (HL-11).
+     * Whether a package name already exists after normalization (VR-11).
      *
      * @param normalizedName ValidationUtil.normalizePackageName(name)
      * @param excludeId      ignore this package when updating; null when creating
@@ -89,7 +89,7 @@ public class PackageDAO {
     }
 
     /**
-     * Insert a package (CN-19), on sale by default.
+     * Insert a package (FR-19), on sale by default.
      */
     public int insert(GymPackage gymPackage) {
         String sql = "INSERT INTO packages (name, duration_months, price, is_active, created_at) VALUES (?, ?, ?, 1, ?)";
@@ -113,7 +113,7 @@ public class PackageDAO {
     }
 
     /**
-     * Update name and price only (CN-20). Existing registrations keep their snapshot (QT-03).
+     * Update name and price only (FR-20). Existing registrations keep their snapshot (BR-03).
      */
     public boolean updateNameAndPrice(int id, String name, int price) {
         String sql = "UPDATE packages SET name = ?, price = ? WHERE id = ?";
@@ -129,7 +129,7 @@ public class PackageDAO {
     }
 
     /**
-     * Stop selling / resume selling (CN-21, QT-04).
+     * Stop selling / resume selling (FR-21, BR-04).
      */
     public boolean updateActive(int id, boolean active) {
         String sql = "UPDATE packages SET is_active = ? WHERE id = ?";

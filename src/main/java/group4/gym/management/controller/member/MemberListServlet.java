@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Member list and search (CN-11), the RECEPTIONIST home page. MANAGER, RECEPTIONIST.
+ * Member list and search (FR-11), the RECEPTIONIST home page. MANAGER, RECEPTIONIST.
  * Search by full name (partial) or phone (exact); the member code is display-only (team decision).
  * Scope DELETED/ALL is MANAGER only (checked in MemberService, 403 otherwise).
  */

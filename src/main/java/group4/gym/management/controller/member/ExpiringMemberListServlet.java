@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Expiring-soon list (CN-17, QT-08). Display only; no notification is sent. MANAGER, RECEPTIONIST.
+ * Expiring-soon list (FR-17, BR-08). Display only; no notification is sent. MANAGER, RECEPTIONIST.
  */
 @WebServlet(name = "ExpiringMemberListServlet", urlPatterns = {"/staff/members/expiring"})
 public class ExpiringMemberListServlet extends HttpServlet {
