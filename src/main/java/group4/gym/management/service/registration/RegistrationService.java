@@ -130,6 +130,17 @@ public class RegistrationService {
     }
 
     /**
+     * One registration with member display data, any status (registration detail page, FR-24).
+     */
+    public RegistrationView getView(int registrationId) {
+        RegistrationView view = registrationId > 0 ? registrationDAO.findViewById(registrationId) : null;
+        if (view == null) {
+            throw new NotFoundException("Registration " + registrationId + " not found");
+        }
+        return view;
+    }
+
+    /**
      * Registration/transaction list (FR-24), 20 rows per page.
      */
     public Page<RegistrationView> search(RegistrationFilter filter) {

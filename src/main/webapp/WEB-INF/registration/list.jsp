@@ -7,7 +7,7 @@
     Roles: MANAGER, RECEPTIONIST.
     Request attributes: page (Page<RegistrationView>), filter (RegistrationFilter, dates resolved to the range used),
                         packages (List<GymPackage>), fieldErrors, error.
-    PENDING rows have Confirm (FR-25 review step) and Cancel with a reason (FR-23); PAID/CANCELLED rows have no action.
+    Every row has Detail (/staff/registrations/detail). PENDING rows also have Confirm (FR-25 review step) and Cancel with a reason (FR-23).
 --%>
 <c:set var="pageTitle" value="Registrations" scope="request"/>
 <jsp:include page="/WEB-INF/common/header.jsp"/>
@@ -74,8 +74,7 @@
         <caption class="visually-hidden">Registrations matching the filters</caption>
         <thead class="table-light">
             <tr><th scope="col">Member</th><th scope="col">Package (snapshot)</th>
-                <th scope="col" class="text-end">Amount (VND)</th><th scope="col">Status</th><th scope="col">Method</th>
-                <th scope="col">Created at</th><th scope="col">Paid at</th><th scope="col">Start - End</th>
+                <th scope="col" class="text-end">Amount (VND)</th><th scope="col">Status</th><th scope="col">Start - End</th>
                 <th scope="col">Actions</th></tr>
         </thead>
         <tbody>
@@ -102,23 +101,15 @@
                             <c:otherwise><span class="badge badge-cancelled" title="<c:out value='${reg.cancelReason}'/>">Cancelled</span></c:otherwise>
                         </c:choose>
                     </td>
-                    <td>
-                        <c:choose>
-                            <c:when test="${reg.paymentMethod == 'CASH'}">Cash</c:when>
-                            <c:when test="${reg.paymentMethod == 'TRANSFER'}">Bank transfer</c:when>
-                            <c:otherwise>-</c:otherwise>
-                        </c:choose>
-                    </td>
-                    <td class="text-nowrap"><c:out value="${DateTimeUtil.format(reg.createdAt)}"/></td>
-                    <td class="text-nowrap"><c:if test="${not empty reg.paidAt}"><c:out value="${DateTimeUtil.format(reg.paidAt)}"/></c:if></td>
                     <td class="text-nowrap">
                         <c:if test="${not empty reg.startDate}">
                             <c:out value="${DateTimeUtil.format(reg.startDate)}"/> - <c:out value="${DateTimeUtil.format(reg.endDate)}"/>
                         </c:if>
                     </td>
                     <td>
-                        <c:if test="${reg.status == 'PENDING'}">
-                            <div class="d-flex flex-column gap-2" style="min-width: 14rem;">
+                        <div class="d-flex flex-column gap-2" style="min-width: 14rem;">
+                            <a class="btn btn-sm btn-outline-secondary" href="${pageContext.request.contextPath}/staff/registrations/detail?id=${reg.id}">Detail</a>
+                            <c:if test="${reg.status == 'PENDING'}">
                                 <a class="btn btn-sm btn-primary" href="${pageContext.request.contextPath}/staff/payments/confirm?id=${reg.id}">Confirm</a>
                                 <form class="d-flex gap-1 m-0" method="post" action="${pageContext.request.contextPath}/staff/registrations/cancel"
                                       onsubmit="return validateCancelForm(this) &amp;&amp; confirm('Cancel this registration?');">
@@ -128,13 +119,13 @@
                                            placeholder="Cancel reason" minlength="3" maxlength="255" required>
                                     <button class="btn btn-sm btn-outline-danger" type="submit">Cancel</button>
                                 </form>
-                            </div>
-                        </c:if>
+                            </c:if>
+                        </div>
                     </td>
                 </tr>
             </c:forEach>
             <c:if test="${empty result.items}">
-                <tr><td colspan="9" class="text-center text-body-secondary py-5">No registrations found.</td></tr>
+                <tr><td colspan="6" class="text-center text-body-secondary py-5">No registrations found.</td></tr>
             </c:if>
         </tbody>
     </table>
