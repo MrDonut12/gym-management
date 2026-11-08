@@ -39,10 +39,10 @@ public final class AppConstants {
     public static final String MSG_LOGIN_FAILED = "Invalid username or password.";
 
     /** BR-02: message when a conditional status update affects 0 rows. */
-    public static final String MSG_REGISTRATION_NOT_PENDING = "Đăng ký không còn chờ thanh toán";
+    public static final String MSG_REGISTRATION_NOT_PENDING = "This registration is no longer awaiting payment.";
 
-    /** BR-09: cancel reason stored on the PENDING registrations of a soft-deleted member. */
-    public static final String CANCEL_REASON_MEMBER_DELETED = "Xóa hồ sơ hội viên";
+    /** BR-09: cancel reason stored on the PENDING registrations of a soft-deleted member (matches the seed data). */
+    public static final String CANCEL_REASON_MEMBER_DELETED = "Member profile deleted";
 
     private AppConstants() {
     }

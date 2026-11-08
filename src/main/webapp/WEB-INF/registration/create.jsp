@@ -19,7 +19,7 @@
     <div class="col-12 col-md-6">
         <label class="visually-hidden" for="keyword">Find member</label>
         <input class="form-control" type="text" id="keyword" name="keyword" maxlength="100"
-               placeholder="Member code, phone or full name" value="<c:out value="${requestScope.keyword}"/>">
+               placeholder="Phone or full name" value="<c:out value="${requestScope.keyword}"/>">
     </div>
     <div class="col-auto">
         <button class="btn btn-outline-primary" type="submit">Find member</button>

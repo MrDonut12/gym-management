@@ -6,6 +6,7 @@ import group4.gym.management.exception.ValidationException;
 import group4.gym.management.model.account.Account;
 import group4.gym.management.model.account.AccountStatus;
 import group4.gym.management.model.account.Role;
+import group4.gym.management.util.ValidationUtil;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -48,11 +49,17 @@ public class AccountDAO {
         StringBuilder sql = new StringBuilder("SELECT * FROM accounts WHERE 1 = 1");
         List<Object> parameters = new ArrayList<>();
         if (keyword != null && !keyword.isEmpty()) {
-            sql.append(" AND (username LIKE ? ESCAPE '!' OR full_name COLLATE Latin1_General_100_CI_AS LIKE ? ESCAPE '!')");
-            String pattern = "%" + keyword.replace("!", "!!").replace("%", "!%")
-                    .replace("_", "!_").replace("[", "![") + "%";
-            parameters.add(pattern);
-            parameters.add(pattern);
+            if (ValidationUtil.isValidPhone(keyword)) {
+                // A full, valid phone number matches the phone exactly; a partial phone never does.
+                sql.append(" AND phone = ?");
+                parameters.add(keyword);
+            } else {
+                sql.append(" AND (username LIKE ? ESCAPE '!' OR full_name COLLATE Latin1_General_100_CI_AS LIKE ? ESCAPE '!')");
+                String pattern = "%" + keyword.replace("!", "!!").replace("%", "!%")
+                        .replace("_", "!_").replace("[", "![") + "%";
+                parameters.add(pattern);
+                parameters.add(pattern);
+            }
         }
         if (role != null) {
             sql.append(" AND role = ?");

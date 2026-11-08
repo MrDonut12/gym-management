@@ -1,24 +1,19 @@
 package group4.gym.management.util;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * Classifies the single member search box (FR-11, FR-24). The kind of the input decides the search, in this order:
  * <ol>
- *   <li>CODE  - "HV" + exactly 6 digits, prefix case-insensitive (e.g. HV000123): exact match on members.id;</li>
  *   <li>PHONE - a valid phone number (VR-02: 0 + 9 digits): exact match on phone;</li>
  *   <li>NAME  - no digit at all (VR-01): partial, case-insensitive match on full_name;</li>
- *   <li>NONE  - anything else (e.g. "5", "HV5", a partial phone, "abc123"): matches nothing (AC-09).</li>
+ *   <li>NONE  - anything else (e.g. "5", "HV000123", a partial phone, "abc123"): matches nothing (AC-09).</li>
  * </ol>
- * Shared by MemberDAO and RegistrationDAO so the rule lives in one place. The keyword is trimmed first.
+ * The search box never looks members up by code or id. Shared by MemberDAO and RegistrationDAO so the rule
+ * lives in one place. The keyword is trimmed first.
  */
 public final class MemberKeyword {
 
     /** Kind of search a keyword stands for. */
-    public enum Type { CODE, PHONE, NAME, NONE }
-
-    private static final Pattern CODE = Pattern.compile("(?i)^HV(\\d{6})$");
+    public enum Type { PHONE, NAME, NONE }
 
     private final Type type;
     private final String value;
@@ -36,10 +31,6 @@ public final class MemberKeyword {
             return null;
         }
         String keyword = raw.trim();
-        Matcher code = CODE.matcher(keyword);
-        if (code.matches()) {
-            return new MemberKeyword(Type.CODE, code.group(1));
-        }
         if (ValidationUtil.isValidPhone(keyword)) {
             return new MemberKeyword(Type.PHONE, keyword);
         }
@@ -54,20 +45,10 @@ public final class MemberKeyword {
     }
 
     /**
-     * The digits of the code (CODE), the phone (PHONE) or the trimmed text (NAME, NONE).
+     * The phone (PHONE) or the trimmed text (NAME, NONE).
      */
     public String getValue() {
         return value;
-    }
-
-    /**
-     * Member id of a CODE keyword (HV000123 -> 123). Six digits always fit in an int.
-     */
-    public int getMemberId() {
-        if (type != Type.CODE) {
-            throw new IllegalStateException("Not a member code: " + value);
-        }
-        return Integer.parseInt(value);
     }
 
     /**

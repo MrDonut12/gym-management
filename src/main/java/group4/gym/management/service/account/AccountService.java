@@ -23,7 +23,7 @@ public class AccountService {
     private final AccountDAO accountDAO = new AccountDAO();
 
     /**
-     * Account list (FR-05). A null criterion is ignored.
+     * Account list (FR-05). A full valid phone keyword matches the phone exactly; any other keyword partially matches username or full name. A null criterion is ignored.
      */
     public List<Account> listAccounts(String keyword, Role role, AccountStatus status) {
         if (!ValidationUtil.isValidKeyword(keyword)) {

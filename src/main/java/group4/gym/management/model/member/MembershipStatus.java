@@ -5,12 +5,12 @@ package group4.gym.management.model.member;
  * Priority order: ACTIVE -> UPCOMING -> EXPIRED -> NONE.
  */
 public enum MembershipStatus {
-    /** Đang hiệu lực: some PAID has start_date <= today <= end_date */
+    /** Active: some PAID has start_date <= today <= end_date */
     ACTIVE,
-    /** Chờ hiệu lực: only PAID with start_date > today */
+    /** Upcoming: only PAID with start_date > today */
     UPCOMING,
-    /** Hết hạn: every PAID has end_date < today */
+    /** Expired: every PAID has end_date < today */
     EXPIRED,
-    /** Chưa có gói: no PAID registration */
+    /** No package: no PAID registration */
     NONE
 }

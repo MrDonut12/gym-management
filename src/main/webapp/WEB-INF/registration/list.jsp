@@ -44,7 +44,7 @@
     <div class="col-12 col-md-4">
         <label class="form-label" for="memberKeyword">Member</label>
         <input class="form-control" type="text" id="memberKeyword" name="memberKeyword" maxlength="100"
-               placeholder="Code (HV000123), phone or full name" value="<c:out value='${filter.memberKeyword}'/>">
+               placeholder="Phone or full name" value="<c:out value='${filter.memberKeyword}'/>">
         <div class="small text-danger" role="alert"><c:out value="${fieldErrors.memberKeyword}"/></div>
     </div>
     <div class="col-12 col-md-3">

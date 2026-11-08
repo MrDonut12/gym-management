@@ -17,7 +17,7 @@
 <form class="row g-3 align-items-end mb-4" method="get" action="${pageContext.request.contextPath}/admin/accounts">
     <div class="col-12 col-md-5">
         <label class="form-label" for="keyword">Search accounts</label>
-        <input class="form-control" id="keyword" type="text" name="keyword" aria-label="Username or full name" value="<c:out value='${keyword}'/>" maxlength="100" placeholder="Username or full name">
+        <input class="form-control" id="keyword" type="text" name="keyword" aria-label="Username, full name or phone" value="<c:out value='${keyword}'/>" maxlength="100" placeholder="Username, full name or phone">
         <div class="small text-danger" role="alert"><c:out value="${fieldErrors.keyword}"/></div>
     </div>
     <div class="col-6 col-md-3">

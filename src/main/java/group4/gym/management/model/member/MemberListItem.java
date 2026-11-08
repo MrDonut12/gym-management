@@ -14,7 +14,7 @@ public class MemberListItem {
     /** Some PAID registration covers today (start_date <= today <= end_date) */
     private boolean paidCoveringToday;
 
-    /** Largest end_date of the member's PAID registrations; null if there is none ("Ngày hết hạn gói", BR-07) */
+    /** Largest end_date of the member's PAID registrations; null if there is none ("Package expiry date", BR-07) */
     private LocalDate currentEndDate;
 
     /** Derived membership status */

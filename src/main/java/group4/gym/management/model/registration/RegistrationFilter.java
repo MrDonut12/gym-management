@@ -13,7 +13,7 @@ public class RegistrationFilter {
     /** Package (optional) */
     private Integer packageId;
 
-    /** One search box: member code (HV + 6 digits) or phone, exact match; or full name, partial match (optional, see MemberKeyword) */
+    /** One search box: phone, exact match; or full name, partial match (optional, see MemberKeyword). Never by code/id */
     private String memberKeyword;
 
     /** Time axis of the date range (default CREATED_AT) */

@@ -15,7 +15,7 @@ import java.io.IOException;
 
 /**
  * Member list and search (FR-11), the RECEPTIONIST home page. MANAGER, RECEPTIONIST.
- * One search box (MemberKeyword): code HV + 6 digits (exact), phone (exact) or full name (partial); anything else
+ * One search box (MemberKeyword): phone (exact) or full name (partial); anything else, including a member code,
  * matches nothing (AC-09).
  * Scope DELETED/ALL is MANAGER only (checked in MemberService, 403 otherwise).
  */

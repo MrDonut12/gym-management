@@ -99,8 +99,8 @@ public class MemberDAO {
 
     /**
      * Returns a page of members matching the search box, newest first (FR-11).
-     * The keyword is classified by MemberKeyword: HV + 6 digits -> exact code, a valid phone -> exact phone,
-     * no digit -> partial name; anything else matches nothing (AC-09). A blank keyword lists every member of the scope.
+     * The keyword is classified by MemberKeyword: a valid phone -> exact phone, no digit -> partial name;
+     * anything else (including a member code) matches nothing (AC-09). A blank keyword lists every member of the scope.
      * Applies the deletion filter and includes paid-package expiry and coverage information.
      */
     public List<MemberListItem> search(String keyword, MemberScope scope,
@@ -177,7 +177,7 @@ public class MemberDAO {
 
     /**
      * Finds up to the requested limit of non-deleted members (FR-22 member picker), with the same keyword
-     * rules as the member list (code, phone or partial name; see MemberKeyword).
+     * rules as the member list (exact phone or partial name; see MemberKeyword).
      */
     public List<Member> searchActive(String keyword, int limit) {
         if (limit <= 0) {
@@ -442,19 +442,17 @@ public class MemberDAO {
 
     /**
      * SQL condition of a classified search keyword (FR-11), appended after the scope condition.
-     * One placeholder for CODE, PHONE or NAME; none for NONE (matches nothing) or a blank keyword (no filter).
+     * One placeholder for PHONE or NAME; none for NONE (matches nothing) or a blank keyword (no filter).
      */
     private String getKeywordCondition(MemberKeyword keyword) {
         if (keyword == null) {
             return "";
         }
         switch (keyword.getType()) {
-            case CODE:
-                return " AND m.id = ?";
             case PHONE:
                 return " AND m.phone = ?";
             case NAME:
-                return " AND m.full_name COLLATE Vietnamese_100_CI_AS LIKE ? ESCAPE '\\'";
+                return " AND m.full_name COLLATE Latin1_General_100_CI_AS LIKE ? ESCAPE '\\'";
             default:
                 return " AND 1 = 0";
         }
@@ -468,9 +466,6 @@ public class MemberDAO {
             return index;
         }
         switch (keyword.getType()) {
-            case CODE:
-                ps.setInt(index++, keyword.getMemberId());
-                break;
             case PHONE:
                 ps.setString(index++, keyword.getValue());
                 break;
