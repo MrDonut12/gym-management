@@ -1,12 +1,15 @@
 package group4.gym.management.controller.payment;
 
+import group4.gym.management.model.payment.RevenueRow;
 import group4.gym.management.service.payment.ReportService;
+import group4.gym.management.util.DateRange;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Revenue per package (CN-27): current package name, PAID count, revenue, share %. Same range rules as CN-26.
@@ -22,7 +25,10 @@ public class PackageRevenueReportServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: range = DateRange.of(fromDate, toDate); rows = reportService.revenueByPackage(range); total = reportService.totalOf(rows).
-        // Output: forward to VIEW.
+        DateRange range = ReportRange.read(request);
+        List<RevenueRow> rows = reportService.revenueByPackage(range);
+        request.setAttribute("rows", rows);
+        request.setAttribute("total", reportService.totalOf(rows));
+        request.getRequestDispatcher(VIEW).forward(request, response);
     }
 }

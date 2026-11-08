@@ -1,0 +1,15 @@
+<%--
+    From/To date inputs shared by the report filter forms (QT-13, HL-16), statically included by
+    payment/revenue.jsp, payment/package-revenue.jsp and payment/overview.jsp.
+    Reads request attributes range (DateRange) and fieldErrors.
+--%>
+<div class="col-6 col-md-3">
+    <label class="form-label" for="fromDate">From</label>
+    <input class="form-control" type="date" id="fromDate" name="fromDate" value="<c:out value='${range.from}'/>">
+    <div class="small text-danger" role="alert"><c:out value="${fieldErrors.fromDate}"/></div>
+</div>
+<div class="col-6 col-md-3">
+    <label class="form-label" for="toDate">To</label>
+    <input class="form-control" type="date" id="toDate" name="toDate" value="<c:out value='${range.to}'/>">
+    <div class="small text-danger" role="alert"><c:out value="${fieldErrors.toDate}"/></div>
+</div>
