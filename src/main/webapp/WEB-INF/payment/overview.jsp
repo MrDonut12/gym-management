@@ -21,7 +21,7 @@
     <form method="get" action="${pageContext.request.contextPath}/manager/overview">
         <label>From <input type="date" name="fromDate"></label>
         <label>To <input type="date" name="toDate"></label>
-        <%-- TODO: Re-fill the current values (default range: current month). --%>
+            <%-- TODO: Re-fill the current values (default range: current month). --%>
         <button type="submit">View</button>
     </form>
     <%-- TODO: overview.newMembers (by profile creation date, including profiles soft-deleted later). --%>

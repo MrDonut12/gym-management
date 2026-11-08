@@ -2,20 +2,33 @@ package group4.gym.management.service.member;
 
 import group4.gym.management.dao.member.MemberDAO;
 import group4.gym.management.dao.registration.RegistrationDAO;
+import group4.gym.management.database.DBContext;
+import group4.gym.management.exception.AccessDeniedException;
+import group4.gym.management.exception.AppException;
+import group4.gym.management.exception.BusinessRuleException;
+import group4.gym.management.exception.NotFoundException;
+import group4.gym.management.exception.ValidationException;
+import group4.gym.management.model.account.Role;
 import group4.gym.management.model.account.SessionUser;
 import group4.gym.management.model.member.ExpiringMember;
 import group4.gym.management.model.member.Member;
 import group4.gym.management.model.member.MemberDetailView;
 import group4.gym.management.model.member.MemberListItem;
 import group4.gym.management.model.member.MemberScope;
+import group4.gym.management.model.member.MembershipStatus;
+import group4.gym.management.model.registration.Registration;
+import group4.gym.management.model.registration.RegistrationStatus;
+import group4.gym.management.util.AppClock;
+import group4.gym.management.util.AppConstants;
 import group4.gym.management.util.Page;
+import group4.gym.management.util.ValidationUtil;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
-/**
- * Member business logic (CN-11 to CN-17, QT-01, QT-06, QT-09 to QT-11).
- * Invalid data throws ValidationException, rule violations throw BusinessRuleException,
- * MANAGER-only data requested by a RECEPTIONIST throws AccessDeniedException, unknown IDs throw NotFoundException.
- */
 public class MemberService {
 
     private final MemberDAO memberDAO = new MemberDAO();
@@ -23,89 +36,300 @@ public class MemberService {
     private final MembershipStatusService membershipStatusService = new MembershipStatusService();
 
     /**
-     * Member list and search (CN-11), 20 rows per page, newest first.
-     * QT-11: scope DELETED/ALL is MANAGER only.
+     * Searches member names or phone numbers and returns a page with membership statuses.
+     * Only managers may include deleted profiles.
      */
     public Page<MemberListItem> search(SessionUser actor, String keyword, MemberScope scope, int page) {
-        // TODO: scope null -> ACTIVE; scope != ACTIVE && actor is not MANAGER -> AccessDeniedException;
-        //       HL-07 keyword length; memberDAO.search(keyword, scope, AppClock.today(), Page.offsetOf(page, PAGE_SIZE), PAGE_SIZE);
-        //       for each row: status = membershipStatusService.resolve(...); memberDAO.count for the total.
-        // Output: Page of MemberListItem.
-        return null;
+        requireStaff(actor);
+        if (scope == null) {
+            scope = MemberScope.ACTIVE;
+        }
+        if (scope != MemberScope.ACTIVE) {
+            requireManager(actor);
+        }
+        if (keyword != null) {
+            keyword = keyword.trim();
+        }
+        if (!ValidationUtil.isValidKeyword(keyword)) {
+            throw new ValidationException("Invalid keyword.",
+                    Map.of("keyword", "Use at most 100 characters."));
+        }
+
+        if (page < 1) {
+            page = 1;
+        }
+        LocalDate today = AppClock.today();
+        int totalMembers = memberDAO.count(keyword, scope);
+        int offset = Page.offsetOf(page, AppConstants.PAGE_SIZE);
+        List<MemberListItem> items = memberDAO.search(keyword, scope, today,
+                offset, AppConstants.PAGE_SIZE);
+        for (MemberListItem item : items) {
+            MembershipStatus status = membershipStatusService.resolve(
+                    item.isPaidCoveringToday(), item.getCurrentEndDate(), today);
+            item.setStatus(status);
+        }
+        return new Page<>(items, page, AppConstants.PAGE_SIZE, totalMembers);
     }
 
     /**
-     * Member detail (CN-13): profile, soft-delete label, status today, expiry warning, registrations of every status.
-     * QT-11: a soft-deleted profile is visible to MANAGER only.
+     * Loads a member profile, membership status, expiry warning and registration history.
+     * Deleted profiles are visible only to managers.
      */
     public MemberDetailView getDetail(SessionUser actor, int memberId) {
-        // TODO: memberDAO.findById; null -> NotFoundException; deleted && actor is not MANAGER -> AccessDeniedException;
-        //       registrations = registrationDAO.findByMember(memberId) (newest first);
-        //       status / currentEndDate from the PAID rows (MembershipStatusService);
-        //       expiringSoon = !deleted && membershipStatusService.isExpiringSoon(status, currentEndDate, AppClock.today()).
-        // Output: MemberDetailView.
-        return null;
+        requireStaff(actor);
+        Member member = requireMember(memberId);
+        if (member.isDeleted()) {
+            requireManager(actor);
+        }
+
+        LocalDate today = AppClock.today();
+        LocalDate currentEndDate = null;
+        boolean coversToday = false;
+        List<Registration> registrations = registrationDAO.findByMember(memberId);
+        for (Registration registration : registrations) {
+            if (registration.getStatus() == RegistrationStatus.PAID) {
+                LocalDate startDate = registration.getStartDate();
+                LocalDate endDate = registration.getEndDate();
+
+                if (currentEndDate == null) {
+                    currentEndDate = endDate;
+                } else if (endDate.isAfter(currentEndDate)) {
+                    currentEndDate = endDate;
+                }
+
+                boolean hasStarted = !startDate.isAfter(today);
+                boolean hasNotEnded = !endDate.isBefore(today);
+                if (hasStarted && hasNotEnded) {
+                    coversToday = true;
+                }
+            }
+        }
+
+        MembershipStatus status = membershipStatusService.resolve(coversToday, currentEndDate, today);
+        boolean expiringSoon = false;
+        if (!member.isDeleted()) {
+            expiringSoon = membershipStatusService.isExpiringSoon(status, currentEndDate, today);
+        }
+
+        MemberDetailView detail = new MemberDetailView();
+        detail.setMember(member);
+        detail.setRegistrations(registrations);
+        detail.setCurrentEndDate(currentEndDate);
+        detail.setStatus(status);
+        detail.setExpiringSoon(expiringSoon);
+        return detail;
     }
 
     /**
-     * Load a profile for the edit form (CN-14). QT-11: a soft-deleted profile cannot be edited.
+     * Loads a profile for an authorized edit request and rejects deleted profiles.
      */
     public Member getForEdit(int memberId) {
-        // TODO: memberDAO.findById; null -> NotFoundException; deleted -> BusinessRuleException.
-        // Output: Member.
-        return null;
+        Member member = requireMember(memberId);
+        if (member.isDeleted()) {
+            throw new BusinessRuleException("Restore this member profile before editing it.");
+        }
+        return member;
     }
 
     /**
-     * Create a profile, also before any package is bought (CN-12, QT-01).
-     * A duplicate phone (including soft-deleted profiles) is refused and the error shows the code of the profile using it.
+     * Validates and creates a profile with the current creation time and staff account.
      */
     public int createMember(SessionUser actor, Member member) {
-        // TODO: Validate HL-01, HL-02, HL-04, HL-05, HL-06 -> ValidationException;
-        //       memberDAO.findByPhone != null -> field error on "phone" containing existing.getCode() (QT-10: restore instead);
-        //       createdAt = AppClock.now(); createdBy = actor.getId(); memberDAO.insert.
-        // Output: ID of the new member.
-        return 0;
+        requireStaff(actor);
+        validateMember(member, null);
+        member.setDeleted(false);
+        member.setCreatedAt(AppClock.now());
+        member.setCreatedBy(actor.getId());
+        return memberDAO.insert(member);
     }
 
     /**
-     * Update a profile that is not soft-deleted (CN-14). Code and created_at are not editable.
+     * Validates and updates an existing profile while preserving its creation information.
      */
     public void updateMember(SessionUser actor, Member member) {
-        // TODO: getForEdit; validate as createMember; findByPhone belongs to another id -> field error with its code;
-        //       memberDAO.update == false -> BusinessRuleException (deleted meanwhile).
-        // Output: nothing returned; throws an exception on failure.
+        requireStaff(actor);
+        if (member == null || member.getId() == null) {
+            throw new NotFoundException("Member not found.");
+        }
+        Member existingMember = getForEdit(member.getId());
+        validateMember(member, existingMember.getId());
+        member.setCreatedAt(existingMember.getCreatedAt());
+        member.setCreatedBy(existingMember.getCreatedBy());
+        member.setDeleted(false);
+
+        boolean updated = memberDAO.update(member);
+        if (!updated) {
+            throw new BusinessRuleException("The member is missing or was deleted. Please reload the profile.");
+        }
     }
 
     /**
-     * Soft-delete a member (CN-15) in ONE transaction (QT-06, QT-09, CL-06):
-     * refused while any PAID has end_date >= today; otherwise is_deleted = 1 and every PENDING becomes CANCELLED
-     * with the reason "Xóa hồ sơ hội viên"; PAID rows are untouched.
+     * Deletes a profile and cancels its pending registrations in one transaction.
+     * Only managers may delete, and any unexpired paid package blocks deletion.
      */
     public void softDelete(SessionUser actor, int memberId) {
-        // TODO: conn = DBContext.getConnection(); setAutoCommit(false);
-        //       memberDAO.lockForUpdate(conn, memberId) null -> NotFoundException; already deleted -> BusinessRuleException;
-        //       registrationDAO.hasUnexpiredPaid(conn, memberId, AppClock.today()) -> BusinessRuleException with the reason (KT-11);
-        //       memberDAO.markDeleted(conn, memberId);
-        //       registrationDAO.cancelAllPending(conn, memberId, actor.getId(), AppConstants.CANCEL_REASON_MEMBER_DELETED);
-        //       commit; any error -> DBContext.rollbackQuietly and rethrow.
-        // Output: nothing returned; throws an exception when refused.
+        requireManager(actor);
+        if (memberId <= 0) {
+            throw new NotFoundException("Member not found.");
+        }
+        try (Connection conn = DBContext.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                Member member = memberDAO.lockForUpdate(conn, memberId);
+                if (member == null) {
+                    throw new NotFoundException("Member not found.");
+                }
+                if (member.isDeleted()) {
+                    throw new BusinessRuleException("The member profile is already deleted.");
+                }
+                boolean hasUnexpiredPackage = registrationDAO.hasUnexpiredPaid(
+                        conn, memberId, AppClock.today());
+                if (hasUnexpiredPackage) {
+                    throw new BusinessRuleException("Cannot delete a member with an unexpired paid package.");
+                }
+                boolean deleted = memberDAO.markDeleted(conn, memberId);
+                if (!deleted) {
+                    throw new BusinessRuleException("The member profile could not be deleted.");
+                }
+                registrationDAO.cancelAllPending(conn, memberId, actor.getId(),
+                        AppConstants.CANCEL_REASON_MEMBER_DELETED);
+                conn.commit();
+            } catch (SQLException | RuntimeException ex) {
+                DBContext.rollbackQuietly(conn);
+                throw ex;
+            }
+        } catch (SQLException ex) {
+            throw new AppException("Cannot delete member " + memberId, ex);
+        }
     }
 
     /**
-     * Restore a soft-deleted profile (CN-16, QT-10). Code, created_at and history are kept; CANCELLED rows stay CANCELLED.
+     * Restores a deleted profile for a manager without changing its registration history.
      */
     public void restore(SessionUser actor, int memberId) {
-        // TODO: memberDAO.findById null -> NotFoundException; not deleted -> BusinessRuleException; memberDAO.restore.
-        // Output: nothing returned; throws an exception on failure.
+        requireManager(actor);
+        Member member = requireMember(memberId);
+        if (!member.isDeleted()) {
+            throw new BusinessRuleException("The member profile is not deleted.");
+        }
+        boolean restored = memberDAO.restore(memberId);
+        if (!restored) {
+            throw new BusinessRuleException("The member profile changed. Please reload it.");
+        }
     }
 
     /**
-     * Expiring-soon list (CN-17, QT-08), display only.
+     * Returns the expiring-soon list for an authorized staff request.
      */
     public List<ExpiringMember> listExpiringSoon() {
-        // TODO: membershipStatusService.expiringSoon().
-        // Output: list of ExpiringMember sorted by end date ascending.
-        return null;
+        return membershipStatusService.expiringSoon();
+    }
+
+    /**
+     * Loads a member or reports an invalid or missing profile ID.
+     */
+    private Member requireMember(int memberId) {
+        if (memberId <= 0) {
+            throw new NotFoundException("Member not found.");
+        }
+        Member member = memberDAO.findById(memberId);
+        if (member == null) {
+            throw new NotFoundException("Member not found.");
+        }
+        return member;
+    }
+
+    /**
+     * Normalizes profile fields and rejects invalid data or a phone owned by another profile.
+     */
+    private void validateMember(Member member, Integer excludeId) {
+        if (member == null) {
+            throw new ValidationException("Member data is required.",
+                    Map.of("member", "Member data is required."));
+        }
+        if (member.getFullName() != null) {
+            member.setFullName(member.getFullName().trim());
+        }
+        if (member.getPhone() != null) {
+            member.setPhone(member.getPhone().trim());
+        }
+        if (member.getEmail() != null) {
+            member.setEmail(member.getEmail().trim());
+            if (member.getEmail().isEmpty()) {
+                member.setEmail(null);
+            }
+        }
+
+        Map<String, String> errors = new LinkedHashMap<>();
+        if (!isValidMemberName(member.getFullName())) {
+            errors.put("fullName", "Use 2-100 characters without digits.");
+        }
+        if (!ValidationUtil.isValidPhone(member.getPhone())) {
+            errors.put("phone", "Use 10 digits starting with 0.");
+        }
+        if (member.getEmail() != null && !ValidationUtil.isValidEmail(member.getEmail())) {
+            errors.put("email", "Enter a valid email address with at most 254 characters.");
+        }
+        if (member.getDateOfBirth() != null
+                && !ValidationUtil.isValidDateOfBirth(member.getDateOfBirth())) {
+            errors.put("dateOfBirth", "Use a date between 1900-01-01 and today.");
+        }
+        if (!errors.isEmpty()) {
+            throw new ValidationException("Please correct the member details.", errors);
+        }
+
+        Member phoneOwner = memberDAO.findByPhone(member.getPhone());
+        if (phoneOwner != null) {
+            boolean belongsToSameMember = phoneOwner.getId().equals(excludeId);
+            if (!belongsToSameMember) {
+                String message = "This phone number is already associated with member profile "
+                        + phoneOwner.getCode() + ".";
+                errors.put("phone", message);
+                throw new ValidationException(message, errors);
+            }
+        }
+    }
+
+    /**
+     * Rejects blank names and digits, including Unicode spaces and digits.
+     */
+    private boolean isValidMemberName(String name) {
+        if (!ValidationUtil.isValidFullName(name)) {
+            return false;
+        }
+        boolean hasContent = false;
+        for (int character : name.codePoints().toArray()) {
+            if (Character.isDigit(character)) {
+                return false;
+            }
+            if (!Character.isWhitespace(character) && !Character.isSpaceChar(character)) {
+                hasContent = true;
+            }
+        }
+        return hasContent;
+    }
+
+    /**
+     * Restricts member operations to managers and receptionists.
+     */
+    private void requireStaff(SessionUser actor) {
+        if (actor == null) {
+            throw new AccessDeniedException("Manager or receptionist access is required.");
+        }
+        boolean isManager = actor.getRole() == Role.MANAGER;
+        boolean isReceptionist = actor.getRole() == Role.RECEPTIONIST;
+        if (!isManager && !isReceptionist) {
+            throw new AccessDeniedException("Manager or receptionist access is required.");
+        }
+    }
+
+    /**
+     * Restricts deletion, restoration and deleted-profile access to managers.
+     */
+    private void requireManager(SessionUser actor) {
+        requireStaff(actor);
+        if (actor.getRole() != Role.MANAGER) {
+            throw new AccessDeniedException("Manager access is required.");
+        }
     }
 }

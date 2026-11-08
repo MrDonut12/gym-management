@@ -38,44 +38,9 @@
         <c:if test="${isManager}"><th></th></c:if></tr>
     </thead>
     <tbody>
-    <c:forEach var="p" items="${requestScope.packages}">
-        <tr>
-            <td><c:out value="${p.name}"/></td>
-            <td><c:out value="${p.durationMonths}"/></td>
-            <td class="text-end"><fmt:formatNumber value="${p.price}" groupingUsed="true"/></td>
-            <td>
-                <c:choose>
-                    <c:when test="${p.active}"><span class="badge badge-active">On sale</span></c:when>
-                    <c:otherwise><span class="badge badge-none">Not on sale</span></c:otherwise>
-                </c:choose>
-            </td>
-            <c:if test="${isManager}">
-                <td class="text-end">
-                    <%-- No delete button: packages are only deactivated (QT-16). --%>
-                    <div class="d-flex justify-content-end gap-2">
-                        <a class="btn btn-sm btn-outline-primary"
-                           href="${pageContext.request.contextPath}/manager/packages/edit?id=${p.id}">Edit</a>
-                        <form method="post" action="${pageContext.request.contextPath}/manager/packages/status">
-                            <input type="hidden" name="id" value="${p.id}">
-                            <c:choose>
-                                <c:when test="${p.active}">
-                                    <input type="hidden" name="action" value="deactivate">
-                                    <button class="btn btn-sm btn-outline-danger" type="submit">Stop selling</button>
-                                </c:when>
-                                <c:otherwise>
-                                    <input type="hidden" name="action" value="activate">
-                                    <button class="btn btn-sm btn-outline-success" type="submit">Resume selling</button>
-                                </c:otherwise>
-                            </c:choose>
-                        </form>
-                    </div>
-                </td>
-            </c:if>
-        </tr>
-    </c:forEach>
-    <c:if test="${empty requestScope.packages}">
-        <tr><td colspan="${isManager ? 5 : 4}" class="text-center text-secondary">No packages found.</td></tr>
-    </c:if>
+        <%-- TODO: c:forEach over packages; c:out; fmt:formatNumber for the price.
+             MANAGER actions: Edit (/manager/packages/edit?id=), POST form to /manager/packages/status
+             (action=deactivate when on sale, activate otherwise). No delete button (QT-16). --%>
     </tbody>
 </table>
 
