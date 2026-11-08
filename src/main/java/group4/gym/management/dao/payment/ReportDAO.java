@@ -28,11 +28,11 @@ public class ReportDAO {
     private static final String MONTH_PERIOD = "DATEFROMPARTS(YEAR(paid_at), MONTH(paid_at), 1)";
 
     /**
-     * Revenue per day or month (CN-26). Periods without revenue are omitted.
+     * Revenue per day or month (FR-26). Periods without revenue are omitted.
      */
     public List<RevenueRow> revenueByPeriod(LocalDateTime fromInclusive, LocalDateTime toExclusive, RevenueGranularity granularity) {
         requireRange(fromInclusive, toExclusive);
-        // The period expression comes from a fixed switch, never from user input (CL-02).
+        // The period expression comes from a fixed switch, never from user input (NFR-02).
         String period = switch (granularity == null ? RevenueGranularity.DAY : granularity) {
             case DAY -> DAY_PERIOD;
             case MONTH -> MONTH_PERIOD;
@@ -113,9 +113,9 @@ public class ReportDAO {
     }
 
     /**
-     * Members with a PAID registration covering today, i.e. membership status ACTIVE (CN-28, QT-07).
-     * Counts every profile, as CN-28 does not exclude soft-deleted ones; a soft-deleted profile
-     * cannot hold an unexpired PAID anyway (QT-09).
+     * Members with a PAID registration covering today, i.e. membership status ACTIVE (FR-28, BR-07).
+     * Counts every profile, as FR-28 does not exclude soft-deleted ones; a soft-deleted profile
+     * cannot hold an unexpired PAID anyway (BR-09).
      */
     public int countMembersWithActivePackage(LocalDate today) {
         if (today == null) {

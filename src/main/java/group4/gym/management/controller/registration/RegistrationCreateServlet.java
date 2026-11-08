@@ -38,7 +38,7 @@ public class RegistrationCreateServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Only the two IDs are read: any price or date parameter is ignored (QT-03).
+        // Only the two IDs are read: any price or date parameter is ignored (BR-03).
         Integer memberId = RequestUtil.getPositiveId(request, "memberId");
         Integer packageId = RequestUtil.getPositiveId(request, "packageId");
         if (memberId == null || packageId == null) {
@@ -57,6 +57,7 @@ public class RegistrationCreateServlet extends HttpServlet {
             return;
         }
 
+        SessionUtil.flashMessage(request, "Registration created and awaiting payment. Review it below to confirm the payment.");
         response.sendRedirect(request.getContextPath() + "/staff/payments/confirm?id=" + registrationId);
     }
 

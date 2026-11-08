@@ -8,6 +8,7 @@ import group4.gym.management.model.member.Gender;
 import group4.gym.management.model.member.Member;
 import group4.gym.management.model.member.MemberListItem;
 import group4.gym.management.model.member.MemberScope;
+import group4.gym.management.util.MemberKeyword;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -21,6 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Data access for members (table members, DR-02). No physical deletion (BR-16).
+ * Every query uses PreparedStatement parameters (NFR-02). Methods without a Connection open their own with
+ * DBContext.getConnection(); methods with a Connection run inside the caller's transaction (BR-06).
+ */
 public class MemberDAO {
 
     /**
@@ -92,7 +98,9 @@ public class MemberDAO {
     }
 
     /**
-     * Returns a page of members matching a partial name or an exact phone number, newest first.
+     * Returns a page of members matching the search box, newest first (FR-11).
+     * The keyword is classified by MemberKeyword: HV + 6 digits -> exact code, a valid phone -> exact phone,
+     * no digit -> partial name; anything else matches nothing (AC-09). A blank keyword lists every member of the scope.
      * Applies the deletion filter and includes paid-package expiry and coverage information.
      */
     public List<MemberListItem> search(String keyword, MemberScope scope,
@@ -100,7 +108,7 @@ public class MemberDAO {
         if (today == null || offset < 0 || limit <= 0) {
             throw new IllegalArgumentException("Invalid date or pagination");
         }
-        keyword = getKeyword(keyword);
+        MemberKeyword parsed = MemberKeyword.parse(keyword);
 
         String sql = "SELECT m.*, "
                 + "(SELECT MAX(r.end_date) FROM dbo.registrations r "
@@ -110,8 +118,7 @@ public class MemberDAO {
                 + " AND r.start_date <= ? AND r.end_date >= ?) "
                 + "THEN 1 ELSE 0 END AS covers_today "
                 + "FROM dbo.members m WHERE " + getScopeCondition(scope)
-                + " AND (m.full_name COLLATE Vietnamese_100_CI_AS LIKE ? ESCAPE N'~'"
-                + " OR m.phone = ?)"
+                + getKeywordCondition(parsed)
                 + " ORDER BY m.created_at DESC, m.id DESC"
                 + " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
 
@@ -121,10 +128,9 @@ public class MemberDAO {
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setDate(1, Date.valueOf(today));
             ps.setDate(2, Date.valueOf(today));
-            ps.setNString(3, getNamePattern(keyword));
-            ps.setString(4, keyword);
-            ps.setInt(5, offset);
-            ps.setInt(6, limit);
+            int index = bindKeyword(ps, 3, parsed);
+            ps.setInt(index++, offset);
+            ps.setInt(index, limit);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -150,15 +156,13 @@ public class MemberDAO {
      * Counts members matching the keyword and deletion filter for pagination.
      */
     public int count(String keyword, MemberScope scope) {
-        keyword = getKeyword(keyword);
+        MemberKeyword parsed = MemberKeyword.parse(keyword);
         String sql = "SELECT COUNT(*) FROM dbo.members m WHERE " + getScopeCondition(scope)
-                + " AND (m.full_name COLLATE Vietnamese_100_CI_AS LIKE ? ESCAPE N'~'"
-                + " OR m.phone = ?)";
+                + getKeywordCondition(parsed);
 
         try (Connection conn = DBContext.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setNString(1, getNamePattern(keyword));
-            ps.setString(2, keyword);
+            bindKeyword(ps, 1, parsed);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -172,18 +176,18 @@ public class MemberDAO {
     }
 
     /**
-     * Finds up to the requested limit of non-deleted members by partial name or exact phone number.
+     * Finds up to the requested limit of non-deleted members (FR-22 member picker), with the same keyword
+     * rules as the member list (code, phone or partial name; see MemberKeyword).
      */
     public List<Member> searchActive(String keyword, int limit) {
         if (limit <= 0) {
             throw new IllegalArgumentException("limit must be > 0");
         }
-        keyword = getKeyword(keyword);
+        MemberKeyword parsed = MemberKeyword.parse(keyword);
 
         String sql = "SELECT TOP (?) m.* FROM dbo.members m WHERE "
                 + getScopeCondition(MemberScope.ACTIVE)
-                + " AND (m.full_name COLLATE Vietnamese_100_CI_AS LIKE ? ESCAPE N'~'"
-                + " OR m.phone = ?)"
+                + getKeywordCondition(parsed)
                 + " ORDER BY m.full_name, m.id";
 
         List<Member> list = new ArrayList<>();
@@ -191,8 +195,7 @@ public class MemberDAO {
         try (Connection conn = DBContext.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, limit);
-            ps.setNString(2, getNamePattern(keyword));
-            ps.setString(3, keyword);
+            bindKeyword(ps, 2, parsed);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -438,14 +441,46 @@ public class MemberDAO {
     }
 
     /**
-     * Builds a partial-name search pattern while treating SQL LIKE special characters as literal text.
+     * SQL condition of a classified search keyword (FR-11), appended after the scope condition.
+     * One placeholder for CODE, PHONE or NAME; none for NONE (matches nothing) or a blank keyword (no filter).
      */
-    private String getNamePattern(String keyword) {
-        String name = keyword.replace("~", "~~");
-        name = name.replace("%", "~%");
-        name = name.replace("_", "~_");
-        name = name.replace("[", "~[");
-        return "%" + name + "%";
+    private String getKeywordCondition(MemberKeyword keyword) {
+        if (keyword == null) {
+            return "";
+        }
+        switch (keyword.getType()) {
+            case CODE:
+                return " AND m.id = ?";
+            case PHONE:
+                return " AND m.phone = ?";
+            case NAME:
+                return " AND m.full_name COLLATE Vietnamese_100_CI_AS LIKE ? ESCAPE '\\'";
+            default:
+                return " AND 1 = 0";
+        }
+    }
+
+    /**
+     * Binds the placeholder written by getKeywordCondition() and returns the next free parameter index.
+     */
+    private int bindKeyword(PreparedStatement ps, int index, MemberKeyword keyword) throws SQLException {
+        if (keyword == null) {
+            return index;
+        }
+        switch (keyword.getType()) {
+            case CODE:
+                ps.setInt(index++, keyword.getMemberId());
+                break;
+            case PHONE:
+                ps.setString(index++, keyword.getValue());
+                break;
+            case NAME:
+                ps.setNString(index++, keyword.getLikePattern());
+                break;
+            default:
+                break;
+        }
+        return index;
     }
 
     /**

@@ -79,7 +79,7 @@ public class MemberEditServlet extends HttpServlet {
     }
 
     /**
-     * A soft-deleted profile cannot be edited (QT-11): show the reason on the detail page.
+     * A soft-deleted profile cannot be edited (BR-11): show the reason on the detail page.
      */
     private void redirectToDetail(HttpServletRequest request, HttpServletResponse response,
             int id, String error) throws IOException {

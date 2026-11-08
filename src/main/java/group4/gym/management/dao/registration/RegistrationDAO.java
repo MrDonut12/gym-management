@@ -280,7 +280,9 @@ public class RegistrationDAO {
     }
 
     /**
-     * Builds the shared filters, matching a partial member name or an exact phone number.
+     * WHERE clause shared by search() and count(). Placeholders, in order: status, package, member keyword
+     * (one for CODE, PHONE or NAME, none for NONE), range start, range end; bindFilters() sets them in the same order.
+     * The keyword is classified by MemberKeyword with the same rules as the member list (FR-11, FR-24).
      */
     private String buildWhere(RegistrationFilter filter) {
         StringBuilder where = new StringBuilder(" WHERE 1 = 1");
@@ -290,9 +292,23 @@ public class RegistrationDAO {
         if (filter.getPackageId() != null) {
             where.append(" AND r.package_id = ?");
         }
-        String keyword = keywordOf(filter);
-        if (!keyword.isEmpty()) {
-            where.append(" AND (m.full_name COLLATE Vietnamese_100_CI_AS LIKE ? ESCAPE N'~' OR m.phone = ?)");
+        MemberKeyword keyword = keywordOf(filter);
+        if (keyword != null) {
+            switch (keyword.getType()) {
+                case CODE:
+                    where.append(" AND m.id = ?");
+                    break;
+                case PHONE:
+                    where.append(" AND m.phone = ?");
+                    break;
+                case NAME:
+                    where.append(" AND m.full_name COLLATE Vietnamese_100_CI_AS LIKE ? ESCAPE '\\'");
+                    break;
+                default:
+                    // NONE ("5", "HV5", a partial phone...): matches nothing (AC-09).
+                    where.append(" AND 1 = 0");
+                    break;
+            }
         }
         String axis = axisColumn(filter);
         where.append(" AND ").append(axis).append(" >= ? AND ").append(axis).append(" < ?");
@@ -311,15 +327,7 @@ public class RegistrationDAO {
         if (filter.getPackageId() != null) {
             ps.setInt(index++, filter.getPackageId());
         }
-        String keyword = keywordOf(filter);
-        if (!keyword.isEmpty()) {
-            String name = keyword.replace("~", "~~")
-                    .replace("%", "~%")
-                    .replace("_", "~_")
-                    .replace("[", "~[");
-            ps.setNString(index++, "%" + name + "%");
-            ps.setString(index++, keyword);
-        }
+        index = bindKeyword(ps, index, keywordOf(filter));
         ps.setObject(index++, fromInclusive);
         ps.setObject(index++, toExclusive);
         return index;

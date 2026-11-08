@@ -91,15 +91,15 @@ CREATE TABLE dbo.registrations (
 
 -- Du lieu mau co dinh theo ngay 27/10/2026.
 -- Cac bang moi phai rong; IDENTITY bat dau tu 1.
--- Mat khau demo: GymDemo@2026; database chi luu hash PBKDF2.
+-- Mat khau demo: 12345678; database chi luu hash PBKDF2.
 
 INSERT INTO dbo.accounts (username, password_hash, full_name, phone, email, role, status, created_at)
 VALUES
-    ('admin', 'pbkdf2$600000$BrrU4X3e5FCgwfTUy4rEEg==$pIaylwbsOMf5TTlVUyk3UMT949WLwVJrpyeNJ993Sis=', N'Quản trị An', '0900000001', 'admin1@example.invalid', 'ADMIN', 'ACTIVE', '2026-04-29T08:00:00'),
-    ('manager1', 'pbkdf2$600000$4XVluJjEG4ghduQUoj1lCg==$SzvmZsTlzSC2+k9WNwrWkKshtX0Nys9zrXZe1Aa22gw=', N'Quản lý Châu', '0900000003', 'manager1@example.invalid', 'MANAGER', 'ACTIVE', '2026-04-29T08:00:00'),
-    ('manager2', 'pbkdf2$600000$GxWBsbLmJHhtmfmGqKy5Qw==$VshI+i3OCOl2sta6qsapDPXmfBgRKPGI3OzelvUyAho=', N'Quản lý Dung', '0900000004', 'manager2@example.invalid', 'MANAGER', 'ACTIVE', '2026-04-29T08:00:00'),
-    ('reception1', 'pbkdf2$600000$yOamvi0oe+UPdBvYX2nhIA==$QCeRXAKkjZUaCz05VtOGWoU7Pk+zH8eIgSj2ZQxph5Y=', N'Lễ tân Giang', '0900000005', 'reception1@example.invalid', 'RECEPTIONIST', 'ACTIVE', '2026-04-29T08:00:00'),
-    ('reception2', 'pbkdf2$600000$Zw3JbSWj4h4njwfmfZf7zg==$cjF2idVBx3BrDmJHEYei0OcspIU5NFe4gihZGnpSRCE=', N'Lễ tân Hạnh', '0900000006', 'reception2@example.invalid', 'RECEPTIONIST', 'LOCKED', '2026-04-29T08:00:00');
+    ('admin', 'pbkdf2$600000$7WQQGUu3ng1ewCHURbcuYg==$QyBFYHPFjizc73URrNAVqPFpV0rzvysZFgnso6EYe7k=', N'Quản trị An', '0900000001', 'admin1@example.invalid', 'ADMIN', 'ACTIVE', '2026-04-29T08:00:00'),
+    ('manager1', 'pbkdf2$600000$M3Tt0QBsPCisZFfMv3IzGg==$YH7k6qvAO8XNuQmrI6wK/SjpWySbqD1flgi4k67d6e4=', N'Quản lý Châu', '0900000003', 'manager1@example.invalid', 'MANAGER', 'ACTIVE', '2026-04-29T08:00:00'),
+    ('manager2', 'pbkdf2$600000$JNuG8cwRSG/CsJD57MptVA==$2krZZMmoFoXmh09eJ4LjeOcWDm9EJpR5RCoCzhbH2Mc=', N'Quản lý Dung', '0900000004', 'manager2@example.invalid', 'MANAGER', 'ACTIVE', '2026-04-29T08:00:00'),
+    ('reception1', 'pbkdf2$600000$gwd/BrgH1De31Rjat451+A==$pbnMK6sTBV3e6lnI+loJnysozIHeIIQDCEs3DmEjg6Q=', N'Lễ tân Giang', '0900000005', 'reception1@example.invalid', 'RECEPTIONIST', 'ACTIVE', '2026-04-29T08:00:00'),
+    ('reception2', 'pbkdf2$600000$tUgZY/An7jqQpMOuvJwk7Q==$pGhydXkZxxoM7slhb0IGkkuhmi0N6Ltr3H3nNC98SxY=', N'Lễ tân Hạnh', '0900000006', 'reception2@example.invalid', 'RECEPTIONIST', 'LOCKED', '2026-04-29T08:00:00');
 
 INSERT INTO dbo.packages (name, duration_months, price, is_active, created_at)
 VALUES

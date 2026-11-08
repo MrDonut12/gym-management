@@ -30,7 +30,7 @@
     <div class="mb-3">
         <c:choose>
             <c:when test="${isEdit}">
-                <%-- The duration is fixed after creation: shown as text and not submitted (CN-20, KT-15). --%>
+                <%-- The duration is fixed after creation: shown as text and not submitted (FR-20, AC-15). --%>
                 <span class="form-label d-block">Duration</span>
                 <div class="form-control-plaintext">
                     <c:out value="${requestScope.gymPackage.durationMonths}"/> month(s)

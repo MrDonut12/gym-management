@@ -4,8 +4,8 @@
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
     Member list and search (FR-11), the RECEPTIONIST home page. Servlet: MemberListServlet (/staff/members).
-    Roles: MANAGER, RECEPTIONIST. Plain search, no AJAX (FUT-01).
-    Search by full name (partial) or phone (exact); the member code is display-only (team decision).
+    Roles: MANAGER, RECEPTIONIST. Plain search, no AJAX (out of scope).
+    One search box classified by MemberKeyword: code HV + 6 digits (exact), phone (exact) or full name (partial).
     Request attributes: page (Page<MemberListItem>), keyword, scope (MemberScope), error, fieldErrors.
 --%>
 <c:set var="pageTitle" value="Members" scope="request"/>
@@ -24,7 +24,7 @@
     <div class="col-12 ${isManager ? 'col-md-6' : 'col-md-9'}">
         <label class="form-label" for="keyword">Search members</label>
         <input class="form-control" id="keyword" type="text" name="keyword" value="<c:out value='${keyword}'/>"
-               maxlength="100" placeholder="Full name or phone number">
+               maxlength="100" placeholder="Code (HV000123), phone or full name">
         <div class="small text-danger" role="alert"><c:out value="${fieldErrors.keyword}"/></div>
     </div>
     <c:if test="${isManager}">
@@ -40,7 +40,7 @@
     <div class="col-12 col-md-3 d-grid">
         <button class="btn btn-outline-primary" type="submit">Search</button>
     </div>
-    <p class="hint mb-0">Full name matches partially; phone must match all 10 digits.</p>
+    <p class="hint mb-0">Code (HV + 6 digits) and phone (10 digits) must match exactly; a full name (no digits) matches partially.</p>
 </form>
 
 <div class="table-responsive border rounded">

@@ -55,8 +55,6 @@ Mỗi tài khoản thuộc đúng một trong ba vai trò cố định. Hội vi
 
 ### 1.6. Quy ước ký hiệu
 
-Mã gồm tiền tố viết tắt tiếng Anh theo thông lệ đặc tả yêu cầu phần mềm (SRS) và hai chữ số, đánh số liên tục từ 01 trong baseline này; không dùng lại số của baseline 1.3.
-
 | Tiền tố | Viết tắt của | Loại yêu cầu | Ví dụ |
 | --- | --- | --- | --- |
 | FR | Functional Requirement | Chức năng | FR-01 |
@@ -117,8 +115,6 @@ Hệ thống có 28 chức năng chia 4 phân hệ, mỗi phân hệ do một th
 | FR-26 | Doanh thu theo kỳ | Chọn khoảng ngày và mức gộp (ngày hoặc tháng). Bảng: kỳ, số giao dịch PAID, doanh thu; dòng tổng cuối bảng. Theo BR-12, BR-13. | MANAGER |
 | FR-27 | Doanh thu theo loại gói | Cùng khoảng ngày với FR-26; nhóm theo loại gói (BR-12), hiển thị tên hiện hành, số giao dịch, doanh thu, tỷ trọng %. Tổng bằng tổng FR-26 cùng kỳ. | MANAGER |
 | FR-28 | Tổng quan hội viên | Trang chủ của MANAGER. Chỉ số tại hôm nay: số hồ sơ đang quản lý (chưa xóa mềm), số hồ sơ đã xóa mềm, số hội viên đang có gói hiệu lực, số hội viên sắp hết hạn (BR-08). Chỉ số theo khoảng ngày: số hội viên mới (theo created\_at, kể cả hồ sơ sau đó bị xóa mềm). | MANAGER |
-
-Trang chủ sau đăng nhập: ADMIN → FR-05; MANAGER → FR-28; RECEPTIONIST → FR-11.
 
 ## 3. Phân quyền
 

@@ -53,7 +53,7 @@ public class PackageCreateServlet extends HttpServlet {
             return;
         }
 
-        SessionUtil.flashMessage(request, "Đã tạo gói tập");
+        SessionUtil.flashMessage(request, "Package created.");
         response.sendRedirect(request.getContextPath() + "/staff/packages");
     }
 }

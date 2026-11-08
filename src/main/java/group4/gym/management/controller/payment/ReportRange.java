@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Reads the fromDate/toDate filter shared by the report pages (QT-13, HL-16).
+ * Reads the fromDate/toDate filter shared by the report pages (BR-13, VR-16).
  * Empty fields use the current month; an invalid date or from > to shows an error
  * and falls back to the current month so the page still renders.
  */

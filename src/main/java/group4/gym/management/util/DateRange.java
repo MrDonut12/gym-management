@@ -42,7 +42,7 @@ public final class DateRange {
             throw new ValidationException(
                     "Invalid date range",
                     Map.of("toDate",
-                            "Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.")
+                            "End date must be on or after the start date.")
             );
         }
 

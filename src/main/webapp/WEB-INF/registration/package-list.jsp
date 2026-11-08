@@ -32,16 +32,48 @@
     </form>
 </c:if>
 
-<table class="table table-striped align-middle">
-    <thead>
-    <tr><th>Name</th><th>Duration (months)</th><th class="text-end">Price (VND)</th><th>Sale status</th>
-        <c:if test="${isManager}"><th></th></c:if></tr>
+<div class="table-responsive border rounded">
+<table class="table table-hover align-middle mb-0">
+    <caption class="visually-hidden">Package types</caption>
+    <thead class="table-light">
+    <tr><th scope="col">Name</th><th scope="col">Duration (months)</th><th scope="col" class="text-end">Price (VND)</th>
+        <th scope="col">Sale status</th><c:if test="${isManager}"><th scope="col">Actions</th></c:if></tr>
     </thead>
     <tbody>
-    <%-- TODO: c:forEach over packages; c:out; fmt:formatNumber for the price.
-         MANAGER actions: Edit (/manager/packages/edit?id=), POST form to /manager/packages/status
-         (action=deactivate when on sale, activate otherwise). No delete button (BR-16). --%>
+    <c:forEach var="p" items="${packages}">
+        <tr>
+            <td class="fw-semibold"><c:out value="${p.name}"/></td>
+            <td>${p.durationMonths}</td>
+            <td class="text-end"><fmt:formatNumber value="${p.price}" type="number" groupingUsed="true"/></td>
+            <td>
+                <c:choose>
+                    <c:when test="${p.active}"><span class="badge badge-active">On sale</span></c:when>
+                    <c:otherwise><span class="badge badge-none">Not on sale</span></c:otherwise>
+                </c:choose>
+            </td>
+            <c:if test="${isManager}">
+                <td>
+                    <%-- No delete button: packages are deactivated instead (BR-16). --%>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-sm btn-outline-primary" href="${pageContext.request.contextPath}/manager/packages/edit?id=${p.id}">Edit</a>
+                        <form class="m-0" method="post" action="${pageContext.request.contextPath}/manager/packages/status"
+                              onsubmit="return confirm('${p.active ? 'Stop selling this package? Existing pending registrations can still be confirmed.' : 'Resume selling this package?'}');">
+                            <input type="hidden" name="id" value="${p.id}">
+                            <input type="hidden" name="action" value="${p.active ? 'deactivate' : 'activate'}">
+                            <button class="btn btn-sm ${p.active ? 'btn-outline-danger' : 'btn-outline-success'}" type="submit">
+                                ${p.active ? 'Stop selling' : 'Resume selling'}
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </c:if>
+        </tr>
+    </c:forEach>
+    <c:if test="${empty packages}">
+        <tr><td colspan="${isManager ? 5 : 4}" class="text-center text-body-secondary py-5">No packages found.</td></tr>
+    </c:if>
     </tbody>
 </table>
+</div>
 
 <jsp:include page="/WEB-INF/common/footer.jsp"/>

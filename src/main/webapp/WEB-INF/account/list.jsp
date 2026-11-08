@@ -1,4 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="group4.gym.management.util.DateTimeUtil"%>
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
@@ -55,7 +56,7 @@
                     <td><c:out value="${account.phone}"/></td>
                     <td><c:out value="${account.role}"/></td>
                     <td><span class="badge ${account.status == 'ACTIVE' ? 'text-bg-success' : 'text-bg-secondary'}"><c:out value="${account.status}"/></span></td>
-                    <td class="text-nowrap"><c:out value="${account.createdAt}"/></td>
+                    <td class="text-nowrap"><c:if test="${not empty account.createdAt}"><c:out value="${DateTimeUtil.format(account.createdAt)}"/></c:if></td>
                     <td>
                         <div class="d-flex flex-wrap gap-2">
                             <a class="btn btn-sm btn-outline-primary" href="${pageContext.request.contextPath}/admin/accounts/edit?id=${account.id}">Edit</a>

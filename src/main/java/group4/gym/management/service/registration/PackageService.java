@@ -21,7 +21,7 @@ public class PackageService {
     private static final String FIELD_NAME = "name";
     private static final String FIELD_DURATION = "durationMonths";
     private static final String FIELD_PRICE = "price";
-    private static final String MSG_PRICE = "Giá gói phải là số nguyên từ 1 đến 100.000.000 VND";
+    private static final String MSG_PRICE = "Price must be a whole number from 1 to 100,000,000 VND (digits only).";
 
     private final PackageDAO packageDAO = new PackageDAO();
 
@@ -66,7 +66,7 @@ public class PackageService {
         Map<String, String> errors = new LinkedHashMap<>();
         validateName(trimmedName, null, errors);
         if (!ValidationUtil.isValidDurationMonths(durationMonths)) {
-            errors.put(FIELD_DURATION, "Thời hạn gói phải là 1, 3, 6 hoặc 12 tháng");
+            errors.put(FIELD_DURATION, "Duration must be 1, 3, 6 or 12 months.");
         }
         Integer price = ValidationUtil.parsePrice(rawPrice);
         if (price == null) {
@@ -120,15 +120,15 @@ public class PackageService {
     }
 
     /**
-     * HL-11: length 2-100 (name already trimmed) and unique after normalization.
+     * VR-11: length 2-100 (name already trimmed) and unique after normalization.
      *
      * @param excludeId package being edited; null when creating
      */
     private void validateName(String trimmedName, Integer excludeId, Map<String, String> errors) {
         if (!ValidationUtil.isValidPackageName(trimmedName)) {
-            errors.put(FIELD_NAME, "Tên gói phải từ 2 đến 100 ký tự");
+            errors.put(FIELD_NAME, "Package name must be 2-100 characters.");
         } else if (packageDAO.existsByNormalizedName(ValidationUtil.normalizePackageName(trimmedName), excludeId)) {
-            errors.put(FIELD_NAME, "Tên gói đã tồn tại");
+            errors.put(FIELD_NAME, "Package name already exists.");
         }
     }
 }

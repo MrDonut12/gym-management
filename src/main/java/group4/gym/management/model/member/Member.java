@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * Member profile (DL-02). Not a login account. The soft-delete flag and the
+ * Member profile (DR-02). Not a login account. The soft-delete flag and the
  * membership status are
- * independent (QT-01); the profile can exist before any package is bought.
+ * independent (BR-01); the profile can exist before any package is bought.
  */
 public class Member {
 
@@ -41,13 +41,10 @@ public class Member {
     }
 
     /**
-     * Returns the member ID as text for display.
+     * Display code: "HV" + the ID on 6 digits, for example id 123 -> HV000123 (DR-04).
      */
     public String getCode() {
-        if (id == null) {
-            return null;
-        }
-        return id.toString();
+        return id == null ? null : String.format("HV%06d", id);
     }
 
     public Integer getId() {

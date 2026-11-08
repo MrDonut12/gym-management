@@ -1,5 +1,5 @@
 <%--
-    Membership status badge (QT-07), statically included by member/list.jsp and member/detail.jsp.
+    Membership status badge (BR-07), statically included by member/list.jsp and member/detail.jsp.
     Reads the page-scoped variable memberStatus (MembershipStatus).
 --%>
 <c:choose>

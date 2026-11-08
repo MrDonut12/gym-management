@@ -1,5 +1,5 @@
 <%--
-    From/To date inputs shared by the report filter forms (QT-13, HL-16), statically included by
+    From/To date inputs shared by the report filter forms (BR-13, VR-16), statically included by
     payment/revenue.jsp, payment/package-revenue.jsp and payment/overview.jsp.
     Reads request attributes range (DateRange) and fieldErrors.
 --%>

@@ -6,7 +6,6 @@ import group4.gym.management.model.account.AccountStatus;
 import group4.gym.management.model.account.SessionUser;
 import group4.gym.management.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import java.net.URI;
 import group4.gym.management.service.account.AuthService;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -40,10 +39,6 @@ public class AuthFilter implements Filter {
         String path = req.getServletPath();
         if (isPublic(path)) {
             if ("/login".equals(path)) setNoCacheHeaders(res);
-            if (!isSafeRequest(req)) {
-                res.sendError(HttpServletResponse.SC_FORBIDDEN);
-                return;
-            }
             chain.doFilter(request, response);
             return;
         }
@@ -67,7 +62,7 @@ public class AuthFilter implements Filter {
             res.sendRedirect(req.getContextPath() + "/login");
             return;
         }
-        if (!isAllowed(path, user.getRole()) || !isSafeRequest(req)) {
+        if (!isAllowed(path, user.getRole())) {
             res.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
@@ -99,23 +94,5 @@ public class AuthFilter implements Filter {
         response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
         response.setHeader("Pragma", "no-cache");
         response.setDateHeader("Expires", 0);
-    }
-    /** Browser form writes must originate from this application origin (CSRF protection). */
-    private static boolean isSafeRequest(HttpServletRequest request) {
-        String method = request.getMethod();
-        if ("GET".equals(method) || "HEAD".equals(method) || "OPTIONS".equals(method)) return true;
-        String source = request.getHeader("Origin");
-        if (source == null) source = request.getHeader("Referer");
-        if (source == null) return false;
-        try {
-            URI origin = URI.create(source);
-            int port = origin.getPort() == -1 ? ("https".equalsIgnoreCase(origin.getScheme()) ? 443 : 80) : origin.getPort();
-            return origin.getUserInfo() == null
-                    && request.getScheme().equalsIgnoreCase(origin.getScheme())
-                    && request.getServerName().equalsIgnoreCase(origin.getHost())
-                    && request.getServerPort() == port;
-        } catch (IllegalArgumentException ex) {
-            return false;
-        }
     }
 }

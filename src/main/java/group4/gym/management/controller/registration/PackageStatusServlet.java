@@ -41,7 +41,7 @@ public class PackageStatusServlet extends HttpServlet {
             return;
         }
 
-        SessionUtil.flashMessage(request, activate ? "Đã mở bán lại gói tập" : "Đã ngừng bán gói tập");
+        SessionUtil.flashMessage(request, activate ? "Package is on sale again." : "Package is no longer on sale.");
         response.sendRedirect(request.getContextPath() + "/staff/packages");
     }
 }

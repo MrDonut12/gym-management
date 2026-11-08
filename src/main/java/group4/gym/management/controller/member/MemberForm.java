@@ -11,7 +11,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Map;
 
 /**
- * Shared form handling for MemberCreateServlet and MemberEditServlet (CN-12, CN-14).
+ * Shared form handling for MemberCreateServlet and MemberEditServlet (FR-12, FR-14).
  * Reads the posted profile fields and forwards the shared form view.
  */
 final class MemberForm {
@@ -25,7 +25,7 @@ final class MemberForm {
 
     /**
      * Reads fullName, phone, email, dateOfBirth and gender into a Member.
-     * An unparsable date (HL-05) or an unknown gender (HL-06) is reported in fieldErrors;
+     * An unparsable date (VR-05) or an unknown gender (VR-06) is reported in fieldErrors;
      * the remaining fields are validated by MemberService.
      */
     static Member read(HttpServletRequest request, Map<String, String> fieldErrors) {

@@ -55,7 +55,7 @@ public class PackageEditServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        // Any durationMonths parameter is deliberately never read (KT-15).
+        // Any durationMonths parameter is deliberately never read (AC-15).
         String name = RequestUtil.getString(request, "name");
         String price = RequestUtil.getRawString(request, "price");
 
@@ -83,7 +83,7 @@ public class PackageEditServlet extends HttpServlet {
             return;
         }
 
-        SessionUtil.flashMessage(request, "Đã cập nhật gói tập");
+        SessionUtil.flashMessage(request, "Package saved.");
         response.sendRedirect(request.getContextPath() + "/staff/packages");
     }
 }

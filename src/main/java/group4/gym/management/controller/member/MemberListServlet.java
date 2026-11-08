@@ -15,7 +15,8 @@ import java.io.IOException;
 
 /**
  * Member list and search (FR-11), the RECEPTIONIST home page. MANAGER, RECEPTIONIST.
- * Search by full name (partial) or phone (exact); the member code is display-only (team decision).
+ * One search box (MemberKeyword): code HV + 6 digits (exact), phone (exact) or full name (partial); anything else
+ * matches nothing (AC-09).
  * Scope DELETED/ALL is MANAGER only (checked in MemberService, 403 otherwise).
  */
 @WebServlet(name = "MemberListServlet", urlPatterns = {"/staff/members"})

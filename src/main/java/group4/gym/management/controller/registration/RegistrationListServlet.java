@@ -48,7 +48,7 @@ public class RegistrationListServlet extends HttpServlet {
             filter.setFromDate(RequestUtil.getDate(request, "fromDate"));
             filter.setToDate(RequestUtil.getDate(request, "toDate"));
         } catch (DateTimeException ex) {
-            // HL-16: an unreadable date is a field error; the list stays empty and the bad date is dropped.
+            // VR-16: an unreadable date is a field error; the list stays empty and the bad date is dropped.
             error = "Date must be a valid date (dd/mm/yyyy).";
             filter.setFromDate(null);
             filter.setToDate(null);

@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * Reports (CN-26 to CN-28, QT-12, QT-13). Ranges come from DateRange: [from 00:00, to+1 00:00), default current month.
+ * Reports (FR-26 to FR-28, BR-12, BR-13). Ranges come from DateRange: [from 00:00, to+1 00:00), default current month.
  * Access (MANAGER only) is enforced by AuthFilter on the /manager prefix.
  */
 public class ReportService {
@@ -93,7 +93,7 @@ public class ReportService {
     }
 
     /**
-     * Falls back to the current month when no range is given (QT-13).
+     * Falls back to the current month when no range is given (BR-13).
      */
     private DateRange rangeOrDefault(DateRange range) {
         return range == null ? DateRange.currentMonth() : range;

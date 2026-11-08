@@ -4,7 +4,7 @@
 <%--
     Login screen (FR-01, FR-04, BR-17). Servlet: LoginServlet (/login). Public.
     Request attributes: username (pre-filled from the gym_username cookie or the failed attempt), rememberChecked (boolean), error.
-    No reCAPTCHA (FUT-02).
+    No reCAPTCHA (out of scope).
 --%>
 <c:set var="pageTitle" value="Login" scope="request"/>
 <jsp:include page="/WEB-INF/common/header.jsp"/>

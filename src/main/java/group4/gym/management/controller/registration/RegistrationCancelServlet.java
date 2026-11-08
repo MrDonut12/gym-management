@@ -34,7 +34,7 @@ public class RegistrationCancelServlet extends HttpServlet {
 
         try {
             registrationService.cancel(SessionUtil.getSessionUser(request), id, reason);
-            SessionUtil.flashMessage(request, "Đã hủy đăng ký");
+            SessionUtil.flashMessage(request, "Registration cancelled.");
         } catch (NotFoundException ex) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;

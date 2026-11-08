@@ -6,6 +6,12 @@
 
     <display-name>Gym Management</display-name>
 
+    <!-- Fixed JSTL formatting locale: amounts always render as 1,350,000 whatever the browser's Accept-Language. -->
+    <context-param>
+        <param-name>jakarta.servlet.jsp.jstl.fmt.locale</param-name>
+        <param-value>en-US</param-value>
+    </context-param>
+
     <!-- FR-03, NFR-05: the session expires after 30 minutes of inactivity; JSESSIONID is HttpOnly and tracked by cookie only.
          Keep in sync with AppConstants.SESSION_TIMEOUT_MINUTES. -->
     <session-config>
