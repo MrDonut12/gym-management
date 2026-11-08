@@ -3,7 +3,7 @@ package group4.gym.management.model.registration;
 import java.time.LocalDate;
 
 /**
- * Filter criteria of the registration/transaction list (FR-24). A null field means "not filtered".
+ * Filter criteria of the registration/transaction list. A null field means "not filtered".
  */
 public class RegistrationFilter {
 
@@ -19,13 +19,13 @@ public class RegistrationFilter {
     /** Time axis of the date range (default CREATED_AT) */
     private DateAxis axis;
 
-    /** Start date (inclusive, BR-13) */
+    /** Start date (inclusive) */
     private LocalDate fromDate;
 
-    /** End date (inclusive of the whole day, BR-13) */
+    /** End date (inclusive of the whole day) */
     private LocalDate toDate;
 
-    /** Page number >= 1 (VR-07) */
+    /** Page number >= 1 */
     private int page = 1;
 
     public RegistrationFilter() {

@@ -2,12 +2,12 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Create a PENDING registration (FR-22). Servlet: RegistrationCreateServlet (/staff/registrations/create).
+    Create a PENDING registration. Servlet: RegistrationCreateServlet (/staff/registrations/create).
     Roles: MANAGER, RECEPTIONIST.
     Request attributes: member (pre-selected Member, optional), keyword, members (List<Member>, not soft-deleted),
                         packages (List<GymPackage>, on sale only), error.
-    No price, start date or payment method field: the price snapshot comes from the database (BR-03),
-    the schedule is computed when PAID (BR-05) and the method is chosen at confirmation (FR-25).
+    No price, start date or payment method field: the price snapshot comes from the database,
+    the schedule is computed when PAID and the method is chosen at confirmation.
 --%>
 <c:set var="pageTitle" value="New registration" scope="request"/>
 <jsp:include page="/WEB-INF/common/header.jsp"/>

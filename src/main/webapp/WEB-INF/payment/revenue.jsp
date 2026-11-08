@@ -3,7 +3,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Revenue per period (FR-26, BR-12, BR-13). Servlet: RevenueReportServlet (/manager/reports/revenue). MANAGER only.
+    Revenue per period. Servlet: RevenueReportServlet (/manager/reports/revenue). MANAGER only.
     Request attributes: range (DateRange), granularity, rows (List<RevenueRow>), total (RevenueRow), error.
 --%>
 <c:set var="pageTitle" value="Revenue" scope="request"/>

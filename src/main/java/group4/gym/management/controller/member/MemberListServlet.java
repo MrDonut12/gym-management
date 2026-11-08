@@ -14,9 +14,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Member list and search (FR-11), the RECEPTIONIST home page. MANAGER, RECEPTIONIST.
+ * Member list and search, the RECEPTIONIST home page. MANAGER, RECEPTIONIST.
  * One search box (MemberKeyword): phone (exact) or full name (partial); anything else, including a member code,
- * matches nothing (AC-09).
+ * matches nothing.
  * Scope DELETED/ALL is MANAGER only (checked in MemberService, 403 otherwise).
  */
 @WebServlet(name = "MemberListServlet", urlPatterns = {"/staff/members"})

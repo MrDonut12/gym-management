@@ -24,7 +24,7 @@ public final class RequestUtil {
     }
 
     /**
-     * Read a string parameter exactly as sent: username and password are NOT trimmed (section 6, VR-09).
+     * Read a string parameter exactly as sent: username and password are NOT trimmed.
      */
     public static String getRawString(HttpServletRequest request, String name) {
         return request.getParameter(name);
@@ -46,7 +46,7 @@ public final class RequestUtil {
     }
 
     /**
-     * Read an ID from the URL/form (VR-17).
+     * Read an ID from the URL/form.
      */
     public static Integer getPositiveId(HttpServletRequest request, String name) {
         Integer id = getInteger(request, name);
@@ -54,7 +54,7 @@ public final class RequestUtil {
     }
 
     /**
-     * Read the page number (VR-07).
+     * Read the page number.
      */
     public static int getPage(HttpServletRequest request) {
         Integer page = getInteger(request, "page");
@@ -69,7 +69,7 @@ public final class RequestUtil {
     }
 
     /**
-     * Read an enum parameter by constant name (role, status, payment method...; VR-10, VR-14).
+     * Read an enum parameter by constant name (role, status, payment method...).
      */
     public static <E extends Enum<E>> E getEnum(HttpServletRequest request, String name, Class<E> enumType) {
         String value = getString(request, name);

@@ -1,11 +1,11 @@
 package group4.gym.management.util;
 
 /**
- * Classifies the single member search box (FR-11, FR-24). The kind of the input decides the search, in this order:
+ * Classifies the single member search box. The kind of the input decides the search, in this order:
  * <ol>
- *   <li>PHONE - a valid phone number (VR-02: 0 + 9 digits): exact match on phone;</li>
- *   <li>NAME  - no digit at all (VR-01): partial, case-insensitive match on full_name;</li>
- *   <li>NONE  - anything else (e.g. "5", "HV000123", a partial phone, "abc123"): matches nothing (AC-09).</li>
+ *   <li>PHONE - a valid phone number (0 + 9 digits): exact match on phone;</li>
+ *   <li>NAME  - no digit at all: partial, case-insensitive match on full_name;</li>
+ *   <li>NONE  - anything else (e.g. "5", "HV000123", a partial phone, "abc123"): matches nothing.</li>
  * </ol>
  * The search box never looks members up by code or id. Shared by MemberDAO and RegistrationDAO so the rule
  * lives in one place. The keyword is trimmed first.

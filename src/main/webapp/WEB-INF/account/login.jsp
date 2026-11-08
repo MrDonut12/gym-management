@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Login screen (FR-01, FR-04, BR-17). Servlet: LoginServlet (/login). Public.
+    Login screen. Servlet: LoginServlet (/login). Public.
     Request attributes: username (pre-filled from the gym_username cookie or the failed attempt), rememberChecked (boolean), error.
     No reCAPTCHA (out of scope).
 --%>

@@ -1,11 +1,11 @@
 package group4.gym.management.model.account;
 
 /**
- * Staff account status (DR-01). Accounts are never deleted; LOCKED replaces deletion (BR-16).
+ * Staff account status. Accounts are never deleted; LOCKED replaces deletion.
  */
 public enum AccountStatus {
     /** Account is active */
     ACTIVE,
-    /** Account is locked: login is blocked and the session is invalidated on the next request (FR-03, FR-08) */
+    /** Account is locked: login is blocked and the session is invalidated on the next request */
     LOCKED
 }

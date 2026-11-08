@@ -1,7 +1,7 @@
 package group4.gym.management.model.registration;
 
 /**
- * Time axis of the date-range filter in the registration list (FR-24, BR-13).
+ * Time axis of the date-range filter in the registration list.
  */
 public enum DateAxis {
     /** Created date: filter by created_at, every status */

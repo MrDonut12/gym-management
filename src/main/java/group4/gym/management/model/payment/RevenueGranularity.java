@@ -1,7 +1,7 @@
 package group4.gym.management.model.payment;
 
 /**
- * Revenue aggregation level (FR-26).
+ * Revenue aggregation level.
  */
 public enum RevenueGranularity {
     /** Per day */

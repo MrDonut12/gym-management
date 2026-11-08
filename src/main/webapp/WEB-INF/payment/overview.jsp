@@ -3,7 +3,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Member overview (FR-28), the MANAGER home page. Servlet: MemberOverviewServlet (/manager/overview). MANAGER only.
+    Member overview, the MANAGER home page. Servlet: MemberOverviewServlet (/manager/overview). MANAGER only.
     Request attributes: overview (MemberOverview), range (DateRange), error.
 --%>
 <c:set var="pageTitle" value="Overview" scope="request"/>

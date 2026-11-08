@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Create/update form for member profiles (FR-12, FR-14, VR-01, VR-02, VR-04 to VR-06).
+    Create/update form for member profiles.
     Servlets: MemberCreateServlet (/staff/members/create), MemberEditServlet (/staff/members/edit). Roles: MANAGER, RECEPTIONIST.
     Request attributes: mode (create|edit), member (Member), genders (Gender[]), fieldErrors, error.
     After a failed POST the date of birth is re-filled from the submitted parameter, so an invalid value stays visible.

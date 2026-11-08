@@ -12,8 +12,8 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Revenue per package (FR-27): current package name, PAID count, revenue, share %. Same range rules as FR-26.
- * MANAGER only.
+ * Revenue per package: current package name, PAID count, revenue, share %. Uses the same range rules as the
+ * period revenue report. MANAGER only.
  */
 @WebServlet(name = "PackageRevenueReportServlet", urlPatterns = {"/manager/reports/revenue-by-package"})
 public class PackageRevenueReportServlet extends HttpServlet {

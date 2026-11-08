@@ -21,17 +21,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Data access for registrations (table registrations, DR-04; owner TV3, payment columns written for TV4).
- * No delete, no update of PAID/CANCELLED rows (BR-02, BR-16). Every status change is conditional:
+ * Data access for the registrations table.
+ * PAID/CANCELLED rows are never deleted or updated. Every status change is conditional:
  * UPDATE ... WHERE id = ? AND status = 'PENDING' (0 rows = "no longer pending").
- * Every query uses PreparedStatement parameters (NFR-02). Methods without a Connection open their own with
+ * Every query uses PreparedStatement parameters. Methods without a Connection open their own with
  * DBContext.getConnection() and wrap SQLException in AppException; methods with a Connection run inside the
- * caller's transaction (SRS 9.1) and throw SQLException.
+ * caller's transaction and throw SQLException.
  */
 public class RegistrationDAO {
 
     /**
-     * Insert a PENDING registration with its snapshot (FR-22, inside the BR-06 transaction).
+     * Insert a PENDING registration with its snapshot, inside the caller's transaction.
      */
     public int insert(Connection conn, Registration registration) throws SQLException {
         String sql = "INSERT INTO registrations (member_id, package_id, package_name_snapshot, duration_months_snapshot, price_snapshot, status, created_at, created_by) VALUES (?, ?, ?, ?, ?, 'PENDING', ?, ?)";
@@ -65,7 +65,7 @@ public class RegistrationDAO {
     }
 
     /**
-     * Re-read a registration inside a transaction, after the member row is locked (FR-25, BR-06).
+     * Re-read a registration inside a transaction, after the member row is locked.
      */
     public Registration findById(Connection conn, int id) throws SQLException {
         String sql = "SELECT r.* FROM registrations r WHERE r.id = ?";
@@ -79,7 +79,7 @@ public class RegistrationDAO {
     }
 
     /**
-     * Registration with member display data (FR-25 review step).
+     * Registration with member display data, for the review step.
      */
     public RegistrationView findViewById(int id) {
         String sql = "SELECT r.*, m.full_name, m.phone, m.is_deleted FROM registrations r JOIN members m ON m.id = r.member_id WHERE r.id = ?";
@@ -95,7 +95,7 @@ public class RegistrationDAO {
     }
 
     /**
-     * Every registration of a member, every status, newest first (shared interface SRS 9.1, used by TV2 for FR-13).
+     * Every registration of a member, every status, newest first.
      */
     public List<Registration> findByMember(int memberId) {
         String sql = "SELECT r.* FROM registrations r WHERE r.member_id = ? ORDER BY r.created_at DESC, r.id DESC";
@@ -115,8 +115,8 @@ public class RegistrationDAO {
     }
 
     /**
-     * One page of the registration list (FR-24).
-     * Axis CREATED_AT: created_at in [from, to+1); axis PAID_AT: paid_at in [from, to+1), which keeps PAID only (BR-13).
+     * One page of the registration list.
+     * Axis CREATED_AT: created_at in [from, to+1); axis PAID_AT: paid_at in [from, to+1), which keeps PAID only.
      *
      * @param fromInclusive DateRange.getFromInclusive()
      * @param toExclusive   DateRange.getToExclusive()
@@ -157,7 +157,7 @@ public class RegistrationDAO {
     }
 
     /**
-     * Cancel one PENDING registration (FR-23, BR-02).
+     * Cancel one PENDING registration.
      */
     public boolean cancelIfPending(int id, int cancelledBy, String reason, LocalDateTime cancelledAt) {
         String sql = "UPDATE registrations SET status = 'CANCELLED', cancelled_at = ?, cancelled_by = ?, cancel_reason = ? WHERE id = ? AND status = 'PENDING'";
@@ -173,7 +173,7 @@ public class RegistrationDAO {
     }
 
     /**
-     * Cancel every PENDING registration of a member (shared interface SRS 9.1, used by TV2 in the FR-15 transaction, BR-09).
+     * Cancel every PENDING registration of a member, inside the caller's transaction.
      */
     public int cancelAllPending(Connection conn, int memberId, int byId, String reason) throws SQLException {
         String sql = "UPDATE registrations SET status = 'CANCELLED', cancelled_at = ?, cancelled_by = ?, cancel_reason = ? WHERE member_id = ? AND status = 'PENDING'";
@@ -187,8 +187,7 @@ public class RegistrationDAO {
     }
 
     /**
-     * Whether the member still has a PAID registration with end_date >= today, active or upcoming
-     * (shared interface SRS 9.1, used by TV2 in the FR-15 transaction, BR-09).
+     * Whether the member still has a PAID registration with end_date >= today, active or upcoming.
      */
     public boolean hasUnexpiredPaid(Connection conn, int memberId, LocalDate today) throws SQLException {
         String sql = "SELECT COUNT(*) FROM registrations WHERE member_id = ? AND status = 'PAID' AND end_date >= ?";
@@ -202,7 +201,7 @@ public class RegistrationDAO {
     }
 
     /**
-     * Largest end_date of the member's PAID registrations (BR-05), read inside the FR-25 transaction.
+     * Largest end_date of the member's PAID registrations, read inside the enclosing transaction.
      */
     public LocalDate findMaxPaidEndDate(Connection conn, int memberId) throws SQLException {
         String sql = "SELECT MAX(end_date) FROM registrations WHERE member_id = ? AND status = 'PAID'";
@@ -215,7 +214,7 @@ public class RegistrationDAO {
     }
 
     /**
-     * Same as above, outside a transaction (FR-25 review step only).
+     * Same as above, outside a transaction, for the review step only.
      */
     public LocalDate findMaxPaidEndDate(int memberId) {
         try (Connection conn = DBContext.getConnection()) {
@@ -226,7 +225,7 @@ public class RegistrationDAO {
     }
 
     /**
-     * PENDING -> PAID with the schedule, in one statement (FR-25, BR-02, used by PaymentService of TV4).
+     * PENDING -> PAID with the schedule, in one statement, used by PaymentService.
      */
     public boolean markPaidIfPending(Connection conn, int id, PaymentMethod method, LocalDateTime paidAt, int confirmedBy,
             LocalDate startDate, LocalDate endDate) throws SQLException {
@@ -243,14 +242,14 @@ public class RegistrationDAO {
     }
 
     /**
-     * Column of the date-range axis, from a fixed switch on DateAxis, never from user text (NFR-02). Default is CREATED_AT.
+     * Column of the date-range axis, from a fixed switch on DateAxis, never from user text. Default is CREATED_AT.
      */
     private String axisColumn(RegistrationFilter filter) {
         return filter.getAxis() == DateAxis.PAID_AT ? "r.paid_at" : "r.created_at";
     }
 
     /**
-     * Classified member keyword of the filter (FR-24); null when not filtered.
+     * Classified member keyword of the filter; null when not filtered.
      */
     private MemberKeyword keywordOf(RegistrationFilter filter) {
         return MemberKeyword.parse(filter.getMemberKeyword());
@@ -279,7 +278,7 @@ public class RegistrationDAO {
     /**
      * WHERE clause shared by search() and count(). Placeholders, in order: status, package, member keyword
      * (one for PHONE or NAME, none for NONE), range start, range end; bindFilters() sets them in the same order.
-     * The keyword is classified by MemberKeyword with the same rules as the member list (FR-11, FR-24).
+     * The keyword is classified by MemberKeyword with the same rules as the member list.
      */
     private String buildWhere(RegistrationFilter filter) {
         StringBuilder where = new StringBuilder(" WHERE 1 = 1");
@@ -299,7 +298,7 @@ public class RegistrationDAO {
                     where.append(" AND m.full_name COLLATE Latin1_General_100_CI_AS LIKE ? ESCAPE '\\'");
                     break;
                 default:
-                    // NONE ("5", "HV000123", a partial phone...): matches nothing (AC-09).
+                    // NONE ("5", "HV000123", a partial phone...): matches nothing.
                     where.append(" AND 1 = 0");
                     break;
             }

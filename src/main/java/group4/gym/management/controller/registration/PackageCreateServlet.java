@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Create a package (FR-19): name, duration 1/3/6/12 months, price; on sale by default. MANAGER only.
+ * Create a package: name, duration 1/3/6/12 months, price; on sale by default. MANAGER only.
  */
 @WebServlet(name = "PackageCreateServlet", urlPatterns = {"/manager/packages/create"})
 public class PackageCreateServlet extends HttpServlet {

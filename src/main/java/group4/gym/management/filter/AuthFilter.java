@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Session and authorization filter (FR-02, FR-03, section 3). Registered in web.xml and runs after EncodingFilter.
+ * Session and authorization filter (section 3). Registered in web.xml and runs after EncodingFilter.
  * Public paths: /login and static resources (/assets/*). Every other URL requires a valid session.
  * Authorization by URL prefix, fixed in code (no dynamic permission table):
  * <ul>
@@ -25,7 +25,7 @@ import java.io.IOException;
  *   <li>/staff/*   - MANAGER, RECEPTIONIST</li>
  *   <li>other protected URLs (/home, /logout, /change-password) - any logged-in role</li>
  * </ul>
- * Finer rules inside one URL (for example only MANAGER may list soft-deleted members, BR-11) are checked in the service layer.
+ * Finer rules inside one URL (for example only MANAGER may list soft-deleted members) are checked in the service layer.
  */
 public class AuthFilter implements Filter {
 
@@ -88,7 +88,7 @@ public class AuthFilter implements Filter {
     }
 
     /**
-     * Anti-cache headers for protected pages (FR-02).
+     * Anti-cache headers for protected pages.
      */
     private static void setNoCacheHeaders(HttpServletResponse response) {
         response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");

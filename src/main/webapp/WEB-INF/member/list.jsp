@@ -3,7 +3,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Member list and search (FR-11), the RECEPTIONIST home page. Servlet: MemberListServlet (/staff/members).
+    Member list and search, the RECEPTIONIST home page. Servlet: MemberListServlet (/staff/members).
     Roles: MANAGER, RECEPTIONIST. Plain search, no AJAX (out of scope).
     One search box classified by MemberKeyword: phone (exact) or full name (partial); never by member code or id.
     Request attributes: page (Page<MemberListItem>), keyword, scope (MemberScope), error, fieldErrors.

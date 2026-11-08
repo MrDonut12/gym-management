@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Stop selling / resume selling a package (FR-21, BR-04). Packages are never deleted. MANAGER only, POST only.
+ * Stop selling / resume selling a package. Packages are never deleted. MANAGER only, POST only.
  */
 @WebServlet(name = "PackageStatusServlet", urlPatterns = {"/manager/packages/status"})
 public class PackageStatusServlet extends HttpServlet {

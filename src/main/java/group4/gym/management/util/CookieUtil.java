@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Remember-username cookie (FR-04, BR-17, NFR-05).
+ * Remember-username cookie.
  * Contains only the username; never a password, role or any authentication data.
  * The cookie never logs the user in: the password must always be entered.
  */
@@ -36,7 +36,7 @@ public final class CookieUtil {
 
     /**
      * Delete the gym_username cookie after a successful login with the box unchecked (Max-Age = 0).
-     * Must not be called on a failed login or on logout (BR-17).
+     * Must not be called on a failed login or on logout.
      */
     public static void clearRememberUsernameCookie(HttpServletRequest request, HttpServletResponse response) {
         Cookie cookie = new Cookie(REMEMBER_USERNAME_COOKIE, "");

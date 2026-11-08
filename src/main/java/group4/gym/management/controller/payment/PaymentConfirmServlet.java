@@ -18,9 +18,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Two-step payment confirmation with plain JSP (FR-25). MANAGER, RECEPTIONIST.
- * GET = step 1 (review, changes nothing; going back changes nothing). POST = step 2 (final confirmation, BR-06).
- * Amount and dates are never read from the request (AC-20).
+ * Two-step payment confirmation with plain JSP. MANAGER, RECEPTIONIST.
+ * GET = step 1 (review, changes nothing; going back changes nothing). POST = step 2 (final confirmation).
+ * Amount and dates are never read from the request.
  */
 @WebServlet(name = "PaymentConfirmServlet", urlPatterns = {"/staff/payments/confirm"})
 public class PaymentConfirmServlet extends HttpServlet {
@@ -32,7 +32,7 @@ public class PaymentConfirmServlet extends HttpServlet {
     /**
      * Request attributes for the view:
      * view (RegistrationView, always), preview (SchedulePreview, PENDING and confirmable),
-     * blockedReason (PENDING but not confirmable, e.g. member soft-deleted, BR-11).
+     * blockedReason (PENDING but not confirmable, e.g. member soft-deleted).
      * PAID shows the saved schedule; CANCELLED shows the cancellation, both without the form.
      */
     @Override
@@ -68,7 +68,7 @@ public class PaymentConfirmServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Only the ID and the payment method are read: any amount or date parameter is ignored (AC-20).
+        // Only the ID and the payment method are read: any amount or date parameter is ignored.
         Integer id = RequestUtil.getPositiveId(request, "id");
         if (id == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -88,7 +88,7 @@ public class PaymentConfirmServlet extends HttpServlet {
         } catch (BusinessRuleException ex) {
             SessionUtil.flashError(request, ex.getMessage());
         }
-        // Post/Redirect/Get (NFR-07): the GET shows the saved schedule, or the review step again with the error.
+        // Post/Redirect/Get: the GET shows the saved schedule, or the review step again with the error.
         response.sendRedirect(request.getContextPath() + "/staff/payments/confirm?id=" + id);
     }
 }

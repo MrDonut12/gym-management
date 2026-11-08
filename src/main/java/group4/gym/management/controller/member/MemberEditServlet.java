@@ -17,7 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Update a member profile that is not soft-deleted (FR-14, BR-11). MANAGER, RECEPTIONIST.
+ * Update a member profile that is not soft-deleted. MANAGER, RECEPTIONIST.
  */
 @WebServlet(name = "MemberEditServlet", urlPatterns = {"/staff/members/edit"})
 public class MemberEditServlet extends HttpServlet {
@@ -79,7 +79,7 @@ public class MemberEditServlet extends HttpServlet {
     }
 
     /**
-     * A soft-deleted profile cannot be edited (BR-11): show the reason on the detail page.
+     * A soft-deleted profile cannot be edited: show the reason on the detail page.
      */
     private void redirectToDetail(HttpServletRequest request, HttpServletResponse response,
             int id, String error) throws IOException {

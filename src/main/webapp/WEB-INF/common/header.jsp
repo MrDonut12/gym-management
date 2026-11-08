@@ -1,8 +1,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%--
-    Shared page header (NFR-11). The including page sets requestScope.pageTitle before including this file.
-    Bootstrap 5 is served from static files inside the project so the app runs offline (SRS 1.4, NFR-11).
+    Shared page header. The including page sets requestScope.pageTitle before including this file.
+    Bootstrap 5 is served from static files inside the project so the app runs offline.
 --%>
 <!DOCTYPE html>
 <html lang="en">

@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Data access for members (table members, DR-02). No physical deletion (BR-16).
- * Every query uses PreparedStatement parameters (NFR-02). Methods without a Connection open their own with
- * DBContext.getConnection(); methods with a Connection run inside the caller's transaction (BR-06).
+ * Data access for the members table. Members are never physically deleted.
+ * Every query uses PreparedStatement parameters. Methods without a Connection open their own with
+ * DBContext.getConnection(); methods with a Connection run inside the caller's transaction.
  */
 public class MemberDAO {
 
@@ -98,9 +98,9 @@ public class MemberDAO {
     }
 
     /**
-     * Returns a page of members matching the search box, newest first (FR-11).
+     * Returns a page of members matching the search box, newest first.
      * The keyword is classified by MemberKeyword: a valid phone -> exact phone, no digit -> partial name;
-     * anything else (including a member code) matches nothing (AC-09). A blank keyword lists every member of the scope.
+     * anything else (including a member code) matches nothing. A blank keyword lists every member of the scope.
      * Applies the deletion filter and includes paid-package expiry and coverage information.
      */
     public List<MemberListItem> search(String keyword, MemberScope scope,
@@ -176,7 +176,7 @@ public class MemberDAO {
     }
 
     /**
-     * Finds up to the requested limit of non-deleted members (FR-22 member picker), with the same keyword
+     * Finds up to the requested limit of non-deleted members for the member picker, with the same keyword
      * rules as the member list (exact phone or partial name; see MemberKeyword).
      */
     public List<Member> searchActive(String keyword, int limit) {
@@ -441,7 +441,7 @@ public class MemberDAO {
     }
 
     /**
-     * SQL condition of a classified search keyword (FR-11), appended after the scope condition.
+     * SQL condition of a classified search keyword, appended after the scope condition.
      * One placeholder for PHONE or NAME; none for NONE (matches nothing) or a blank keyword (no filter).
      */
     private String getKeywordCondition(MemberKeyword keyword) {

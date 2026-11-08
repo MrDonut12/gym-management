@@ -14,8 +14,8 @@ import group4.gym.management.util.PasswordUtil;
 import group4.gym.management.util.ValidationUtil;
 
 /**
- * Staff account management (FR-05 to FR-10, BR-14, BR-16). Only ADMIN reaches these features (/admin/*),
- * except changeOwnPassword (every role). Invalid data throws ValidationException (section 6),
+ * Staff account management. Only ADMIN reaches these features (/admin/*),
+ * except changeOwnPassword (every role). Invalid data throws ValidationException,
  * rule violations throw BusinessRuleException, unknown IDs throw NotFoundException.
  */
 public class AccountService {
@@ -23,7 +23,7 @@ public class AccountService {
     private final AccountDAO accountDAO = new AccountDAO();
 
     /**
-     * Account list (FR-05). A full valid phone keyword matches the phone exactly; any other keyword partially matches username or full name. A null criterion is ignored.
+     * Account list. A full valid phone keyword matches the phone exactly; any other keyword partially matches username or full name. A null criterion is ignored.
      */
     public List<Account> listAccounts(String keyword, Role role, AccountStatus status) {
         if (!ValidationUtil.isValidKeyword(keyword)) {
@@ -33,7 +33,7 @@ public class AccountService {
     }
 
     /**
-     * Get an account to edit/lock/reset (VR-17).
+     * Get an account to edit/lock/reset.
      */
     public Account getById(int accountId) {
         Account account = requireAccount(accountId);
@@ -42,7 +42,7 @@ public class AccountService {
     }
 
     /**
-     * Create an account (FR-06), status ACTIVE.
+     * Create an account, status ACTIVE.
      */
     public int createAccount(SessionUser actor, Account newAccount, String rawPassword, String confirmPassword) {
         requireAdmin(actor);
@@ -62,8 +62,8 @@ public class AccountService {
     }
 
     /**
-     * Update full name, phone, email, role (FR-07). The username is not editable.
-     * BR-14: the actor cannot change their own role.
+     * Update full name, phone, email, role. The username is not editable.
+     * The actor cannot change their own role.
      */
     public void updateAccount(SessionUser actor, Account changes) {
         requireAdmin(actor);
@@ -80,7 +80,7 @@ public class AccountService {
     }
 
     /**
-     * Lock or unlock an account (FR-08). BR-14: the actor cannot lock themselves. Accounts are never deleted.
+     * Lock or unlock an account. The actor cannot lock themselves. Accounts are never deleted.
      */
     public void setLocked(SessionUser actor, int targetId, boolean locked) {
         requireAdmin(actor);
@@ -90,7 +90,7 @@ public class AccountService {
     }
 
     /**
-     * Change one's own password (FR-09, every role). The current session is kept.
+     * Change one's own password (every role). The current session is kept.
      */
     public void changeOwnPassword(SessionUser actor, String currentPassword, String newPassword, String confirmPassword) {
         if (actor == null) throw new AccessDeniedException("Login required.");
@@ -105,8 +105,8 @@ public class AccountService {
     }
 
     /**
-     * ADMIN sets a new password for another account (FR-10) without the old one.
-     * BR-14: not allowed on oneself (use FR-09). The LOCKED/ACTIVE status is not changed (AC-08).
+     * ADMIN sets a new password for another account without the old one.
+     * Not allowed on oneself (use the change-password flow). The LOCKED/ACTIVE status is not changed.
      */
     public void resetPassword(SessionUser actor, int targetId, String newPassword, String confirmPassword) {
         requireAdmin(actor);

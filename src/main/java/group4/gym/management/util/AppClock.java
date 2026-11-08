@@ -6,13 +6,13 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 
 /**
- * The single business clock (BR-15, shared interface SRS 9.1, owner TV4).
+ * The single business clock.
  * Every created_at, paid_at, cancelled_at, "today" and report period comes from here.
  * Never use SQL Server GETDATE()/SYSDATETIME() or the OS default time zone for business calculations.
  */
 public final class AppClock {
 
-    /** Business time zone (SRS 1.4). */
+    /** Business time zone. */
     public static final ZoneId ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
 
     private AppClock() {
@@ -26,7 +26,7 @@ public final class AppClock {
     }
 
     /**
-     * "Today" in Vietnam time (SRS 1.5), used by BR-05, BR-07, BR-08, BR-09 and VR-05.
+     * "Today" in Vietnam time.
      */
     public static LocalDate today() {
         return LocalDate.now(ZONE);

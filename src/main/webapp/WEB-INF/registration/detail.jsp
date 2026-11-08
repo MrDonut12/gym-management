@@ -3,9 +3,9 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Registration detail (FR-24). Servlet: RegistrationDetailServlet (/staff/registrations/detail). Roles: MANAGER, RECEPTIONIST.
+    Registration detail. Servlet: RegistrationDetailServlet (/staff/registrations/detail). Roles: MANAGER, RECEPTIONIST.
     Request attributes: view (RegistrationView) - registration (snapshot, status, payment/cancel columns) and member display data.
-    A PENDING registration shows, in the Payment card, a link to the payment confirmation (FR-25) and the cancel form with a reason (FR-23).
+    A PENDING registration shows, in the Payment card, a link to the payment confirmation and the cancel form with a reason.
 --%>
 <c:set var="pageTitle" value="Registration detail" scope="request"/>
 <jsp:include page="/WEB-INF/common/header.jsp"/>

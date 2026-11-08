@@ -4,8 +4,8 @@ import group4.gym.management.model.registration.RegistrationView;
 import java.time.LocalDate;
 
 /**
- * Review step of the payment confirmation (FR-25 step 1): member, package and amount snapshot, and the expected
- * schedule computed by BR-05 at viewing time. The final schedule is computed again inside the confirm transaction.
+ * Review step of the payment confirmation: member, package and amount snapshot, and the expected
+ * schedule computed at viewing time. The final schedule is computed again inside the confirm transaction.
  */
 public class SchedulePreview {
 

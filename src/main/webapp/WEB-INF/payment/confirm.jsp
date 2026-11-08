@@ -3,13 +3,13 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Two-step payment confirmation (FR-25). Servlet: PaymentConfirmServlet (/staff/payments/confirm). Roles: MANAGER, RECEPTIONIST.
+    Two-step payment confirmation. Servlet: PaymentConfirmServlet (/staff/payments/confirm). Roles: MANAGER, RECEPTIONIST.
     Request attributes:
       view (RegistrationView) - always: registration (snapshot, status, payment/cancel columns) and member display data
-      preview (SchedulePreview) - step 1 while PENDING: expected start/end computed by BR-05 (nothing is saved)
-      blockedReason - PENDING but cannot be confirmed (member soft-deleted, BR-11)
+      preview (SchedulePreview) - step 1 while PENDING: expected start/end computed by the schedule formula (nothing is saved)
+      blockedReason - PENDING but cannot be confirmed (member soft-deleted)
     After a successful step 2 the registration is PAID and the schedule actually saved is shown.
-    No amount or date input: the backend never reads them from the client (AC-20).
+    No amount or date input: the backend never reads them from the client.
 --%>
 <c:set var="pageTitle" value="Confirm payment" scope="request"/>
 <jsp:include page="/WEB-INF/common/header.jsp"/>

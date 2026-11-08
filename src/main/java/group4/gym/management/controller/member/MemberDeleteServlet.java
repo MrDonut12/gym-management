@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Soft-delete a member (FR-15, BR-06, BR-09), after a confirmation dialog. MANAGER only, POST only.
+ * Soft-delete a member, after a confirmation dialog. MANAGER only, POST only.
  */
 @WebServlet(name = "MemberDeleteServlet", urlPatterns = {"/manager/members/delete"})
 public class MemberDeleteServlet extends HttpServlet {

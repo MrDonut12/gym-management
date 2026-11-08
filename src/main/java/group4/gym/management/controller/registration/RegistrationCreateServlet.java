@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Create a PENDING registration (FR-22): choose a member not soft-deleted and a package on sale. MANAGER, RECEPTIONIST.
+ * Create a PENDING registration: choose a member not soft-deleted and a package on sale. MANAGER, RECEPTIONIST.
  * The price is taken from the database, never from the form.
  */
 @WebServlet(name = "RegistrationCreateServlet", urlPatterns = {"/staff/registrations/create"})
@@ -38,7 +38,7 @@ public class RegistrationCreateServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Only the two IDs are read: any price or date parameter is ignored (BR-03).
+        // Only the two IDs are read: any price or date parameter is ignored.
         Integer memberId = RequestUtil.getPositiveId(request, "memberId");
         Integer packageId = RequestUtil.getPositiveId(request, "packageId");
         if (memberId == null || packageId == null) {

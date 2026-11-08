@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Create a package / edit name and price (FR-19, FR-20, VR-11 to VR-13). MANAGER only.
+    Create a package / edit name and price. MANAGER only.
     Servlets: PackageCreateServlet (/manager/packages/create), PackageEditServlet (/manager/packages/edit).
     Request attributes: mode (create|edit), gymPackage (GymPackage), price (price text as typed / stored),
                         fieldErrors (keys: name, durationMonths, price), error.
@@ -30,7 +30,7 @@
     <div class="mb-3">
         <c:choose>
             <c:when test="${isEdit}">
-                <%-- The duration is fixed after creation: shown as text and not submitted (FR-20, AC-15). --%>
+                <%-- The duration is fixed after creation: shown as text and not submitted. --%>
                 <span class="form-label d-block">Duration</span>
                 <div class="form-control-plaintext">
                     <c:out value="${requestScope.gymPackage.durationMonths}"/> month(s)

@@ -3,18 +3,18 @@ package group4.gym.management.model.payment;
 import java.time.LocalDate;
 
 /**
- * One revenue row (BR-12): per period (FR-26) or per package (FR-27), and the total row at the end of the table.
+ * One revenue row: per period or per package, and the total row at the end of the table.
  * Only PAID registrations with paid_at inside the range are counted, using price_snapshot.
  */
 public class RevenueRow {
 
-    /** FR-26: first day of the period (the day, or the 1st of the month); null for package rows and the total row */
+    /** First day of the period (the day, or the 1st of the month); null for package rows and the total row */
     private LocalDate periodStart;
 
-    /** FR-27: package ID the row is grouped by (not the name snapshot); null otherwise */
+    /** Package ID the row is grouped by (not the name snapshot); null otherwise */
     private Integer packageId;
 
-    /** Display label: period, CURRENT package name (FR-27), or "Total" */
+    /** Display label: period, CURRENT package name, or "Total" */
     private String label;
 
     /** Number of PAID registrations */
@@ -23,7 +23,7 @@ public class RevenueRow {
     /** Sum of price_snapshot */
     private long revenue;
 
-    /** FR-27: share of the total revenue in percent; 0 for FR-26 rows */
+    /** Share of the total revenue in percent; 0 for period rows */
     private double sharePercent;
 
     public RevenueRow() {

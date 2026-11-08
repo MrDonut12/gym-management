@@ -89,10 +89,10 @@ CREATE TABLE dbo.registrations (
 --
 -- Compact test set: 30 members (26 managed, 4 soft-deleted; 4 created in November, 1 of them deleted)
 -- and 48 registrations (28 PAID, 13 PENDING, 7 CANCELLED). Each member row is commented with the
--- scenario it covers: every membership status (BR-07), the expiring-soon window edges (BR-08),
--- soft delete allowed/rejected (BR-09), schedule chaining (BR-05, section 4.2), the discontinued
--- package (BR-04), an old snapshot name/price (BR-03) and month-boundary paid_at values (BR-13).
--- Every PAID start/end date follows the BR-05 formula, except member 7, whose start_date is set
+-- scenario it covers: every membership status, the expiring-soon window edges,
+-- soft delete allowed/rejected, schedule chaining, the discontinued
+-- package, an old snapshot name/price and month-boundary paid_at values.
+-- Every PAID start/end date follows the same formula, except member 7, whose start_date is set
 -- by hand so that the member is UPCOMING only.
 
 INSERT INTO dbo.accounts (username, password_hash, full_name, phone, email, role, status, created_at)

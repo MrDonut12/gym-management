@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Login (FR-01) and the remember-username cookie (FR-04, BR-17). Public.
+ * Login and the remember-username cookie. Public.
  */
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {

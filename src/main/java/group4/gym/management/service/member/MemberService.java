@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Member business logic (FR-11 to FR-17, BR-01, BR-06, BR-09 to BR-11).
+ * Member business logic.
  * Invalid data throws ValidationException, rule violations throw BusinessRuleException,
  * MANAGER-only data requested by a RECEPTIONIST throws AccessDeniedException, unknown IDs throw NotFoundException.
  */

@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Create a staff account (FR-06). ADMIN only.
+ * Create a staff account. ADMIN only.
  */
 @WebServlet(name = "AccountCreateServlet", urlPatterns = {"/admin/accounts/create"})
 public class AccountCreateServlet extends HttpServlet {

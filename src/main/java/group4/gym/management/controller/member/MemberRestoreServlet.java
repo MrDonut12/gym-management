@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Restore a soft-deleted member (FR-16, BR-10). MANAGER only, POST only.
+ * Restore a soft-deleted member. MANAGER only, POST only.
  */
 @WebServlet(name = "MemberRestoreServlet", urlPatterns = {"/manager/members/restore"})
 public class MemberRestoreServlet extends HttpServlet {

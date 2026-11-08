@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Revenue per period (FR-26): date range + granularity (day/month); period, PAID count, revenue and a total row.
+ * Revenue per period: date range + granularity (day/month); period, PAID count, revenue and a total row.
  * MANAGER only.
  */
 @WebServlet(name = "RevenueReportServlet", urlPatterns = {"/manager/reports/revenue"})

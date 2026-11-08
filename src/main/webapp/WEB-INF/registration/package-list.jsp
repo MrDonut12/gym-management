@@ -2,7 +2,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Package list (FR-18). Servlet: PackageListServlet (/staff/packages). Roles: MANAGER, RECEPTIONIST.
+    Package list. Servlet: PackageListServlet (/staff/packages). Roles: MANAGER, RECEPTIONIST.
     Request attributes: packages (List<GymPackage>), active (filter value: "", "true", "false").
 --%>
 <c:set var="pageTitle" value="Packages" scope="request"/>
@@ -53,7 +53,7 @@
             </td>
             <c:if test="${isManager}">
                 <td>
-                    <%-- No delete button: packages are deactivated instead (BR-16). --%>
+                    <%-- No delete button: packages are deactivated instead. --%>
                     <div class="d-flex flex-wrap gap-2">
                         <a class="btn btn-sm btn-outline-primary" href="${pageContext.request.contextPath}/manager/packages/edit?id=${p.id}">Edit</a>
                         <form class="m-0" method="post" action="${pageContext.request.contextPath}/manager/packages/status"

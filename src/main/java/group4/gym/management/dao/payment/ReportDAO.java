@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Aggregate queries for the reports (FR-26 to FR-28). Every range is [fromInclusive, toExclusive) (BR-13).
- * Revenue = SUM(price_snapshot) of PAID registrations with paid_at in the range; PENDING/CANCELLED excluded (BR-12).
- * Every query uses PreparedStatement parameters (NFR-02). Methods open their own connection with
+ * Aggregate queries for the reports. Every range is [fromInclusive, toExclusive).
+ * Revenue = SUM(price_snapshot) of PAID registrations with paid_at in the range; PENDING/CANCELLED excluded.
+ * Every query uses PreparedStatement parameters. Methods open their own connection with
  * DBContext.getConnection() and wrap SQLException in AppException.
  */
 public class ReportDAO {
@@ -28,11 +28,11 @@ public class ReportDAO {
     private static final String MONTH_PERIOD = "DATEFROMPARTS(YEAR(paid_at), MONTH(paid_at), 1)";
 
     /**
-     * Revenue per day or month (FR-26). Periods without revenue are omitted.
+     * Revenue per day or month. Periods without revenue are omitted.
      */
     public List<RevenueRow> revenueByPeriod(LocalDateTime fromInclusive, LocalDateTime toExclusive, RevenueGranularity granularity) {
         requireRange(fromInclusive, toExclusive);
-        // The period expression comes from a fixed switch, never from user input (NFR-02).
+        // The period expression comes from a fixed switch, never from user input.
         String period = switch (granularity == null ? RevenueGranularity.DAY : granularity) {
             case DAY -> DAY_PERIOD;
             case MONTH -> MONTH_PERIOD;
@@ -65,7 +65,7 @@ public class ReportDAO {
     }
 
     /**
-     * Revenue per package (FR-27): grouped by package_id, labelled with the CURRENT package name (BR-12).
+     * Revenue per package: grouped by package_id, labelled with the current package name.
      */
     public List<RevenueRow> revenueByPackage(LocalDateTime fromInclusive, LocalDateTime toExclusive) {
         requireRange(fromInclusive, toExclusive);
@@ -99,7 +99,7 @@ public class ReportDAO {
     }
 
     /**
-     * Count profiles by soft-delete flag (FR-28).
+     * Count profiles by soft-delete flag.
      */
     public int countMembers(boolean deleted) {
         String sql = "SELECT COUNT(*) FROM dbo.members WHERE is_deleted = ?";
@@ -113,9 +113,9 @@ public class ReportDAO {
     }
 
     /**
-     * Members with a PAID registration covering today, i.e. membership status ACTIVE (FR-28, BR-07).
-     * Counts every profile, as FR-28 does not exclude soft-deleted ones; a soft-deleted profile
-     * cannot hold an unexpired PAID anyway (BR-09).
+     * Members with a PAID registration covering today, i.e. membership status ACTIVE.
+     * Counts every profile, including soft-deleted ones; a soft-deleted profile
+     * cannot hold an unexpired PAID registration anyway.
      */
     public int countMembersWithActivePackage(LocalDate today) {
         if (today == null) {
@@ -134,7 +134,7 @@ public class ReportDAO {
     }
 
     /**
-     * New members by created_at in the range, including profiles soft-deleted later (FR-28).
+     * New members by created_at in the range, including profiles soft-deleted later.
      */
     public int countNewMembers(LocalDateTime fromInclusive, LocalDateTime toExclusive) {
         requireRange(fromInclusive, toExclusive);

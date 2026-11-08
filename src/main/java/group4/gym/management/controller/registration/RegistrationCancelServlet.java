@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Cancel a PENDING registration with a reason (FR-23, BR-02, VR-15). MANAGER, RECEPTIONIST. POST only.
+ * Cancel a PENDING registration with a reason. MANAGER, RECEPTIONIST. POST only.
  * The reason is entered in the cancel form of the registration detail page; redirects back to that page.
  */
 @WebServlet(name = "RegistrationCancelServlet", urlPatterns = {"/staff/registrations/cancel"})

@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Registration detail (FR-24): every column of one registration, any status. Read-only. MANAGER, RECEPTIONIST.
+ * Registration detail: every column of one registration, any status. Read-only. MANAGER, RECEPTIONIST.
  */
 @WebServlet(name = "RegistrationDetailServlet", urlPatterns = {"/staff/registrations/detail"})
 public class RegistrationDetailServlet extends HttpServlet {

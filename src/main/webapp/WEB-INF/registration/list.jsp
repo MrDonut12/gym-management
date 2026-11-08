@@ -3,11 +3,11 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Registration/transaction list (FR-24, BR-13). Servlet: RegistrationListServlet (/staff/registrations).
+    Registration/transaction list. Servlet: RegistrationListServlet (/staff/registrations).
     Roles: MANAGER, RECEPTIONIST.
     Request attributes: page (Page<RegistrationView>), filter (RegistrationFilter, dates resolved to the range used),
                         packages (List<GymPackage>), fieldErrors, error.
-    Every row has only Detail (/staff/registrations/detail); Confirm (FR-25) and Cancel (FR-23) live on the detail page.
+    Every row has only Detail (/staff/registrations/detail); Confirm and Cancel live on the detail page.
 --%>
 <c:set var="pageTitle" value="Registrations" scope="request"/>
 <jsp:include page="/WEB-INF/common/header.jsp"/>

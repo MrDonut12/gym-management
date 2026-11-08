@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Edit full name, phone, email and role (FR-07). The username is read-only; an ADMIN cannot change their own role (BR-14).
+ * Edit full name, phone, email and role. The username is read-only; an ADMIN cannot change their own role.
  * ADMIN only.
  */
 @WebServlet(name = "AccountEditServlet", urlPatterns = {"/admin/accounts/edit"})

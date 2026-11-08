@@ -3,7 +3,7 @@ package group4.gym.management.model.member;
 import java.time.LocalDate;
 
 /**
- * One row of the expiring-soon list (FR-17, BR-08): code, full name, phone, package name, expiry date, days left.
+ * One row of the expiring-soon list: code, full name, phone, package name, expiry date, days left.
  */
 public class ExpiringMember {
 

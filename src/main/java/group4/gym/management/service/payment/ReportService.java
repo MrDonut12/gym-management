@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * Reports (FR-26 to FR-28, BR-12, BR-13). Ranges come from DateRange: [from 00:00, to+1 00:00), default current month.
+ * Reports. Ranges come from DateRange: [from 00:00, to+1 00:00), default current month.
  * Access (MANAGER only) is enforced by AuthFilter on the /manager prefix.
  */
 public class ReportService {
@@ -24,7 +24,7 @@ public class ReportService {
     private final MembershipStatusService membershipStatusService = new MembershipStatusService();
 
     /**
-     * Revenue per day or month (FR-26).
+     * Revenue per day or month.
      */
     public List<RevenueRow> revenueByPeriod(DateRange range, RevenueGranularity granularity) {
         if (granularity == null) {
@@ -41,7 +41,7 @@ public class ReportService {
     }
 
     /**
-     * Revenue per package (FR-27), same range as FR-26. A renamed package stays one row (grouped by package_id).
+     * Revenue per package, same range as the period report. A renamed package stays one row (grouped by package_id).
      */
     public List<RevenueRow> revenueByPackage(DateRange range) {
         DateRange safeRange = rangeOrDefault(range);
@@ -78,7 +78,7 @@ public class ReportService {
     }
 
     /**
-     * Member overview, the MANAGER home page (FR-28).
+     * Member overview, the MANAGER home page.
      */
     public MemberOverview memberOverview(DateRange range) {
         DateRange safeRange = rangeOrDefault(range);
@@ -93,7 +93,7 @@ public class ReportService {
     }
 
     /**
-     * Falls back to the current month when no range is given (BR-13).
+     * Falls back to the current month when no range is given.
      */
     private DateRange rangeOrDefault(DateRange range) {
         return range == null ? DateRange.currentMonth() : range;

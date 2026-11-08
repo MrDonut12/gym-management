@@ -22,13 +22,12 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
- * Payment confirmation and schedule (FR-25, BR-02, BR-05, BR-06, BR-11).
- * Shared interface SRS 9.1 (owner TV4, used by TV3 for the Confirm button of FR-24).
+ * Payment confirmation and schedule.
  * Amount and dates are never taken from the client.
  */
 public class PaymentService {
 
-    /** BR-11: no payment confirmation for a soft-deleted member until the profile is restored. */
+    /** No payment confirmation for a soft-deleted member until the profile is restored. */
     public static final String MSG_MEMBER_DELETED =
             "The member profile is soft-deleted. Restore it before confirming the payment.";
 
@@ -48,7 +47,7 @@ public class PaymentService {
 
     /**
      * Step 1 (review): member, package, amount snapshot and the expected schedule. Changes no data.
-     * The schedule is only a preview: step 2 computes it again inside the transaction (BR-05, BR-06).
+     * The schedule is only a preview: step 2 computes it again inside the transaction.
      */
     public SchedulePreview previewSchedule(int regId) {
         RegistrationView view = getView(regId);
@@ -71,7 +70,7 @@ public class PaymentService {
 
     /**
      * Step 2 (final confirmation): PENDING -> PAID with paid_at, confirmed_by, payment_method, start_date, end_date
-     * in ONE transaction (BR-06, NFR-06). The order of confirmations decides the schedule order (BR-05, AC-22).
+     * in ONE transaction. The order of confirmations decides the schedule order.
      *
      * @return the registration as saved, with the actual schedule
      */
@@ -90,7 +89,7 @@ public class PaymentService {
         try (Connection conn = DBContext.getConnection()) {
             conn.setAutoCommit(false);
             try {
-                // BR-06: lock the member row first, then re-check everything and write.
+                // Lock the member row first, then re-check everything and write.
                 Member member = memberDAO.lockForUpdate(conn, memberId);
                 if (member == null) {
                     throw new NotFoundException("Member not found.");
@@ -110,7 +109,7 @@ public class PaymentService {
                         registrationDAO.findMaxPaidEndDate(conn, memberId));
                 LocalDate end = computeEndDate(start, registration.getDurationMonthsSnapshot());
                 LocalDateTime paidAt = AppClock.now();
-                // Conditional UPDATE (BR-02): 0 rows means another request confirmed or cancelled it first (AC-23).
+                // Conditional UPDATE: 0 rows means another request confirmed or cancelled it first.
                 if (!registrationDAO.markPaidIfPending(conn, regId, method, paidAt, byId, start, end)) {
                     throw new BusinessRuleException(AppConstants.MSG_REGISTRATION_NOT_PENDING);
                 }
@@ -134,7 +133,7 @@ public class PaymentService {
     }
 
     /**
-     * BR-05 start: max(today, max PAID end_date + 1 day); the second term is skipped when there is no PAID.
+     * Start date: max(today, max PAID end_date + 1 day); the second term is skipped when there is no PAID.
      */
     public static LocalDate computeStartDate(LocalDate today, LocalDate maxPaidEndDate) {
         if (maxPaidEndDate == null) {
@@ -145,7 +144,7 @@ public class PaymentService {
     }
 
     /**
-     * BR-05 end: startDate.plusMonths(durationMonths).minusDays(1). plusMonths clamps to the last day of a shorter month,
+     * End date: startDate.plusMonths(durationMonths).minusDays(1). plusMonths clamps to the last day of a shorter month,
      * e.g. 31/01/2027 + 1 month -> 28/02/2027, so the end date is 27/02/2027.
      */
     public static LocalDate computeEndDate(LocalDate startDate, int durationMonths) {

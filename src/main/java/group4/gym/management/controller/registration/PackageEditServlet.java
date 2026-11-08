@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Edit package name and price (FR-20). The duration is read-only. MANAGER only.
+ * Edit package name and price. The duration is read-only. MANAGER only.
  */
 @WebServlet(name = "PackageEditServlet", urlPatterns = {"/manager/packages/edit"})
 public class PackageEditServlet extends HttpServlet {
@@ -55,7 +55,7 @@ public class PackageEditServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-        // Any durationMonths parameter is deliberately never read (AC-15).
+        // Any durationMonths parameter is deliberately never read.
         String name = RequestUtil.getString(request, "name");
         String price = RequestUtil.getRawString(request, "price");
 

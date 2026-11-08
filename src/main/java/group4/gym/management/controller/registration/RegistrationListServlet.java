@@ -21,8 +21,8 @@ import java.time.DateTimeException;
 import java.util.List;
 
 /**
- * Registration/transaction list (FR-24): filter by status, package, member phone or full name, and a date range on the
- * chosen axis (created_at or paid_at, BR-13). 20 rows per page. PENDING rows show Confirm and Cancel.
+ * Registration/transaction list: filter by status, package, member phone or full name, and a date range on the
+ * chosen axis (created_at or paid_at). 20 rows per page. PENDING rows show Confirm and Cancel.
  * MANAGER, RECEPTIONIST.
  */
 @WebServlet(name = "RegistrationListServlet", urlPatterns = {"/staff/registrations"})
@@ -48,7 +48,7 @@ public class RegistrationListServlet extends HttpServlet {
             filter.setFromDate(RequestUtil.getDate(request, "fromDate"));
             filter.setToDate(RequestUtil.getDate(request, "toDate"));
         } catch (DateTimeException ex) {
-            // VR-16: an unreadable date is a field error; the list stays empty and the bad date is dropped.
+            // An unreadable date is a field error; the list stays empty and the bad date is dropped.
             error = "Date must be a valid date (dd/mm/yyyy).";
             filter.setFromDate(null);
             filter.setToDate(null);

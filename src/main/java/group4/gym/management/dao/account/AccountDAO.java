@@ -14,21 +14,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Data access for staff accounts (table accounts, DR-01). No physical deletion (BR-16).
- * Every query uses PreparedStatement parameters (NFR-02). Methods open their own connection with
+ * Data access for the accounts table. Accounts are never physically deleted.
+ * Every query uses PreparedStatement parameters. Methods open their own connection with
  * DBContext.getConnection() and wrap SQLException in AppException.
  */
 public class AccountDAO {
 
     /**
-     * Find an account by ID (used by AuthFilter on every request, FR-03).
+     * Find an account by ID (used by AuthFilter on every request).
      */
     public Account findById(int id) {
         return find("SELECT * FROM accounts WHERE id = ?", id);
     }
 
     /**
-     * Find an account by username, case-insensitive (FR-01). The column uses a case-insensitive collation (DR-01).
+     * Find an account by username, case-insensitive. The column uses a case-insensitive collation.
      */
     public Account findByUsername(String username) {
         return find("SELECT * FROM accounts WHERE username = ?", username);
@@ -91,7 +91,7 @@ public class AccountDAO {
     }
 
     /**
-     * Whether the phone already exists within accounts (VR-03). It may equal a member's phone.
+     * Whether the phone already exists within accounts. It may equal a member's phone.
      *
      * @param excludeId ignore this account when updating; null when creating
      */

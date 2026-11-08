@@ -3,7 +3,7 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Staff account list (FR-05), the ADMIN home page. Servlet: AccountListServlet (/admin/accounts). ADMIN only.
+    Staff account list, the ADMIN home page. Servlet: AccountListServlet (/admin/accounts). ADMIN only.
     Request attributes: accounts (List<Account>), keyword, role, status.
 --%>
 <c:set var="pageTitle" value="Staff accounts" scope="request"/>

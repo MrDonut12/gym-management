@@ -26,14 +26,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Registrations (FR-22 to FR-24, BR-02 to BR-04, BR-06, BR-11, BR-13).
+ * Registrations.
  */
 public class RegistrationService {
 
-    /** Max members offered in the FR-22 member picker. */
+    /** Max members offered in the member picker. */
     private static final int SELECTABLE_MEMBER_LIMIT = 50;
     private static final String MSG_KEYWORD = "Use at most 100 characters.";
-    /** BR-11: no new registration for a soft-deleted member until the profile is restored. */
+    /** No new registration for a soft-deleted member until the profile is restored. */
     private static final String MSG_MEMBER_DELETED =
             "The member profile is soft-deleted. Restore it before creating a registration.";
 
@@ -42,7 +42,7 @@ public class RegistrationService {
     private final MemberDAO memberDAO = new MemberDAO();
 
     /**
-     * Members that may receive a registration: not soft-deleted (FR-22, BR-11).
+     * Members that may receive a registration: not soft-deleted.
      */
     public List<Member> findSelectableMembers(String keyword) {
         String trimmed = keyword == null ? null : keyword.trim();
@@ -53,7 +53,7 @@ public class RegistrationService {
     }
 
     /**
-     * One member to pre-select in the FR-22 form (button on the member detail page).
+     * One member to pre-select in the registration form (button on the member detail page).
      */
     public Member getSelectableMember(int memberId) {
         Member member = memberDAO.findById(memberId);
@@ -67,11 +67,11 @@ public class RegistrationService {
     }
 
     /**
-     * Create a PENDING registration (FR-22) in ONE transaction (BR-06):
-     * the member must exist and not be soft-deleted (BR-11), the package must be on sale (BR-04, also when POSTed directly),
-     * and the snapshot of name/duration/price is copied from the database, never from the form (BR-03).
+     * Create a PENDING registration in ONE transaction:
+     * the member must exist and not be soft-deleted, the package must be on sale (also when POSTed directly),
+     * and the snapshot of name/duration/price is copied from the database, never from the form.
      *
-     * @return ID of the new registration (the servlet redirects to the FR-25 review step)
+     * @return ID of the new registration (the servlet redirects to the payment review step)
      */
     public int createPending(SessionUser actor, int memberId, int packageId) {
         GymPackage gymPackage = packageDAO.findById(packageId);
@@ -114,7 +114,7 @@ public class RegistrationService {
     }
 
     /**
-     * Cancel a PENDING registration with a reason (FR-23, BR-02, VR-15). PAID and CANCELLED never change.
+     * Cancel a PENDING registration with a reason. PAID and CANCELLED never change.
      */
     public void cancel(SessionUser actor, int registrationId, String reason) {
         String trimmed = reason == null ? null : reason.trim();
@@ -130,7 +130,7 @@ public class RegistrationService {
     }
 
     /**
-     * One registration with member display data, any status (registration detail page, FR-24).
+     * One registration with member display data, any status (registration detail page).
      */
     public RegistrationView getView(int registrationId) {
         RegistrationView view = registrationId > 0 ? registrationDAO.findViewById(registrationId) : null;
@@ -141,7 +141,7 @@ public class RegistrationService {
     }
 
     /**
-     * Registration/transaction list (FR-24), 20 rows per page.
+     * Registration/transaction list, 20 rows per page.
      */
     public Page<RegistrationView> search(RegistrationFilter filter) {
         String keyword = filter.getMemberKeyword() == null ? null : filter.getMemberKeyword().trim();
@@ -149,7 +149,7 @@ public class RegistrationService {
             throw new ValidationException("Invalid keyword", Map.of("memberKeyword", MSG_KEYWORD));
         }
         DateRange range = DateRange.of(filter.getFromDate(), filter.getToDate());
-        // Write the resolved range back (empty fields = current month, BR-13) so the form and the page links show it.
+        // Write the resolved range back (empty fields = current month) so the form and the page links show it.
         filter.setFromDate(range.getFrom());
         filter.setToDate(range.getTo());
         if (filter.getAxis() == null) {
