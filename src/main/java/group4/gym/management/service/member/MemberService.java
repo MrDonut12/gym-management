@@ -29,6 +29,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Member business logic.
+ * Invalid data throws ValidationException, rule violations throw BusinessRuleException,
+ * MANAGER-only data requested by a RECEPTIONIST throws AccessDeniedException, unknown IDs throw NotFoundException.
+ */
 public class MemberService {
 
     private final MemberDAO memberDAO = new MemberDAO();

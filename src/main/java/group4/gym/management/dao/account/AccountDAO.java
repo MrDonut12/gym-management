@@ -6,18 +6,30 @@ import group4.gym.management.exception.ValidationException;
 import group4.gym.management.model.account.Account;
 import group4.gym.management.model.account.AccountStatus;
 import group4.gym.management.model.account.Role;
+import group4.gym.management.util.ValidationUtil;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** SQL access for accounts; accounts are never physically deleted. */
+/**
+ * Data access for the accounts table. Accounts are never physically deleted.
+ * Every query uses PreparedStatement parameters. Methods open their own connection with
+ * DBContext.getConnection() and wrap SQLException in AppException.
+ */
 public class AccountDAO {
+
+    /**
+     * Find an account by ID (used by AuthFilter on every request).
+     */
     public Account findById(int id) {
         return find("SELECT * FROM accounts WHERE id = ?", id);
     }
 
+    /**
+     * Find an account by username, case-insensitive. The column uses a case-insensitive collation.
+     */
     public Account findByUsername(String username) {
         return find("SELECT * FROM accounts WHERE username = ?", username);
     }
@@ -37,11 +49,17 @@ public class AccountDAO {
         StringBuilder sql = new StringBuilder("SELECT * FROM accounts WHERE 1 = 1");
         List<Object> parameters = new ArrayList<>();
         if (keyword != null && !keyword.isEmpty()) {
-            sql.append(" AND (username LIKE ? ESCAPE '!' OR full_name COLLATE Latin1_General_100_CI_AS LIKE ? ESCAPE '!')");
-            String pattern = "%" + keyword.replace("!", "!!").replace("%", "!%")
-                    .replace("_", "!_").replace("[", "![") + "%";
-            parameters.add(pattern);
-            parameters.add(pattern);
+            if (ValidationUtil.isValidPhone(keyword)) {
+                // A full, valid phone number matches the phone exactly; a partial phone never does.
+                sql.append(" AND phone = ?");
+                parameters.add(keyword);
+            } else {
+                sql.append(" AND (username LIKE ? ESCAPE '!' OR full_name COLLATE Latin1_General_100_CI_AS LIKE ? ESCAPE '!')");
+                String pattern = "%" + keyword.replace("!", "!!").replace("%", "!%")
+                        .replace("_", "!_").replace("[", "![") + "%";
+                parameters.add(pattern);
+                parameters.add(pattern);
+            }
         }
         if (role != null) {
             sql.append(" AND role = ?");
@@ -72,6 +90,11 @@ public class AccountDAO {
         return findByUsername(username) != null;
     }
 
+    /**
+     * Whether the phone already exists within accounts. It may equal a member's phone.
+     *
+     * @param excludeId ignore this account when updating; null when creating
+     */
     public boolean existsByPhone(String phone, Integer excludeId) {
         String sql = "SELECT 1 FROM accounts WHERE phone = ?" + (excludeId == null ? "" : " AND id <> ?");
         try (Connection c = DBContext.getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {

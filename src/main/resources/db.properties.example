@@ -1,4 +1,4 @@
-# Database connection settings (CL-10).
+# Database connection settings.
 # Copy this file to db.properties in the same folder and fill in the real values.
 # db.properties is git-ignored: never commit real credentials.
 db.url=jdbc:sqlserver://localhost:1433;databaseName=CHANGE_ME;encrypt=false

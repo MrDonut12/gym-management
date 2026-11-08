@@ -1,6 +1,11 @@
 package group4.gym.management.controller.member;
 
+import group4.gym.management.exception.AccessDeniedException;
+import group4.gym.management.exception.ValidationException;
+import group4.gym.management.model.member.MemberScope;
 import group4.gym.management.service.member.MemberService;
+import group4.gym.management.util.RequestUtil;
+import group4.gym.management.util.SessionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -9,7 +14,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Member list and search (CN-11), the RECEPTIONIST home page. MANAGER, RECEPTIONIST.
+ * Member list and search, the RECEPTIONIST home page. MANAGER, RECEPTIONIST.
+ * One search box (MemberKeyword): phone (exact) or full name (partial); anything else, including a member code,
+ * matches nothing.
  * Scope DELETED/ALL is MANAGER only (checked in MemberService, 403 otherwise).
  */
 @WebServlet(name = "MemberListServlet", urlPatterns = {"/staff/members"})
@@ -22,9 +29,25 @@ public class MemberListServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: Read keyword, scope (MemberScope, default ACTIVE), page (RequestUtil.getPage);
-        //       memberService.search(sessionUser, keyword, scope, page); AccessDeniedException -> 403.
-        //       Set page (Page<MemberListItem>), keyword, scope on the request; pagination links keep keyword and scope (KT-09).
-        // Output: forward to VIEW.
+        String keyword = RequestUtil.getString(request, "keyword");
+        MemberScope scope = RequestUtil.getEnum(request, "scope", MemberScope.class);
+        if (scope == null) {
+            scope = MemberScope.ACTIVE;
+        }
+        int page = RequestUtil.getPage(request);
+
+        request.setAttribute("keyword", keyword);
+        request.setAttribute("scope", scope);
+        try {
+            request.setAttribute("page", memberService.search(
+                    SessionUtil.getSessionUser(request), keyword, scope, page));
+        } catch (AccessDeniedException ex) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        } catch (ValidationException ex) {
+            request.setAttribute("error", ex.getMessage());
+            request.setAttribute("fieldErrors", ex.getFieldErrors());
+        }
+        request.getRequestDispatcher(VIEW).forward(request, response);
     }
 }

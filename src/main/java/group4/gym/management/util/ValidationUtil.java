@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.regex.Pattern;
 
 /**
- * Field-level backend validation according to section 6 (shared utility, owner TV3). The backend never trusts the client.
+ * Field-level backend validation. The backend never trusts the client.
  * Each service builds its own Map of field errors from these checks; duplicate checks (phone, username,
  * package name) need database queries and are therefore done in the service layer.
  * Full name, email, package name and cancel reason are trimmed BEFORE calling these methods; username and password are not.
@@ -29,7 +29,7 @@ public final class ValidationUtil {
     }
 
     /**
-     * HL-01 full name (member, staff): 2-100 characters after trim, no digits.
+     * Full name (member, staff): 2-100 characters after trim, no digits.
      */
     public static boolean isValidFullName(String fullName) {
         if (fullName == null || fullName.length() < 2 || fullName.length() > 100) {
@@ -45,21 +45,21 @@ public final class ValidationUtil {
     }
 
     /**
-     * HL-02 / HL-03 phone (member and staff use the same format): regex ^0[0-9]{9}$.
+     * Phone (member and staff use the same format): regex ^0[0-9]{9}$.
      */
     public static boolean isValidPhone(String phone) {
         return phone != null && PHONE.matcher(phone).matches();
     }
 
     /**
-     * HL-04 email (optional): at most 254 characters, regex ^[^@\s]+@[^@\s]+\.[^@\s]+$.
+     * Email (optional): at most 254 characters, regex ^[^@\s]+@[^@\s]+\.[^@\s]+$.
      */
     public static boolean isValidEmail(String email) {
         return email != null && email.length() <= 254 && EMAIL.matcher(email).matches();
     }
 
     /**
-     * HL-05 date of birth (optional): from 01/01/1900 to today (AppClock.today()).
+     * Date of birth (optional): from 01/01/1900 to today (AppClock.today()).
      */
     public static boolean isValidDateOfBirth(LocalDate dateOfBirth) {
         return dateOfBirth != null
@@ -68,35 +68,35 @@ public final class ValidationUtil {
     }
 
     /**
-     * HL-07 search keyword (optional): at most 100 characters.
+     * Search keyword (optional): at most 100 characters.
      */
     public static boolean isValidKeyword(String keyword) {
         return keyword == null || keyword.length() <= 100;
     }
 
     /**
-     * HL-08 username: regex ^[a-zA-Z][a-zA-Z0-9_]{3,49}$ (4-50 characters, no accents, no spaces).
+     * Username: regex ^[a-zA-Z][a-zA-Z0-9_]{3,49}$ (4-50 characters, no accents, no spaces).
      */
     public static boolean isValidUsername(String username) {
         return username != null && USERNAME.matcher(username).matches();
     }
 
     /**
-     * HL-09 password: 8-64 characters, kept exactly as entered (leading/trailing spaces count).
+     * Password: 8-64 characters, kept exactly as entered (leading/trailing spaces count).
      */
     public static boolean isValidPassword(String password) {
         return password != null && password.length() >= 8 && password.length() <= 64;
     }
 
     /**
-     * HL-11 package name: 2-100 characters after trim.
+     * Package name: 2-100 characters after trim.
      */
     public static boolean isValidPackageName(String name) {
         return name != null && name.length() >= 2 && name.length() <= 100;
     }
 
     /**
-     * HL-11 normalize a package name for duplicate checks: collapse runs of whitespace, trim, lower-case.
+     * Normalize a package name for duplicate checks: collapse runs of whitespace, trim, lower-case.
      */
     public static String normalizePackageName(String name) {
         if (name == null) {
@@ -106,7 +106,7 @@ public final class ValidationUtil {
     }
 
     /**
-     * HL-12 package price: digits only, integer 1..100,000,000 VND.
+     * Package price: digits only, integer 1..100,000,000 VND.
      */
     public static Integer parsePrice(String raw) {
         // The length guard keeps parseInt away from overflow on absurdly long digit strings.
@@ -118,14 +118,14 @@ public final class ValidationUtil {
     }
 
     /**
-     * HL-13 package duration: 1, 3, 6 or 12 months.
+     * Package duration: 1, 3, 6 or 12 months.
      */
     public static boolean isValidDurationMonths(Integer months) {
         return months != null && (months == 1 || months == 3 || months == 6 || months == 12);
     }
 
     /**
-     * HL-15 cancel reason: 3-255 characters after trim.
+     * Cancel reason: 3-255 characters after trim.
      */
     public static boolean isValidCancelReason(String reason) {
         return reason != null && reason.length() >= 3 && reason.length() <= 255;

@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Expiring-soon list (CN-17, QT-08). Display only; no notification is sent. MANAGER, RECEPTIONIST.
+ * Expiring-soon list. Display only; no notification is sent. MANAGER, RECEPTIONIST.
  */
 @WebServlet(name = "ExpiringMemberListServlet", urlPatterns = {"/staff/members/expiring"})
 public class ExpiringMemberListServlet extends HttpServlet {
@@ -21,7 +21,7 @@ public class ExpiringMemberListServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // TODO: memberService.listExpiringSoon(); set members on the request.
-        // Output: forward to VIEW.
+        request.setAttribute("members", memberService.listExpiringSoon());
+        request.getRequestDispatcher(VIEW).forward(request, response);
     }
 }

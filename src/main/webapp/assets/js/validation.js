@@ -1,5 +1,5 @@
 /*
- * Client-side validation (section 6).
+ * Client-side validation.
  * UI aid only: the backend always validates again (ValidationUtil + services) and never trusts the client result.
  * The validateXxxForm functions are called through onsubmit="return validateXxxForm(this);".
  * Full name, email, package name and cancel reason are trimmed before checking; username and password are not.
@@ -31,7 +31,7 @@ function validateLoginForm(form) {
     return ok;
 }
 
-/** Member profile form (HL-01, HL-02, HL-04 to HL-06). */
+/** Member profile form. */
 function validateMemberForm(form) {
     clearFieldErrors(form);
     var ok = true;
@@ -58,7 +58,7 @@ function validateMemberForm(form) {
     return ok;
 }
 
-/** Staff account form (HL-01, HL-03, HL-04, HL-08 to HL-10). */
+/** Staff account form. */
 function validateAccountForm(form) {
     clearFieldErrors(form);
     var ok = true;
@@ -103,7 +103,7 @@ function validateAccountForm(form) {
     return ok;
 }
 
-/** Package form (HL-11 to HL-13). */
+/** Package form. */
 function validatePackageForm(form) {
     clearFieldErrors(form);
     var ok = true;
@@ -126,7 +126,7 @@ function validatePackageForm(form) {
             ok = false;
         }
     }
-    // The duration is submitted only on create (it cannot be changed afterwards, CN-20).
+    // The duration is submitted only on create; it cannot be changed afterwards.
     if (duration && ['1', '3', '6', '12'].indexOf(duration.value) === -1) {
         showFieldError(duration, 'Duration must be 1, 3, 6 or 12 months.');
         ok = false;
@@ -134,7 +134,7 @@ function validatePackageForm(form) {
     return ok;
 }
 
-/** Change/reset password form (HL-09): 8-64 characters and an exact confirmation. */
+/** Change/reset password form: 8-64 characters and an exact confirmation. */
 function validatePasswordForm(form) {
     clearFieldErrors(form);
     var ok = true;
@@ -158,7 +158,7 @@ function validatePasswordForm(form) {
     return ok;
 }
 
-/** Cancel registration form (HL-15). */
+/** Cancel registration form. */
 function validateCancelForm(form) {
     clearFieldErrors(form);
     var reason = getActiveField(form, 'reason');
@@ -172,24 +172,24 @@ function validateCancelForm(form) {
     return true;
 }
 
-/** HL-01: 2-100 characters after trim, no digits. */
+/** Full name: 2-100 characters after trim, no digits. */
 function isValidFullName(value) {
     var trimmed = String(value).trim();
     return trimmed.length >= 2 && trimmed.length <= 100 && !/[0-9]/.test(trimmed);
 }
 
-/** HL-02 / HL-03: /^0[0-9]{9}$/ for members and staff. */
+/** Phone: /^0[0-9]{9}$/ for members and staff. */
 function isValidPhone(value) {
     return /^0[0-9]{9}$/.test(value);
 }
 
-/** HL-04: at most 254 characters, /^[^@\s]+@[^@\s]+\.[^@\s]+$/. */
+/** Email: at most 254 characters, /^[^@\s]+@[^@\s]+\.[^@\s]+$/. */
 function isValidEmail(value) {
     var trimmed = String(value).trim();
     return trimmed.length <= 254 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(trimmed);
 }
 
-/** HL-05: date (yyyy-MM-dd from input type="date") from 1900-01-01 to today. */
+/** Date of birth: (yyyy-MM-dd from input type="date") from 1900-01-01 to today. */
 function isValidDateOfBirth(value) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || isNaN(new Date(value + 'T00:00:00').getTime())) {
         return false;
@@ -202,12 +202,12 @@ function isValidDateOfBirth(value) {
     return value >= '1900-01-01' && value <= today;
 }
 
-/** HL-08: /^[a-zA-Z][a-zA-Z0-9_]{3,49}$/. */
+/** Username: /^[a-zA-Z][a-zA-Z0-9_]{3,49}$/. */
 function isValidUsername(value) {
     return /^[a-zA-Z][a-zA-Z0-9_]{3,49}$/.test(value);
 }
 
-/** HL-09: 8-64 characters, kept as entered. */
+/** Password: 8-64 characters, kept as entered. */
 function isValidPassword(value) {
     return value.length >= 8 && value.length <= 64;
 }

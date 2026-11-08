@@ -1,7 +1,7 @@
 package group4.gym.management.model.registration;
 
 /**
- * Registration row with member display data (CN-24, CN-25 review step).
+ * Registration row with member display data.
  */
 public class RegistrationView {
 
@@ -17,7 +17,7 @@ public class RegistrationView {
     /** Member phone */
     private String memberPhone;
 
-    /** Member is soft-deleted (QT-11: no payment confirmation until restored) */
+    /** Member is soft-deleted: no payment confirmation until restored */
     private boolean memberDeleted;
 
     public RegistrationView() {

@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 /**
- * HttpSession helpers (CN-01, CN-02, CN-03) and flash messages for Post/Redirect/Get (CL-07).
+ * HttpSession helpers and flash messages for Post/Redirect/Get.
  * Sessions are never stored in the database.
  */
 public final class SessionUtil {
@@ -15,7 +15,7 @@ public final class SessionUtil {
     }
 
     /**
-     * Establish the session after a successful login (CN-01).
+     * Establish the session after a successful login.
      */
     public static void login(HttpServletRequest request, Account account) {
         HttpSession session = request.getSession(true);
@@ -44,14 +44,14 @@ public final class SessionUtil {
     }
 
     /**
-     * Store a success message shown once on the page after the redirect (CL-07). common/messages.jsp displays and removes it.
+     * Store a success message shown once on the page after the redirect. common/messages.jsp displays and removes it.
      */
     public static void flashMessage(HttpServletRequest request, String message) {
         request.getSession().setAttribute(AppConstants.FLASH_MESSAGE, message);
     }
 
     /**
-     * Store an error message shown once on the page after the redirect (CL-07).
+     * Store an error message shown once on the page after the redirect.
      */
     public static void flashError(HttpServletRequest request, String message) {
         request.getSession().setAttribute(AppConstants.FLASH_ERROR, message);

@@ -2,9 +2,9 @@
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Login screen (CN-01, CN-04, QT-17). Servlet: LoginServlet (/login). Public.
+    Login screen. Servlet: LoginServlet (/login). Public.
     Request attributes: username (pre-filled from the gym_username cookie or the failed attempt), rememberChecked (boolean), error.
-    No reCAPTCHA (FUT-02).
+    No reCAPTCHA (out of scope).
 --%>
 <c:set var="pageTitle" value="Login" scope="request"/>
 <jsp:include page="/WEB-INF/common/header.jsp"/>

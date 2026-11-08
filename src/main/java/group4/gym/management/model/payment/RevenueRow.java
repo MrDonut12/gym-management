@@ -3,18 +3,18 @@ package group4.gym.management.model.payment;
 import java.time.LocalDate;
 
 /**
- * One revenue row (QT-12): per period (CN-26) or per package (CN-27), and the total row at the end of the table.
+ * One revenue row: per period or per package, and the total row at the end of the table.
  * Only PAID registrations with paid_at inside the range are counted, using price_snapshot.
  */
 public class RevenueRow {
 
-    /** CN-26: first day of the period (the day, or the 1st of the month); null for package rows and the total row */
+    /** First day of the period (the day, or the 1st of the month); null for package rows and the total row */
     private LocalDate periodStart;
 
-    /** CN-27: package ID the row is grouped by (not the name snapshot); null otherwise */
+    /** Package ID the row is grouped by (not the name snapshot); null otherwise */
     private Integer packageId;
 
-    /** Display label: period, CURRENT package name (CN-27), or "Total" */
+    /** Display label: period, CURRENT package name, or "Total" */
     private String label;
 
     /** Number of PAID registrations */
@@ -23,7 +23,7 @@ public class RevenueRow {
     /** Sum of price_snapshot */
     private long revenue;
 
-    /** CN-27: share of the total revenue in percent; 0 for CN-26 rows */
+    /** Share of the total revenue in percent; 0 for period rows */
     private double sharePercent;
 
     public RevenueRow() {

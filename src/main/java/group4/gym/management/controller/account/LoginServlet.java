@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Login (CN-01) and the remember-username cookie (CN-04, QT-17). Public.
+ * Login and the remember-username cookie. Public.
  */
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {

@@ -10,11 +10,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Provide connection to database (shared interface, SRS 9.1).
- * Connection settings are read from db.properties on the classpath (CL-10); the real file is git-ignored,
+ * Provide connection to database.
+ * Connection settings are read from db.properties on the classpath; the real file is git-ignored,
  * copy src/main/resources/db.properties.example to create it.
  * Every call returns a NEW connection: close it with try-with-resources. Services that need a transaction
- * (CL-06, QT-06) call setAutoCommit(false) on it and pass it to the DAO methods that take a Connection.
+ * call setAutoCommit(false) on it and pass it to the DAO methods that take a Connection.
  *
  * @author Nguyen Sy Nguyen
  */

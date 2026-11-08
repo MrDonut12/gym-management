@@ -6,7 +6,6 @@ import group4.gym.management.model.account.AccountStatus;
 import group4.gym.management.model.account.SessionUser;
 import group4.gym.management.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import java.net.URI;
 import group4.gym.management.service.account.AuthService;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -17,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Session and authorization filter (CN-02, CN-03, section 3). Registered in web.xml and runs after EncodingFilter.
+ * Session and authorization filter (section 3). Registered in web.xml and runs after EncodingFilter.
  * Public paths: /login and static resources (/assets/*). Every other URL requires a valid session.
  * Authorization by URL prefix, fixed in code (no dynamic permission table):
  * <ul>
@@ -26,7 +25,7 @@ import java.io.IOException;
  *   <li>/staff/*   - MANAGER, RECEPTIONIST</li>
  *   <li>other protected URLs (/home, /logout, /change-password) - any logged-in role</li>
  * </ul>
- * Finer rules inside one URL (for example only MANAGER may list soft-deleted members, QT-11) are checked in the service layer.
+ * Finer rules inside one URL (for example only MANAGER may list soft-deleted members) are checked in the service layer.
  */
 public class AuthFilter implements Filter {
 
@@ -40,10 +39,6 @@ public class AuthFilter implements Filter {
         String path = req.getServletPath();
         if (isPublic(path)) {
             if ("/login".equals(path)) setNoCacheHeaders(res);
-            if (!isSafeRequest(req)) {
-                res.sendError(HttpServletResponse.SC_FORBIDDEN);
-                return;
-            }
             chain.doFilter(request, response);
             return;
         }
@@ -67,7 +62,7 @@ public class AuthFilter implements Filter {
             res.sendRedirect(req.getContextPath() + "/login");
             return;
         }
-        if (!isAllowed(path, user.getRole()) || !isSafeRequest(req)) {
+        if (!isAllowed(path, user.getRole())) {
             res.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
@@ -93,29 +88,11 @@ public class AuthFilter implements Filter {
     }
 
     /**
-     * Anti-cache headers for protected pages (CN-02).
+     * Anti-cache headers for protected pages.
      */
     private static void setNoCacheHeaders(HttpServletResponse response) {
         response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
         response.setHeader("Pragma", "no-cache");
         response.setDateHeader("Expires", 0);
-    }
-    /** Browser form writes must originate from this application origin (CSRF protection). */
-    private static boolean isSafeRequest(HttpServletRequest request) {
-        String method = request.getMethod();
-        if ("GET".equals(method) || "HEAD".equals(method) || "OPTIONS".equals(method)) return true;
-        String source = request.getHeader("Origin");
-        if (source == null) source = request.getHeader("Referer");
-        if (source == null) return false;
-        try {
-            URI origin = URI.create(source);
-            int port = origin.getPort() == -1 ? ("https".equalsIgnoreCase(origin.getScheme()) ? 443 : 80) : origin.getPort();
-            return origin.getUserInfo() == null
-                    && request.getScheme().equalsIgnoreCase(origin.getScheme())
-                    && request.getServerName().equalsIgnoreCase(origin.getHost())
-                    && request.getServerPort() == port;
-        } catch (IllegalArgumentException ex) {
-            return false;
-        }
     }
 }

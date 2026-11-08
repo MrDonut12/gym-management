@@ -3,8 +3,8 @@ package group4.gym.management.util;
 import java.util.List;
 
 /**
- * One page of a list paginated in SQL with OFFSET ... FETCH (CL-09; shared utility, owner TV3).
- * Used by the member list (CN-11) and the registration list (CN-24), 20 rows per page.
+ * One page of a list paginated in SQL with OFFSET ... FETCH.
+ * Used by the member list and the registration list, 20 rows per page.
  *
  * @param <T> row type
  */

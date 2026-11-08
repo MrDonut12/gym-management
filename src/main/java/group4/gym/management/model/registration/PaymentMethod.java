@@ -1,11 +1,11 @@
 package group4.gym.management.model.registration;
 
 /**
- * Manual payment method chosen when confirming PAID (CN-25, HL-14, DL-04).
+ * Manual payment method chosen when confirming PAID.
  */
 public enum PaymentMethod {
-    /** Cash (Tiền mặt) */
+    /** Cash */
     CASH,
-    /** Bank transfer (Chuyển khoản) */
+    /** Bank transfer */
     TRANSFER
 }

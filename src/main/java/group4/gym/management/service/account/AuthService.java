@@ -7,14 +7,14 @@ import group4.gym.management.util.PasswordUtil;
 import group4.gym.management.util.ValidationUtil;
 
 /**
- * Login authentication and the per-request account check of AuthFilter (CN-01, CN-03).
+ * Login authentication and the per-request account check of AuthFilter.
  */
 public class AuthService {
 
     private final AccountDAO accountDAO = new AccountDAO();
 
     /**
-     * Authenticate a username/password (CN-01). The username is case-insensitive; the password is compared with the hash (CL-03).
+     * Authenticate a username/password. The username is case-insensitive; the password is compared with the hash.
      * Every failure (unknown username, wrong password, LOCKED) gives the same result so the servlet shows one generic message.
      */
     public Account authenticate(String username, String rawPassword) {
@@ -25,7 +25,7 @@ public class AuthService {
     }
 
     /**
-     * Re-read the account for AuthFilter on every request (CN-03). Lets database errors propagate so the filter denies the request.
+     * Re-read the account for AuthFilter on every request. Lets database errors propagate so the filter denies the request.
      */
     public Account loadAccount(int accountId) {
         return accountDAO.findById(accountId);

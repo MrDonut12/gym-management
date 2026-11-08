@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * ADMIN sets a new password for another account (CN-10). Not for oneself (QT-14); the lock status is unchanged.
+ * ADMIN sets a new password for another account. Not for oneself; the lock status is unchanged.
  */
 @WebServlet(name = "AccountResetPasswordServlet", urlPatterns = {"/admin/accounts/reset-password"})
 public class AccountResetPasswordServlet extends HttpServlet {

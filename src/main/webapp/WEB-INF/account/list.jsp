@@ -1,8 +1,9 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="group4.gym.management.util.DateTimeUtil"%>
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%@taglib prefix="fmt" uri="jakarta.tags.fmt"%>
 <%--
-    Staff account list (CN-05), the ADMIN home page. Servlet: AccountListServlet (/admin/accounts). ADMIN only.
+    Staff account list, the ADMIN home page. Servlet: AccountListServlet (/admin/accounts). ADMIN only.
     Request attributes: accounts (List<Account>), keyword, role, status.
 --%>
 <c:set var="pageTitle" value="Staff accounts" scope="request"/>
@@ -16,7 +17,7 @@
 <form class="row g-3 align-items-end mb-4" method="get" action="${pageContext.request.contextPath}/admin/accounts">
     <div class="col-12 col-md-5">
         <label class="form-label" for="keyword">Search accounts</label>
-        <input class="form-control" id="keyword" type="text" name="keyword" aria-label="Username or full name" value="<c:out value='${keyword}'/>" maxlength="100" placeholder="Username or full name">
+        <input class="form-control" id="keyword" type="text" name="keyword" aria-label="Username, full name or phone" value="<c:out value='${keyword}'/>" maxlength="100" placeholder="Username, full name or phone">
         <div class="small text-danger" role="alert"><c:out value="${fieldErrors.keyword}"/></div>
     </div>
     <div class="col-6 col-md-3">
@@ -55,7 +56,7 @@
                     <td><c:out value="${account.phone}"/></td>
                     <td><c:out value="${account.role}"/></td>
                     <td><span class="badge ${account.status == 'ACTIVE' ? 'text-bg-success' : 'text-bg-secondary'}"><c:out value="${account.status}"/></span></td>
-                    <td class="text-nowrap"><c:out value="${account.createdAt}"/></td>
+                    <td class="text-nowrap"><c:if test="${not empty account.createdAt}"><c:out value="${DateTimeUtil.format(account.createdAt)}"/></c:if></td>
                     <td>
                         <div class="d-flex flex-wrap gap-2">
                             <a class="btn btn-sm btn-outline-primary" href="${pageContext.request.contextPath}/admin/accounts/edit?id=${account.id}">Edit</a>

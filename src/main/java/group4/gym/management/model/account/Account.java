@@ -3,26 +3,26 @@ package group4.gym.management.model.account;
 import java.time.LocalDateTime;
 
 /**
- * Staff account (DL-01, CN-05 to CN-10). Never physically deleted (QT-16).
+ * Staff account. Never physically deleted.
  */
 public class Account {
 
     /** Auto-generated ID */
     private Integer id;
 
-    /** HL-08; unique case-insensitive; not editable after creation */
+    /** Unique case-insensitive; not editable after creation */
     private String username;
 
-    /** Hashed password (CL-03); never passed to a view */
+    /** Hashed password; never passed to a view */
     private String passwordHash;
 
-    /** HL-01 */
+    /** Full name */
     private String fullName;
 
-    /** HL-03: unique within accounts; may equal a member's phone */
+    /** Unique within accounts; may equal a member's phone */
     private String phone;
 
-    /** Optional, not required to be unique (HL-04) */
+    /** Optional, not required to be unique */
     private String email;
 
     /** One of the three fixed roles */

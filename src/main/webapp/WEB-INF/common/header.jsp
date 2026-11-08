@@ -1,8 +1,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="jakarta.tags.core"%>
 <%--
-    Shared page header (CL-11). The including page sets requestScope.pageTitle before including this file.
-    Bootstrap 5 is served from static files inside the project so the app runs offline (SRS 1.4, CL-11).
+    Shared page header. The including page sets requestScope.pageTitle before including this file.
+    Bootstrap 5 is served from static files inside the project so the app runs offline.
 --%>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,7 +14,6 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     </head>
     <body>
-        <a class="visually-hidden-focusable" href="#main-content">Skip to content</a>
         <jsp:include page="/WEB-INF/common/navbar.jsp"/>
         <main class="container py-4" id="main-content">
             <jsp:include page="/WEB-INF/common/messages.jsp"/>

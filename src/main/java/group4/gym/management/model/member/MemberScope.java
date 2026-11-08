@@ -1,13 +1,13 @@
 package group4.gym.management.model.member;
 
 /**
- * Profile filter of the member list (CN-11). DELETED and ALL are MANAGER only (QT-11).
+ * Profile filter of the member list. DELETED and ALL are MANAGER only.
  */
 public enum MemberScope {
-    /** Đang quản lý: not soft-deleted (default) */
+    /** Managed: not soft-deleted (default) */
     ACTIVE,
-    /** Đã xóa: soft-deleted only */
+    /** Deleted: soft-deleted only */
     DELETED,
-    /** Tất cả */
+    /** All profiles */
     ALL
 }

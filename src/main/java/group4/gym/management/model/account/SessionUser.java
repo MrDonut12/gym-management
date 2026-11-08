@@ -3,8 +3,8 @@ package group4.gym.management.model.account;
 import java.io.Serializable;
 
 /**
- * Logged-in user stored in the HttpSession (shared interface SRS 9.1, CN-01).
- * Holds no password or hash. AuthFilter compares the role with the database on every request (CN-03).
+ * Logged-in user stored in the HttpSession.
+ * Holds no password or hash. AuthFilter compares the role with the database on every request.
  */
 public class SessionUser implements Serializable {
 

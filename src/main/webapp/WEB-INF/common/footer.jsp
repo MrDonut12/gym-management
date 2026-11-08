@@ -1,6 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%--
-    Shared page footer; loads Bootstrap (static file, CL-11) and the client-side validation helper (section 6).
+    Shared page footer; loads Bootstrap (static file) and the client-side validation helper.
 --%>
 </main>
 <script src="${pageContext.request.contextPath}/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
