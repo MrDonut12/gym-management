@@ -15,7 +15,7 @@ import java.io.IOException;
 
 /**
  * Cancel a PENDING registration with a reason (FR-23, BR-02, VR-15). MANAGER, RECEPTIONIST. POST only.
- * The reason is entered in the cancel form of the registration list (FR-24).
+ * The reason is entered in the cancel form of the registration detail page; redirects back to that page.
  */
 @WebServlet(name = "RegistrationCancelServlet", urlPatterns = {"/staff/registrations/cancel"})
 public class RegistrationCancelServlet extends HttpServlet {
@@ -44,6 +44,6 @@ public class RegistrationCancelServlet extends HttpServlet {
             SessionUtil.flashError(request, ex.getMessage());
         }
 
-        response.sendRedirect(request.getContextPath() + "/staff/registrations");
+        response.sendRedirect(request.getContextPath() + "/staff/registrations/detail?id=" + id);
     }
 }

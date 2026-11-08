@@ -7,7 +7,7 @@
     Roles: MANAGER, RECEPTIONIST.
     Request attributes: page (Page<RegistrationView>), filter (RegistrationFilter, dates resolved to the range used),
                         packages (List<GymPackage>), fieldErrors, error.
-    Every row has Detail (/staff/registrations/detail). PENDING rows also have Confirm (FR-25 review step) and Cancel with a reason (FR-23).
+    Every row has only Detail (/staff/registrations/detail); Confirm (FR-25) and Cancel (FR-23) live on the detail page.
 --%>
 <c:set var="pageTitle" value="Registrations" scope="request"/>
 <jsp:include page="/WEB-INF/common/header.jsp"/>
@@ -107,20 +107,7 @@
                         </c:if>
                     </td>
                     <td>
-                        <div class="d-flex flex-column gap-2" style="min-width: 14rem;">
-                            <a class="btn btn-sm btn-outline-secondary" href="${pageContext.request.contextPath}/staff/registrations/detail?id=${reg.id}">Detail</a>
-                            <c:if test="${reg.status == 'PENDING'}">
-                                <a class="btn btn-sm btn-primary" href="${pageContext.request.contextPath}/staff/payments/confirm?id=${reg.id}">Confirm</a>
-                                <form class="d-flex gap-1 m-0" method="post" action="${pageContext.request.contextPath}/staff/registrations/cancel"
-                                      onsubmit="return validateCancelForm(this) &amp;&amp; confirm('Cancel this registration?');">
-                                    <input type="hidden" name="id" value="${reg.id}">
-                                    <label class="visually-hidden" for="reason-${reg.id}">Cancel reason</label>
-                                    <input class="form-control form-control-sm" type="text" id="reason-${reg.id}" name="reason"
-                                           placeholder="Cancel reason" minlength="3" maxlength="255" required>
-                                    <button class="btn btn-sm btn-outline-danger" type="submit">Cancel</button>
-                                </form>
-                            </c:if>
-                        </div>
+                        <a class="btn btn-sm btn-outline-secondary" href="${pageContext.request.contextPath}/staff/registrations/detail?id=${reg.id}">Detail</a>
                     </td>
                 </tr>
             </c:forEach>

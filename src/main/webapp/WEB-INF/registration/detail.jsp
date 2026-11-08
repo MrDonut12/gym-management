@@ -5,7 +5,7 @@
 <%--
     Registration detail (FR-24). Servlet: RegistrationDetailServlet (/staff/registrations/detail). Roles: MANAGER, RECEPTIONIST.
     Request attributes: view (RegistrationView) - registration (snapshot, status, payment/cancel columns) and member display data.
-    Read-only. A PENDING registration links to the payment confirmation (FR-25).
+    A PENDING registration shows, in the Payment card, a link to the payment confirmation (FR-25) and the cancel form with a reason (FR-23).
 --%>
 <c:set var="pageTitle" value="Registration detail" scope="request"/>
 <jsp:include page="/WEB-INF/common/header.jsp"/>
@@ -17,9 +17,6 @@
         <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/staff/registrations">Back to registrations</a>
         <c:if test="${not view.memberDeleted or sessionScope.sessionUser.role == 'MANAGER'}">
             <a class="btn btn-outline-secondary" href="${pageContext.request.contextPath}/staff/members/detail?id=${reg.memberId}">Member details</a>
-        </c:if>
-        <c:if test="${reg.status == 'PENDING'}">
-            <a class="btn btn-primary" href="${pageContext.request.contextPath}/staff/payments/confirm?id=${reg.id}">Confirm payment</a>
         </c:if>
     </div>
 </div>
@@ -79,7 +76,18 @@
                     </c:when>
                     <c:otherwise>
                         <h2 class="h5 mb-3">Payment</h2>
-                        <p class="mb-0">Awaiting payment. The package schedule is fixed when the payment is confirmed.</p>
+                        <p>Awaiting payment. The package schedule is fixed when the payment is confirmed.</p>
+                        <a class="btn btn-primary mb-4" href="${pageContext.request.contextPath}/staff/payments/confirm?id=${reg.id}">Confirm payment</a>
+                        <form class="m-0" method="post" action="${pageContext.request.contextPath}/staff/registrations/cancel"
+                              onsubmit="return validateCancelForm(this) &amp;&amp; confirm('Cancel this registration?');">
+                            <input type="hidden" name="id" value="${reg.id}">
+                            <label class="form-label" for="reason">Cancel reason</label>
+                            <div class="d-flex gap-2">
+                                <input class="form-control" type="text" id="reason" name="reason"
+                                       placeholder="At least 3 characters" minlength="3" maxlength="255" required>
+                                <button class="btn btn-outline-danger" type="submit">Cancel</button>
+                            </div>
+                        </form>
                     </c:otherwise>
                 </c:choose>
             </div>
