@@ -14,7 +14,6 @@
         <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     </head>
     <body>
-        <a class="visually-hidden-focusable" href="#main-content">Skip to content</a>
         <jsp:include page="/WEB-INF/common/navbar.jsp"/>
         <main class="container py-4" id="main-content">
             <jsp:include page="/WEB-INF/common/messages.jsp"/>
