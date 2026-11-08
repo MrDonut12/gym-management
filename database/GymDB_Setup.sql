@@ -142,7 +142,7 @@ VALUES
     (N'Parker Wilson', '0910000027', 'member027@example.invalid', '1984-02-02', N'Male', 1, '2026-05-22T10:15:00', 4), -- 27: DELETED; PENDING auto-cancelled (restore test)
     (N'Robin Davis', '0910000028', 'member028@example.invalid', '1999-05-05', N'Female', 1, '2026-11-03T14:30:00', 5), -- 28: DELETED, new in November, no registrations
     (N'Skyler Moore', '0910000029', 'member029@example.invalid', '1978-03-15', N'Other', 1, '2026-06-17T11:10:00', 4), -- 29: DELETED; two PENDING auto-cancelled
-    (N'Morgan Smith', '0910000030', 'member030@example.invalid', NULL, NULL, 1, '2026-06-27T15:00:00', 4); -- 30: DELETED; phone reuse check (VR-02)
+    (N'Morgan Smith', '0910000030', 'member030@example.invalid', NULL, NULL, 1, '2026-06-27T15:00:00', 4); -- 30: DELETED; phone reuse check
 
 INSERT INTO dbo.registrations (member_id, package_id, package_name_snapshot, duration_months_snapshot, price_snapshot, status, created_at, created_by, payment_method, paid_at, confirmed_by, start_date, end_date, cancelled_at, cancelled_by, cancel_reason)
 VALUES
