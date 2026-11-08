@@ -47,14 +47,13 @@
     <table class="table table-hover align-middle mb-0">
         <caption class="visually-hidden">Members matching the search</caption>
         <thead class="table-light">
-            <tr><th scope="col">ID</th><th scope="col">Full name</th><th scope="col">Phone</th>
+            <tr><th scope="col">Full name</th><th scope="col">Phone</th>
                 <th scope="col">Membership status</th><th scope="col">Expiry date</th><th scope="col">Actions</th></tr>
         </thead>
         <tbody>
             <c:forEach var="item" items="${page.items}">
                 <tr>
-                    <td class="fw-semibold"><c:out value="${item.member.code}"/></td>
-                    <td>
+                    <td class="fw-semibold">
                         <c:out value="${item.member.fullName}"/>
                         <c:if test="${item.member.deleted}"><span class="badge text-bg-danger ms-1">Soft-deleted</span></c:if>
                     </td>
@@ -67,7 +66,7 @@
                 </tr>
             </c:forEach>
             <c:if test="${empty page.items}">
-                <tr><td colspan="6" class="text-center text-body-secondary py-5">No members found.</td></tr>
+                <tr><td colspan="5" class="text-center text-body-secondary py-5">No members found.</td></tr>
             </c:if>
         </tbody>
     </table>

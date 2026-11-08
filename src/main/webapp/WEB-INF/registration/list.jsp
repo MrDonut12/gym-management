@@ -73,7 +73,7 @@
     <table class="table table-hover align-middle mb-0">
         <caption class="visually-hidden">Registrations matching the filters</caption>
         <thead class="table-light">
-            <tr><th scope="col">Code</th><th scope="col">Member</th><th scope="col">Package (snapshot)</th>
+            <tr><th scope="col">Member</th><th scope="col">Package (snapshot)</th>
                 <th scope="col" class="text-end">Amount (VND)</th><th scope="col">Status</th><th scope="col">Method</th>
                 <th scope="col">Created at</th><th scope="col">Paid at</th><th scope="col">Start - End</th>
                 <th scope="col">Actions</th></tr>
@@ -82,15 +82,13 @@
             <c:forEach var="item" items="${result.items}">
                 <c:set var="reg" value="${item.registration}"/>
                 <tr>
-                    <td class="fw-semibold text-nowrap"><c:out value="${reg.code}"/></td>
                     <td>
                         <c:choose>
                             <c:when test="${not item.memberDeleted or isManager}">
-                                <a href="${pageContext.request.contextPath}/staff/members/detail?id=${reg.memberId}"><c:out value="${item.memberCode}"/></a>
+                                <a href="${pageContext.request.contextPath}/staff/members/detail?id=${reg.memberId}"><c:out value="${item.memberName}"/></a>
                             </c:when>
-                            <c:otherwise><c:out value="${item.memberCode}"/></c:otherwise>
+                            <c:otherwise><c:out value="${item.memberName}"/></c:otherwise>
                         </c:choose>
-                        - <c:out value="${item.memberName}"/>
                         <c:if test="${item.memberDeleted}"><span class="badge text-bg-danger ms-1">Soft-deleted</span></c:if>
                         <div class="hint"><c:out value="${item.memberPhone}"/></div>
                     </td>
@@ -136,7 +134,7 @@
                 </tr>
             </c:forEach>
             <c:if test="${empty result.items}">
-                <tr><td colspan="10" class="text-center text-body-secondary py-5">No registrations found.</td></tr>
+                <tr><td colspan="9" class="text-center text-body-secondary py-5">No registrations found.</td></tr>
             </c:if>
         </tbody>
     </table>

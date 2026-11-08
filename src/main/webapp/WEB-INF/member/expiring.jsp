@@ -20,14 +20,13 @@
     <table class="table table-hover align-middle mb-0">
         <caption class="visually-hidden">Members whose package expires within 7 days</caption>
         <thead class="table-light">
-            <tr><th scope="col">ID</th><th scope="col">Full name</th><th scope="col">Phone</th><th scope="col">Package</th>
+            <tr><th scope="col">Full name</th><th scope="col">Phone</th><th scope="col">Package</th>
                 <th scope="col">Expiry date</th><th scope="col">Days left</th><th scope="col">Actions</th></tr>
         </thead>
         <tbody>
             <c:forEach var="item" items="${members}">
                 <tr>
-                    <td class="fw-semibold"><c:out value="${item.member.code}"/></td>
-                    <td><c:out value="${item.member.fullName}"/></td>
+                    <td class="fw-semibold"><c:out value="${item.member.fullName}"/></td>
                     <td><c:out value="${item.member.phone}"/></td>
                     <td><c:out value="${item.packageName}"/></td>
                     <td class="text-nowrap"><c:if test="${not empty item.endDate}"><c:out value="${DateTimeUtil.format(item.endDate)}"/></c:if></td>
@@ -36,7 +35,7 @@
                 </tr>
             </c:forEach>
             <c:if test="${empty members}">
-                <tr><td colspan="7" class="text-center text-body-secondary py-5">No members are expiring in the next 7 days.</td></tr>
+                <tr><td colspan="6" class="text-center text-body-secondary py-5">No members are expiring in the next 7 days.</td></tr>
             </c:if>
         </tbody>
     </table>

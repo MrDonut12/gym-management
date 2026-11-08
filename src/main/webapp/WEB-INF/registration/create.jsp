@@ -35,12 +35,12 @@
             </c:if>
             <c:if test="${not empty selected}">
                 <option value="${selected.id}" selected>
-                    <c:out value="${selected.code} - ${selected.fullName} - ${selected.phone}"/>
+                    <c:out value="${selected.fullName} - ${selected.phone}"/>
                 </option>
             </c:if>
             <c:forEach var="m" items="${requestScope.members}">
                 <c:if test="${empty selected or m.id != selected.id}">
-                    <option value="${m.id}"><c:out value="${m.code} - ${m.fullName} - ${m.phone}"/></option>
+                    <option value="${m.id}"><c:out value="${m.fullName} - ${m.phone}"/></option>
                 </c:if>
             </c:forEach>
         </select>

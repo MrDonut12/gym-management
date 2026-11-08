@@ -43,7 +43,7 @@
                     <dt class="col-sm-5">Code</dt><dd class="col-sm-7"><c:out value="${reg.code}"/></dd>
                     <dt class="col-sm-5">Member</dt>
                     <dd class="col-sm-7">
-                        <c:out value="${view.memberCode}"/> - <c:out value="${view.memberName}"/>
+                        <c:out value="${view.memberName}"/>
                         <c:if test="${view.memberDeleted}"><span class="badge text-bg-danger ms-1">Soft-deleted</span></c:if>
                     </dd>
                     <dt class="col-sm-5">Phone</dt><dd class="col-sm-7"><c:out value="${view.memberPhone}"/></dd>
